@@ -1,0 +1,3 @@
+C:/Users/tiafa/source/repos/GameEngine/GameEngine/build/CMakeFiles/GameEngine.dir
+C:/Users/tiafa/source/repos/GameEngine/GameEngine/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/tiafa/source/repos/GameEngine/GameEngine/build/CMakeFiles/ZERO_CHECK.dir
