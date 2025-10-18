@@ -1,14 +1,16 @@
 // GameEngine.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
 #include <iostream>
-
+// #include <CoreEngine.h> // Commented out because file is missing or not found
+#include "../include/Engine.h"
+#include <btBulletDynamicsCommon.h> // Bullet Physics library header
 int main()
 {
-    std::cout << "Hello World!\n";
+    test123();
+ 
 }
 
-//testComment
+//testCommentS
 // AnotherTestComment
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
