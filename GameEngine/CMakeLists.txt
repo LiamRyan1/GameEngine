@@ -7,6 +7,13 @@ find_package(Bullet REQUIRED)
 message(STATUS "BULLET_LIBRARIES: ${BULLET_LIBRARIES}")
 message(STATUS "BULLET_INCLUDE_DIRS: ${BULLET_INCLUDE_DIRS}")
 
+find_package(glfw3 REQUIRED)
+message(STATUS "GLFW3_FOUND: ${glfw3_FOUND}")
+
+find_package(OpenGL REQUIRED)
+message(STATUS "OPENGL_FOUND: ${OPENGL_FOUND}")
+message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
+
 add_executable(GameEngine)
 
 
@@ -16,4 +23,6 @@ target_sources(GameEngine PRIVATE
 )
 target_include_directories(GameEngine PRIVATE include)
 target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})
-target_link_libraries(GameEngine ${BULLET_LIBRARIES})
+target_link_libraries(GameEngine ${BULLET_LIBRARIES}
+	glfw
+	OpenGL::GL)
