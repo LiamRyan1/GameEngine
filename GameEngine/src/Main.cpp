@@ -2,7 +2,7 @@
 #include "../include/Engine.h"
 int main()
 {
-    test123();
+    Start();
 }
 
 //testCommentS
