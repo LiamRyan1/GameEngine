@@ -14,15 +14,20 @@ find_package(OpenGL REQUIRED)
 message(STATUS "OPENGL_FOUND: ${OPENGL_FOUND}")
 message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 
+find_package(glm REQUIRED)
+message(STATUS "GLM_FOUND: ${glm_FOUND}") 
+
 add_executable(GameEngine)
 
 
 target_sources(GameEngine PRIVATE
 	src/Main.cpp
 	src/Engine.cpp
+	src/Camera.cpp
 )
 target_include_directories(GameEngine PRIVATE include)
 target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})
 target_link_libraries(GameEngine ${BULLET_LIBRARIES}
 	glfw
-	OpenGL::GL)
+	OpenGL::GL
+	glm::glm)
