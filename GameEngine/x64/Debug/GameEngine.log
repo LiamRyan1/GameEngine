@@ -1,17 +1,4 @@
-﻿  Main.cpp
-  Engine.cpp
-  Generating Code...
-Engine.obj : error LNK2019: unresolved external symbol __imp_glBegin referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol __imp_glClear referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol __imp_glColor3f referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol __imp_glEnd referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol __imp_glGetString referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol __imp_glVertex2f referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwInit referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwTerminate referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwCreateWindow referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwWindowShouldClose referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwPollEvents referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwMakeContextCurrent referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol glfwSwapBuffers referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
-C:\Users\radek\source\repos\GameEngine\x64\Debug\GameEngine.exe : fatal error LNK1120: 13 unresolved externals
+﻿  Engine.cpp
+  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
