@@ -1,23 +1,59 @@
 #include <iostream>
 #include "../include/Engine.h"
 #include <btBulletDynamicsCommon.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "../include/Renderer.h"
 
 int Start(void)
 {
     GLFWwindow* window;
 
     if (!glfwInit())
+    {
+        std::cout << "Failed to init GLFW" << std::endl;
         return -1;
+    }
 
-    window = glfwCreateWindow(640, 480, "Triangle", NULL, NULL);
+    std::cout << "GLFW initialized" << std::endl;
+
+    // Request OpenGL 3.3 Core Profile
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
+    window = glfwCreateWindow(640, 480, "Game Engine", NULL, NULL);
     if (!window)
     {
+        std::cout << "Failed to create window" << std::endl;
         glfwTerminate();
         return -1;
     }
 
+    std::cout << "Window created" << std::endl;
+
     glfwMakeContextCurrent(window);
+
+    std::cout << "Initializing GLEW..." << std::endl;
+    glewExperimental = GL_TRUE;
+    GLenum err = glewInit();
+    if (err != GLEW_OK)
+    {
+        std::cout << "GLEW Error: " << glewGetErrorString(err) << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    std::cout << "GLEW initialized successfully" << std::endl;
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+    // Create and initialize renderer
+    std::cout << "Creating renderer..." << std::endl;
+    Renderer renderer;
+    std::cout << "Initializing renderer..." << std::endl;
+    renderer.initialize();
+    std::cout << "Renderer initialized, entering main loop" << std::endl;
 
     // Window State Tracking
     // Read and store the initial state.
@@ -82,24 +118,17 @@ int Start(void)
             lastFbW = fbW;
             lastFbH = fbH;
         }
+        glfwPollEvents();
 
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glBegin(GL_TRIANGLES);
-        glColor3f(1.0f, 0.0f, 0.0f);  // Red vertex
-        glVertex2f(-0.5f, -0.5f);
-
-        glColor3f(0.0f, 1.0f, 0.0f);  // Green vertex
-        glVertex2f(0.5f, -0.5f);
-
-        glColor3f(0.0f, 0.0f, 1.0f);  // Blue vertex
-        glVertex2f(0.0f, 0.5f);
-        glEnd();
+        // Render
+        renderer.draw();
+        
 
         glfwSwapBuffers(window);
-        
     }
 
+    std::cout << "Exiting..." << std::endl;
+    renderer.cleanup();
     glfwTerminate();
     return 0;
 }
