@@ -2,12 +2,13 @@
 #define RENDERER_H
 
 #include <GLFW/glfw3.h>
-
+#include "../include/Camera.h"
 class Renderer {
 private:
     unsigned int VAO;  // Vertex Array Object
     unsigned int VBO;  // Vertex Buffer Object
     unsigned int shaderProgram;  // Shader program ID
+	Camera camera; //Camera instance
 
     // Helper functions
     void setupTriangle();
@@ -19,8 +20,10 @@ public:
     ~Renderer();
 
     void initialize();
-    void draw();
+	//take window width and height to calculate aspect ratio for projection matrix
+    void draw(int windowWidth, int windowHeight);
     void cleanup();
+    Camera& getCamera() { return camera; }
 };
 
 #endif // RENDERER_H

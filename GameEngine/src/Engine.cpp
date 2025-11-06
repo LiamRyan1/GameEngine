@@ -48,6 +48,9 @@ int Start(void)
     std::cout << "GLEW initialized successfully" << std::endl;
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
+	//Set clear color(background color)
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
     // Create and initialize renderer
     std::cout << "Creating renderer..." << std::endl;
     Renderer renderer;
@@ -117,11 +120,13 @@ int Start(void)
             // Has the Framebuffer size changed
             lastFbW = fbW;
             lastFbH = fbH;
+			//upfate viewport to match new framebuffer size
+            glViewport(0, 0, fbW, fbH);
         }
         glfwPollEvents();
 
-        // Render
-        renderer.draw();
+		// Render with updated dimensions
+        renderer.draw(fbW, fbH);
         
 
         glfwSwapBuffers(window);
