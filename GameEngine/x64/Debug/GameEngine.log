@@ -1,5 +1,11 @@
-﻿  Renderer.cpp
-  LINK : C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe not found or not built by the last incremental link; performing full link
-  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
+﻿  Camera.cpp
+  Main.cpp
+  Engine.cpp
+  Renderer.cpp
+  Transform.cpp
+C:\Users\User\Documents\GitHub\GameEngine\GameEngine\src\Renderer.cpp(127,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\GitHub\GameEngine\GameEngine\src\Renderer.cpp(128,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  GameEngine.vcxproj -> C:\Users\User\Documents\GitHub\GameEngine\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

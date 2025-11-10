@@ -27,6 +27,7 @@ target_sources(GameEngine PRIVATE
 	src/Main.cpp
 	src/Engine.cpp
 	src/Camera.cpp
+	src/Transform.cpp
 	src/Renderer.cpp
 )
 target_include_directories(GameEngine PRIVATE include)

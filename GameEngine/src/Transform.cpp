@@ -1,6 +1,5 @@
 
-#ifndef TRANSFORM_H
-#define TRANSFORM_H
+#include "../include/Transform.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -35,4 +34,3 @@ namespace Transform {
 		return model;
 	}
 }
-#endif //TRANSFORM_H
