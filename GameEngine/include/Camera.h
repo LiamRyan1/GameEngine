@@ -23,5 +23,19 @@ public:
     glm::mat4 getProjectionMatrix(float aspectRatio,
         float nearPlane = 0.1f,
         float farPlane = 100.0f) const;
+
+    //setters for updating camera position 
+    void setPosition(const glm::vec3& pos) {
+        position = pos;
+    }
+    void setFront(const glm::vec3& dir) {
+        front = glm::normalize(dir);
+    }
+    void setUp(const glm::vec3& updir) {
+        up = glm::normalize(updir);
+    }
+    void setFov(float newFov) {
+        fov = newFov;
+    }
 };
 #endif //camera_h

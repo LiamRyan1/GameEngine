@@ -15,7 +15,6 @@ Camera::Camera(const glm::vec3& pos,
     // Empty body - all initialization done in initializer list
 }
 
-
 glm::mat4 Camera::getViewMatrix() const {
 	//position of camera, target (position + front), up vector (where i am,what im looking at , which way is up)
 	return glm::lookAt(position, position + front, up);

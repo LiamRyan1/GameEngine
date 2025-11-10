@@ -112,13 +112,27 @@ void Renderer::draw(int windowWidth, int windowHeight) {
     
     //enable depth testing
     glEnable(GL_DEPTH_TEST);
-
+    
     // Use shader program
     glUseProgram(shaderProgram);
 
 	//get aspect ratio from camera
     float aspectRatio = (float)windowWidth / (float)windowHeight;
 	//get camera view and projection matrices
+    
+    //get camera postion
+    //distance from origin
+    const float radius = 5.0f;
+    //update x and z every second the window is intialised to rotate in x and z around the orgin 
+    float camX = sin(glfwGetTime()) * radius;
+    float camZ = cos(glfwGetTime()) * radius;
+
+    camera.setPosition(glm::vec3(camX,0.0f,camZ));
+    glm::vec3 pointAt = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 faceDirection = pointAt - glm::vec3(camX, 0.0f, camZ);
+    camera.setFront(faceDirection);
+
+
 
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
