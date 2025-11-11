@@ -1,9 +1,24 @@
-#include <iostream>
+ï»¿#include <iostream>
+#include <chrono>
 #include "../include/Engine.h"
 #include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "../include/Renderer.h"
+
+
+void simulate(double dt)
+{
+    static double totalTime = 0.0;
+    totalTime += dt;
+
+    // Print message every simulated second
+    if (static_cast<int>(totalTime) % 1 == 0)
+    {
+        // Placeholder for future physics updates
+        // std::cout << "Simulating at t = " << totalTime << "s" << std::endl;
+    }
+}
 
 int Start(void)
 {
@@ -22,7 +37,6 @@ int Start(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
     window = glfwCreateWindow(640, 480, "Game Engine", NULL, NULL);
     if (!window)
     {
@@ -32,7 +46,6 @@ int Start(void)
     }
 
     std::cout << "Window created" << std::endl;
-
     glfwMakeContextCurrent(window);
 
     std::cout << "Initializing GLEW..." << std::endl;
@@ -48,87 +61,80 @@ int Start(void)
     std::cout << "GLEW initialized successfully" << std::endl;
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	//Set clear color(background color)
+    // Set background color
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
     // Create and initialize renderer
-    std::cout << "Creating renderer..." << std::endl;
     Renderer renderer;
-    std::cout << "Initializing renderer..." << std::endl;
     renderer.initialize();
-    std::cout << "Renderer initialized, entering main loop" << std::endl;
 
-    // Window State Tracking
-    // Read and store the initial state.
+    // --- Window tracking ---
     bool isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
     bool isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE;
-
-    int winW = 0, winH = 0;   // window size in screen coords (points)
-    int fbW = 0, fbH = 0;   // framebuffer size in pixels (for renderer later)
-    // Setting to 0 prevents using uninitialized memory. GLFW updates them to 640, 480.
-    // Seeing 0×0 in your logs tells you window size wasn’t retrieved.
-
-    // Get the current logical window size in screen coordinates (points)
-    // This is how big the window appears on screen. & is a pointer
+    int winW = 0, winH = 0, fbW = 0, fbH = 0;
     glfwGetWindowSize(window, &winW, &winH);
-
-    // The framebuffer is the block of memory where OpenGL draws the final image each frame.
-    // It represents the actual pixels that get displayed on the window.
     glfwGetFramebufferSize(window, &fbW, &fbH);
 
-    // https://www.glfw.org/docs/3.3/
+    // --- Fixed timestep setup ---
+    using clock = std::chrono::high_resolution_clock; // Timer
+    auto currentTime = clock::now(); // Stores the start time of the loop
+    double t = 0.0; // Total time that has passed
+    const double dt = 1.0 / 60.0; // Fixed timestep 60fps
+    double accumulator = 0.0; // Collects the elapsed time to decide when to run the next physics update
 
-    // Keep last-known copies for change detection.
-    // GLFW doesn't store history, only holds current values.
-    bool lastFocused = isFocused; // Remember if the window was focused
-    bool lastMinimized = isMinimized; // Remember if the window was minimized
-    int  lastWinW = winW, lastWinH = winH; // Remember last known window size (points)
-    int  lastFbW = fbW, lastFbH = fbH; // Remember last known framebuffer size (pixels)
+    // Counters for testing
+    double physicsTime = 0.0;
+    int physicsSteps = 0;
+
+    std::cout << "Renderer initialized, entering main loop" << std::endl;
 
     while (!glfwWindowShouldClose(window))
     {
-        // Check for window and input events
+        // --- Frame timing ---
+        // =======================
+        // Measure how long the last frame took
+        auto newTime = clock::now();
+        // Calculate how much real time passed since the last frame
+        std::chrono::duration<double> frameDuration = newTime - currentTime;
+        // Convert that duration into seconds (as a double value)
+        double frameTime = frameDuration.count();
+        // Update the stored "current time" for the next frame
+        currentTime = newTime;
+
+        // Limit max frame time to 0.25s
+        if (frameTime > 0.25)
+            frameTime = 0.25; // Prevent spiral of death
+
+        // Add the elapsed frame time into the accumulator
+        accumulator += frameTime;
+
+        // --- Fixed timestep updates ---
+        // ====================
+        // Run physics updates in fixed 1/60s steps until caught up with real time
+        while (accumulator >= dt)
+        {
+            simulate(dt); // advance simulation by one fixed step
+            accumulator -= dt; // remove one stepâ€™s worth of time from the bucket
+            t += dt; // track total simulated time
+            physicsSteps++; // count how many physics updates ran this second
+        }
+
+        // ========================
+        // Print how many physics steps occurred every second
+        physicsTime += frameTime;
+        if (physicsTime >= 1.0)
+        {
+            std::cout << "Physics steps per second: " << physicsSteps << std::endl;
+            physicsTime = 0.0;
+            physicsSteps = 0;
+        }
+
+        // --- Window and input events ---
         glfwPollEvents();
+        glfwGetFramebufferSize(window, &fbW, &fbH);
 
-        // Get current window info
-        isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE; // check if window is active
-        isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE; // check if window is minimized
-        glfwGetWindowSize(window, &winW, &winH);    // window size on screen
-        glfwGetFramebufferSize(window, &fbW, &fbH); // pixel size for rendering
-
-        // Compare with last frame to see if anything changed
-        if (isFocused != lastFocused) {
-            // Is the window still the focus
-            // Later could potentially pause when the window loses focus
-            lastFocused = isFocused;
-        }
-
-        if (isMinimized != lastMinimized) {
-            // Has the window been minimized
-            // Later could potentially pause the window if it get minimized
-            lastMinimized = isMinimized;
-        }
-
-        if (winW != lastWinW || winH != lastWinH) {
-            // Has the window size been changed
-            // If it has the renderer needs to be notified
-            lastWinW = winW;
-            lastWinH = winH;
-        }
-
-        if (fbW != lastFbW || fbH != lastFbH) {
-            // Has the Framebuffer size changed
-            lastFbW = fbW;
-            lastFbH = fbH;
-			//upfate viewport to match new framebuffer size
-            glViewport(0, 0, fbW, fbH);
-        }
-        glfwPollEvents();
-
-		// Render with updated dimensions
+        // --- Render ---
         renderer.draw(fbW, fbH);
-        
-
         glfwSwapBuffers(window);
     }
 
@@ -137,6 +143,3 @@ int Start(void)
     glfwTerminate();
     return 0;
 }
-
-// https://gafferongames.com/post/fix_your_timestep/
-// https://en.cppreference.com/w/cpp/header/chrono.html
