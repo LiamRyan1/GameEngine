@@ -1,1 +1,7 @@
-﻿  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
+﻿  Renderer.cpp
+C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Renderer.cpp(150,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Renderer.cpp(151,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  LINK : C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe not found or not built by the last incremental link; performing full link
+  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
