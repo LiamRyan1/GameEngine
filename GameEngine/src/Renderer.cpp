@@ -169,6 +169,10 @@ void Renderer::draw(int windowWidth, int windowHeight) {
         0.0f,                          // Rotation angle: 0 degrees (no rotation)
         glm::vec3(1.0f, 1.0f, 1.0f)   // Scale: normal size (1x in all dimensions)
     );
+    //imagine a point at 0, 1, 0 and another at 0, 0, 0 draw a line between them that is the axis
+    //that line is the y axis around which the triangle will rotate 
+    //i.e if the triangle was rotated it would spin around that line to whatever angle is specified
+  
 
     // Get uniform locations (addresses) in the shader program
     // These are where we'll send our transformation matrices
