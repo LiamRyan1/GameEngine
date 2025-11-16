@@ -130,6 +130,8 @@ void Renderer::draw(int windowWidth, int windowHeight) {
     // Skip rendering if the window is minimized (height = 0)
     if (windowHeight == 0)
         return;
+	//ensure viewport matches window size
+    glViewport(0, 0, windowWidth, windowHeight);
 
     // Clear color and depth buffers from previous frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
