@@ -170,6 +170,13 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
 
 // Main render function - called every frame to draw the scene
 void Renderer::draw(int windowWidth, int windowHeight) {
+
+    // Skip rendering if the window is minimized (height = 0)
+    if (windowHeight == 0)
+        return;
+	//ensure viewport matches window size
+    glViewport(0, 0, windowWidth, windowHeight);
+
     // Clear color and depth buffers from previous frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -208,6 +215,10 @@ void Renderer::draw(int windowWidth, int windowHeight) {
         0.0f,                          // Rotation angle: 0 degrees (no rotation)
         glm::vec3(1.0f, 1.0f, 1.0f)   // Scale: normal size (1x in all dimensions)
     );
+    //imagine a point at 0, 1, 0 and another at 0, 0, 0 draw a line between them that is the axis
+    //that line is the y axis around which the triangle will rotate 
+    //i.e if the triangle was rotated it would spin around that line to whatever angle is specified
+  
 
     // Get uniform locations (addresses) in the shader program
     // These are where we'll send our transformation matrices
