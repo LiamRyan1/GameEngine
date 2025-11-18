@@ -36,6 +36,14 @@ public:
     glm::mat4 getProjectionMatrix(float aspectRatio,
         float nearPlane = 0.1f,
         float farPlane = 100.0f) const;
+    
+	//movement methods
+    void moveForward(float distance);
+    void moveRight(float distance);
+    void moveUp(float distance);
+
+    //rotation method 
+    void rotate(float dx, float dy);
 
     // Getters for testing and external use
     glm::vec3 getPosition() const { return position; }

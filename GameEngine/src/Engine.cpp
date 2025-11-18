@@ -185,6 +185,7 @@ int Start(void)
         glm::vec3 direction = glm::normalize(glm::vec3(0.0f) - camera.getPosition());
 
 		//update yaw and pitch based on direction vector towards origin
+		//convert cartesian direction vectors to radians and then to degrees
         float yaw = glm::degrees(atan2(direction.z, direction.x));
         float pitch = glm::degrees(asin(direction.y));
 		//set the new yaw and pitch and update camera vectors

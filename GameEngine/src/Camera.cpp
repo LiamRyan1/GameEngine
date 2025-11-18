@@ -56,7 +56,27 @@ void Camera::updateCameraVectors() {
     up = glm::normalize(glm::cross(right, front));
 }
 //movement methods
+void Camera::moveForward(float distance) {
+    position += front * distance;
+}
+
+void Camera::moveRight(float distance) {
+    position += right * distance;
+}
+
+void Camera::moveUp(float distance) {
+    position += up * distance;
+}
+
 //rotation
+void Camera::rotate(float dx, float dy) {
+    yaw += dx;
+    pitch += dy;
+
+	//update the camera vectors based on the new yaw and pitch values
+    updateCameraVectors();
+}
+
 
 //setters
 void Camera::setPosition(const glm::vec3& pos) {
