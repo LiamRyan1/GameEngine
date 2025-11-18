@@ -1,4 +1,6 @@
-﻿  Input.cpp
+﻿  Engine.cpp
+  Input.cpp
+  Generating Code...
   GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngine\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
