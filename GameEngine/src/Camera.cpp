@@ -6,14 +6,14 @@
 //public constructor with default parameters for position, world up and field of view, yaw and pitch of camera 
 Camera::Camera(const glm::vec3& pos,
     const glm::vec3& upDir,
+    float fieldOfView,
     float yawAngle,
-    float pitchAngle,
-    float fieldOfView)
+    float pitchAngle)
     : position(pos),       // Initialize camera position
 	worldUp(upDir), //world up direction
-    yaw(yawAngle),      
-	pitch(pitchAngle),	 // Initialize pitch angle         
-    fov(fieldOfView) {   // Initialize field of view
+    fov(fieldOfView), //Initialize field of view
+	yaw(yawAngle),      //initialize yaw angle
+	pitch(pitchAngle){  
     updateCameraVectors();
 }
 
@@ -57,8 +57,6 @@ void Camera::updateCameraVectors() {
 }
 //movement methods
 //rotation
-
-
 
 //setters
 void Camera::setPosition(const glm::vec3& pos) {

@@ -103,6 +103,7 @@ int Start(void)
     Camera camera(
         glm::vec3(0.0f, 0.0f, 5.0f),  //Position
         glm::vec3(0.0f, 1.0f, 0.0f),  //World up
+		45.0f,                         //FOV
         -90.0f,                        //Yaw
         0.0f                           //Pitch
     );
