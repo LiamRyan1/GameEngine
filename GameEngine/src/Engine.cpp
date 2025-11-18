@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "../include/Renderer.h"
+#include "../include/Input.h"
 
 
 void simulate(double dt)
@@ -19,6 +20,31 @@ void simulate(double dt)
         // std::cout << "Simulating at t = " << totalTime << "s" << std::endl;
     }
 }
+
+static bool keysDown[1024] = { false };       // is currently down
+static bool keysPressed[1024] = { false };    // was pressed this frame
+static bool keysReleased[1024] = { false };   // was released this frame
+
+// This function updates the key states every time a key is pressed or released
+// so the engine knows exactly what happened.
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    // Cant press a key out of bounds
+    if (key < 0 || key >= 1024) return;
+
+    if (action == GLFW_PRESS)
+    {
+        if (!keysDown[key])
+            keysPressed[key] = true; // just pressed
+        keysDown[key] = true;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        keysDown[key] = false;
+        keysReleased[key] = true; // just released
+    }
+}
+
 
 int Start(void)
 {
@@ -45,6 +71,8 @@ int Start(void)
         return -1;
     }
 
+    glfwSetKeyCallback(window, keyCallback);
+
     std::cout << "Window created" << std::endl;
     glfwMakeContextCurrent(window);
 
@@ -60,6 +88,9 @@ int Start(void)
 
     std::cout << "GLEW initialized successfully" << std::endl;
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+    // Initialize Input System
+    Input::Initialize(window);
 
     // Set background color
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -90,6 +121,9 @@ int Start(void)
 
     while (!glfwWindowShouldClose(window))
     {
+        // Reset per-frame input states
+        Input::BeginFrame();
+
         // --- Frame timing ---
         // =======================
         // Measure how long the last frame took
@@ -132,6 +166,16 @@ int Start(void)
         // --- Window and input events ---
         glfwPollEvents();
         glfwGetFramebufferSize(window, &fbW, &fbH);
+
+        // --- TEST INPUT ---
+        if (Input::GetKeyPressed(GLFW_KEY_SPACE))
+            std::cout << "SPACE pressed\n";
+
+        if (Input::GetKeyDown(GLFW_KEY_SPACE))
+            std::cout << "SPACE held\n";
+
+        if (Input::GetKeyReleased(GLFW_KEY_SPACE))
+            std::cout << "SPACE released\n";
 
         // --- Render ---
         renderer.draw(fbW, fbH);

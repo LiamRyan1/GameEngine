@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -140,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Engine.h" />
+    <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Transform.h" />
   </ItemGroup>
