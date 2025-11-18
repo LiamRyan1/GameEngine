@@ -1,7 +1,53 @@
-﻿  Renderer.cpp
-C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Renderer.cpp(150,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Renderer.cpp(151,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  LINK : C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe not found or not built by the last incremental link; performing full link
-  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+﻿  Camera.cpp
+  Main.cpp
+  Engine.cpp
+  Renderer.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Renderer.cpp(189,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Renderer.cpp(190,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Transform.cpp
+  Generating Code...
+Engine.obj : error LNK2019: unresolved external symbol __imp_glClearColor referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol __imp_glGetString referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol __imp_glewInit referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol __imp_glewGetErrorString referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwInit referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwTerminate referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwWindowHint referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwCreateWindow referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwWindowShouldClose referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwGetWindowSize referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwGetFramebufferSize referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwGetWindowAttrib referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwPollEvents referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwMakeContextCurrent referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol glfwSwapBuffers referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Engine.obj : error LNK2019: unresolved external symbol __imp_glewExperimental referenced in function "int __cdecl Start(void)" (?Start@@YAHXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp_glClear referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp_glDrawArrays referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp_glEnable referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol glfwGetTime referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewBindBuffer referenced in function "private: void __cdecl Renderer::setupCube(void)" (?setupCube@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewBufferData referenced in function "private: void __cdecl Renderer::setupCube(void)" (?setupCube@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewDeleteBuffers referenced in function "public: void __cdecl Renderer::cleanup(void)" (?cleanup@Renderer@@QEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGenBuffers referenced in function "private: void __cdecl Renderer::setupCube(void)" (?setupCube@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewAttachShader referenced in function "private: void __cdecl Renderer::setupShaders(void)" (?setupShaders@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewCompileShader referenced in function "private: unsigned int __cdecl Renderer::compileShader(unsigned int,char const *)" (?compileShader@Renderer@@AEAAIIPEBD@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewCreateProgram referenced in function "private: void __cdecl Renderer::setupShaders(void)" (?setupShaders@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewCreateShader referenced in function "private: unsigned int __cdecl Renderer::compileShader(unsigned int,char const *)" (?compileShader@Renderer@@AEAAIIPEBD@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewDeleteProgram referenced in function "public: void __cdecl Renderer::cleanup(void)" (?cleanup@Renderer@@QEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewDeleteShader referenced in function "private: void __cdecl Renderer::setupShaders(void)" (?setupShaders@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewEnableVertexAttribArray referenced in function "private: void __cdecl Renderer::setupCube(void)" (?setupCube@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGetProgramInfoLog referenced in function "private: void __cdecl Renderer::setupShaders(void)" (?setupShaders@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGetProgramiv referenced in function "private: void __cdecl Renderer::setupShaders(void)" (?setupShaders@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGetShaderInfoLog referenced in function "private: unsigned int __cdecl Renderer::compileShader(unsigned int,char const *)" (?compileShader@Renderer@@AEAAIIPEBD@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGetShaderiv referenced in function "private: unsigned int __cdecl Renderer::compileShader(unsigned int,char const *)" (?compileShader@Renderer@@AEAAIIPEBD@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGetUniformLocation referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewLinkProgram referenced in function "private: void __cdecl Renderer::setupShaders(void)" (?setupShaders@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewShaderSource referenced in function "private: unsigned int __cdecl Renderer::compileShader(unsigned int,char const *)" (?compileShader@Renderer@@AEAAIIPEBD@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewUniformMatrix4fv referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewUseProgram referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewVertexAttribPointer referenced in function "private: void __cdecl Renderer::setupCube(void)" (?setupCube@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewBindVertexArray referenced in function "public: void __cdecl Renderer::draw(int,int)" (?draw@Renderer@@QEAAXHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewDeleteVertexArrays referenced in function "public: void __cdecl Renderer::cleanup(void)" (?cleanup@Renderer@@QEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol __imp___glewGenVertexArrays referenced in function "private: void __cdecl Renderer::setupCube(void)" (?setupCube@Renderer@@AEAAXXZ)
+C:\Users\radek\source\repos\GameEngine\x64\Debug\GameEngine.exe : fatal error LNK1120: 44 unresolved externals

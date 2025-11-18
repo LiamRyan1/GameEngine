@@ -18,17 +18,61 @@ Renderer::~Renderer() {
 // Main initialization function - sets up shaders and geometry
 void Renderer::initialize() {
     setupShaders();
-    setupTriangle();
+    setupCube();  // Changed from setupTriangle to setupCube
 }
 
-// Creates and configures a simple triangle mesh for rendering
-void Renderer::setupTriangle() {
-    // Define triangle vertices in Normalized Device Coordinates (NDC)
-    // Each vertex has 3 floats: x, y, z position
+// Creates and configures a 3D cube mesh for rendering
+void Renderer::setupCube() {
+    // Define cube vertices - 36 vertices (6 faces * 2 triangles * 3 vertices)
+    // Each face is made of 2 triangles, defined in counter-clockwise order
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,  // bottom left vertex
-         0.5f, -0.5f, 0.0f,  // bottom right vertex
-         0.0f,  0.5f, 0.0f   // top vertex
+        // Front face (Z+)
+        -0.5f, -0.5f,  0.5f,  // bottom left
+         0.5f, -0.5f,  0.5f,  // bottom right
+         0.5f,  0.5f,  0.5f,  // top right
+         0.5f,  0.5f,  0.5f,  // top right
+        -0.5f,  0.5f,  0.5f,  // top left
+        -0.5f, -0.5f,  0.5f,  // bottom left
+
+        // Back face (Z-)
+        -0.5f, -0.5f, -0.5f,  // bottom left
+        -0.5f,  0.5f, -0.5f,  // top left
+         0.5f,  0.5f, -0.5f,  // top right
+         0.5f,  0.5f, -0.5f,  // top right
+         0.5f, -0.5f, -0.5f,  // bottom right
+        -0.5f, -0.5f, -0.5f,  // bottom left
+
+        // Left face (X-)
+        -0.5f,  0.5f,  0.5f,  // top front
+        -0.5f,  0.5f, -0.5f,  // top back
+        -0.5f, -0.5f, -0.5f,  // bottom back
+        -0.5f, -0.5f, -0.5f,  // bottom back
+        -0.5f, -0.5f,  0.5f,  // bottom front
+        -0.5f,  0.5f,  0.5f,  // top front
+
+        // Right face (X+)
+         0.5f,  0.5f,  0.5f,  // top front
+         0.5f, -0.5f,  0.5f,  // bottom front
+         0.5f, -0.5f, -0.5f,  // bottom back
+         0.5f, -0.5f, -0.5f,  // bottom back
+         0.5f,  0.5f, -0.5f,  // top back
+         0.5f,  0.5f,  0.5f,  // top front
+
+         // Top face (Y+)
+         -0.5f,  0.5f, -0.5f,  // back left
+         -0.5f,  0.5f,  0.5f,  // front left
+          0.5f,  0.5f,  0.5f,  // front right
+          0.5f,  0.5f,  0.5f,  // front right
+          0.5f,  0.5f, -0.5f,  // back right
+         -0.5f,  0.5f, -0.5f,  // back left
+
+         // Bottom face (Y-)
+         -0.5f, -0.5f, -0.5f,  // back left
+          0.5f, -0.5f, -0.5f,  // back right
+          0.5f, -0.5f,  0.5f,  // front right
+          0.5f, -0.5f,  0.5f,  // front right
+         -0.5f, -0.5f,  0.5f,  // front left
+         -0.5f, -0.5f, -0.5f   // back left
     };
 
     // Generate Vertex Array Object (VAO) - stores vertex attribute configuration
@@ -126,11 +170,6 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
 
 // Main render function - called every frame to draw the scene
 void Renderer::draw(int windowWidth, int windowHeight) {
-
-    // Skip rendering if the window is minimized (height = 0)
-    if (windowHeight == 0)
-        return;
-
     // Clear color and depth buffers from previous frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -153,7 +192,7 @@ void Renderer::draw(int windowWidth, int windowHeight) {
     // Update camera position (orbiting at Y=0)
     camera.setPosition(glm::vec3(camX, 0.0f, camZ));
 
-    // Make camera look at the origin (where the triangle is)
+    // Make camera look at the origin (where the cube is)
     glm::vec3 pointAt = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 faceDirection = pointAt - glm::vec3(camX, 0.0f, camZ);
     camera.setFront(faceDirection);
@@ -162,7 +201,7 @@ void Renderer::draw(int windowWidth, int windowHeight) {
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
 
-    // Create model matrix for the triangle (its position, rotation, and scale in world)
+    // Create model matrix for the cube (its position, rotation, and scale in world)
     glm::mat4 model = Transform::model(
         glm::vec3(0.0f, 0.0f, 0.0f),  // Position: at origin
         glm::vec3(0.0f, 1.0f, 0.0f),  // Rotation axis: Y-axis (vertical)
@@ -182,9 +221,9 @@ void Renderer::draw(int windowWidth, int windowHeight) {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
-    // Bind the triangle's VAO and draw it
+    // Bind the cube's VAO and draw it
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);  // Draw 3 vertices as a triangle
+    glDrawArrays(GL_TRIANGLES, 0, 36);  // Draw 36 vertices (6 faces * 2 triangles * 3 vertices)
     glBindVertexArray(0);  // Unbind VAO
 }
 

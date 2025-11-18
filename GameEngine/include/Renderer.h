@@ -11,7 +11,7 @@ private:
 	Camera camera; //Camera instance
 
     // Helper functions
-    void setupTriangle();
+    void setupCube();
     void setupShaders();
     unsigned int compileShader(unsigned int type, const char* source);
 
