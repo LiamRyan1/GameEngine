@@ -169,7 +169,8 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
 }
 
 // Main render function - called every frame to draw the scene
-void Renderer::draw(int windowWidth, int windowHeight) {
+//pass camera in to avoid multiple camera instances
+void Renderer::draw(int windowWidth, int windowHeight,const Camera& camera) {
 
     // Skip rendering if the window is minimized (height = 0)
     if (windowHeight == 0)
@@ -188,21 +189,6 @@ void Renderer::draw(int windowWidth, int windowHeight) {
 
     // Calculate aspect ratio for proper perspective projection
     float aspectRatio = (float)windowWidth / (float)windowHeight;
-
-    // Setup rotating camera that orbits around the origin
-    const float radius = 5.0f;  // Distance from origin
-    // Calculate camera position using circular motion based on time
-    // sin and cos ensure smooth circular path in XZ plane
-    float camX = sin(glfwGetTime()) * radius;
-    float camZ = cos(glfwGetTime()) * radius;
-
-    // Update camera position (orbiting at Y=0)
-    camera.setPosition(glm::vec3(camX, 0.0f, camZ));
-
-    // Make camera look at the origin (where the cube is)
-    glm::vec3 pointAt = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 faceDirection = pointAt - glm::vec3(camX, 0.0f, camZ);
-    camera.setFront(faceDirection);
 
     // Get view matrix (camera transformation) and projection matrix (perspective)
     glm::mat4 view = camera.getViewMatrix();

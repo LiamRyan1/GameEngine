@@ -21,9 +21,8 @@ public:
 
     void initialize();
 	//take window width and height to calculate aspect ratio for projection matrix
-    void draw(int windowWidth, int windowHeight);
+    void draw(int windowWidth, int windowHeight,const Camera&camera);
     void cleanup();
-    Camera& getCamera() { return camera; }
 };
 
 #endif // RENDERER_H
