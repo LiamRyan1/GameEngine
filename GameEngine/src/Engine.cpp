@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "../include/Renderer.h"
 #include "../include/Input.h"
-
+#include "../include/Camera.h"
 
 void simulate(double dt)
 {
@@ -99,6 +99,15 @@ int Start(void)
     Renderer renderer;
     renderer.initialize();
 
+    //create camera
+    Camera camera(
+        glm::vec3(0.0f, 0.0f, 5.0f),  //Position
+        glm::vec3(0.0f, 1.0f, 0.0f),  //World up
+		45.0f,                         //FOV
+        -90.0f,                        //Yaw
+        0.0f                           //Pitch
+    );
+
     // --- Window tracking ---
     bool isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
     bool isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE;
@@ -162,6 +171,28 @@ int Start(void)
             physicsTime = 0.0;
             physicsSteps = 0;
         }
+		//distance from origin
+        const float radius = 10.0f;
+		//calculate camera position in circular path around origin 
+		//use sin and cos to smoothly vary x and z coordinates over time
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+
+		//set the new camera position
+        camera.setPosition(glm::vec3(camX, 0.0f, camZ));
+
+		//make the camera look at the origin
+        glm::vec3 direction = glm::normalize(glm::vec3(0.0f) - camera.getPosition());
+
+		//update yaw and pitch based on direction vector towards origin
+		//convert cartesian direction vectors to radians and then to degrees
+        float yaw = glm::degrees(atan2(direction.z, direction.x));
+        float pitch = glm::degrees(asin(direction.y));
+		//set the new yaw and pitch and update camera vectors
+        camera.setYaw(yaw);
+        camera.setPitch(pitch);
+
+
 
         // --- Window and input events ---
         glfwPollEvents();
@@ -178,7 +209,7 @@ int Start(void)
             std::cout << "SPACE released\n";
 
         // --- Render ---
-        renderer.draw(fbW, fbH);
+        renderer.draw(fbW, fbH,camera);
         glfwSwapBuffers(window);
     }
 
