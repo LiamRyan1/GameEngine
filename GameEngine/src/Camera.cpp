@@ -74,7 +74,7 @@ void Camera::rotate(float dx, float dy) {
     pitch += dy;
 
 	//update the camera vectors based on the new yaw and pitch values
-    updateCameraVectors();
+    updateCameraVectors();  
 }
 
 

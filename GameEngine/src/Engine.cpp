@@ -105,7 +105,7 @@ int Start(void)
         glm::vec3(0.0f, 1.0f, 0.0f),  //World up
 		45.0f,                         //FOV
         -90.0f,                        //Yaw
-        0.0f                           //Pitch
+        15.0f                           //Pitch
     );
 
     // --- Window tracking ---
@@ -179,7 +179,7 @@ int Start(void)
         float camZ = cos(glfwGetTime()) * radius;
 
 		//set the new camera position
-        camera.setPosition(glm::vec3(camX, 0.0f, camZ));
+        camera.setPosition(glm::vec3(camX, -2.0f, camZ));
 
 		//make the camera look at the origin
         glm::vec3 direction = glm::normalize(glm::vec3(0.0f) - camera.getPosition());
