@@ -1,6 +1,9 @@
 ﻿  Engine.cpp
-C:\Users\User\Documents\GitHub\GameEngine\GameEngine\src\Engine.cpp(178,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\User\Documents\GitHub\GameEngine\GameEngine\src\Engine.cpp(179,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  GameEngine.vcxproj -> C:\Users\User\Documents\GitHub\GameEngine\x64\Debug\GameEngine.exe
+C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Engine.cpp(201,24): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Engine.cpp(202,24): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Engine.cpp(222,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Main.cpp
+  Generating Code...
+  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

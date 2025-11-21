@@ -171,32 +171,78 @@ int Start(void)
             physicsTime = 0.0;
             physicsSteps = 0;
         }
-		//distance from origin
-        const float radius = 10.0f;
-		//calculate camera position in circular path around origin 
-		//use sin and cos to smoothly vary x and z coordinates over time
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
-
-		//set the new camera position
-        camera.setPosition(glm::vec3(camX, -2.0f, camZ));
-
-		//make the camera look at the origin
-        glm::vec3 direction = glm::normalize(glm::vec3(0.0f) - camera.getPosition());
-
-		//update yaw and pitch based on direction vector towards origin
-		//convert cartesian direction vectors to radians and then to degrees
-        float yaw = glm::degrees(atan2(direction.z, direction.x));
-        float pitch = glm::degrees(asin(direction.y));
-		//set the new yaw and pitch and update camera vectors
-        camera.setYaw(yaw);
-        camera.setPitch(pitch);
-
-
 
         // --- Window and input events ---
         glfwPollEvents();
         glfwGetFramebufferSize(window, &fbW, &fbH);
+
+        // --- Toggle camera mode with F1 ---
+        if (Input::GetKeyPressed(GLFW_KEY_F1))
+        {
+            if (gCameraMode == CameraMode::Orbit)
+                gCameraMode = CameraMode::Free;
+            else
+                gCameraMode = CameraMode::Orbit;
+
+            std::cout << "Camera mode switched to: "
+                << (gCameraMode == CameraMode::Orbit ? "Orbit" : "Free")
+                << std::endl;
+        }
+
+        // --- Camera Mode Logic ---
+        switch (gCameraMode)
+        {
+        case CameraMode::Orbit:
+        {
+            //distance from origin
+            const float radius = 10.0f;
+
+            //calculate camera position in circular path around origin 
+            float camX = sin(glfwGetTime()) * radius;
+            float camZ = cos(glfwGetTime()) * radius;
+
+            //set the new camera position
+            camera.setPosition(glm::vec3(camX, -2.0f, camZ));
+
+            //make the camera look at the origin
+            glm::vec3 direction = glm::normalize(glm::vec3(0.0f) - camera.getPosition());
+
+            //update yaw and pitch based on direction vector
+            float yaw = glm::degrees(atan2(direction.z, direction.x));
+            float pitch = glm::degrees(asin(direction.y));
+
+            camera.setYaw(yaw);
+            camera.setPitch(pitch);
+            break;
+        }
+
+        case CameraMode::Free:
+        {
+            // --- Camera movement speed (per second) ---
+            float speed = 5.0f * frameTime;
+
+            // Forward / Back
+            if (Input::GetKeyDown(GLFW_KEY_W))
+                camera.moveForward(speed);
+            if (Input::GetKeyDown(GLFW_KEY_S))
+                camera.moveForward(-speed);
+
+            // Right / Left
+            if (Input::GetKeyDown(GLFW_KEY_D))
+                camera.moveRight(speed);
+            if (Input::GetKeyDown(GLFW_KEY_A))
+                camera.moveRight(-speed);
+
+            // Up / Down
+            if (Input::GetKeyDown(GLFW_KEY_SPACE))
+                camera.moveUp(speed);
+            if (Input::GetKeyDown(GLFW_KEY_LEFT_CONTROL))
+                camera.moveUp(-speed);
+
+            break;
+        }
+
+        }
 
         // --- TEST INPUT ---
         if (Input::GetKeyPressed(GLFW_KEY_SPACE))
