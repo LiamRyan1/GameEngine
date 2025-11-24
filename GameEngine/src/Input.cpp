@@ -5,9 +5,9 @@
 // keysReleased[key] → true for ONE frame when key transitions PRESSED → RELEASED
 // They are reset every frame for pressed/released transitions.
 // 1024 stores key states
-static bool keysDown[1024] = { false };
-static bool keysPressed[1024] = { false };
-static bool keysReleased[1024] = { false };
+static bool keysDown[1024] = { false }; //is currently down
+static bool keysPressed[1024] = { false };//was pressed this frame
+static bool keysReleased[1024] = { false }; //was released this frame
 
 // GLFW window pointer, stored so the input module knows which window it belongs to.
 // It’s the Input system’s saved reference to the game window.
@@ -15,11 +15,14 @@ static bool keysReleased[1024] = { false };
 static GLFWwindow* internalWindow = nullptr;
 
 // KeyCallback
+// This function updates the key states every time a key is pressed or released
+// so the engine knows exactly what happened.
 // This is called directly by GLFW every time a key's state changes.
 // We only update states here; the engine will read them later.
 // GLFW calls KeyCallback -> Update the key states ->  Engine reads them.
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+{   
+    // Cant press a key out of bounds
     // Ignore keys outside our array range
     if (key < 0 || key >= 1024) return;
 
@@ -28,15 +31,14 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
     {
         // Only mark "pressed" if it was NOT already down (prevents repeats)
         if (!keysDown[key])
-            keysPressed[key] = true;
-
-        keysDown[key] = true;
+            keysPressed[key] = true;// just pressed
+         keysDown[key] = true;
     }
     // Key was released this frame
     else if (action == GLFW_RELEASE)
     {
         keysDown[key] = false;
-        keysReleased[key] = true;
+        keysReleased[key] = true;// just released
     }
 }
 

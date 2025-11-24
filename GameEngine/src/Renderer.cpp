@@ -124,7 +124,7 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera) {
 
         // Draw edges first
         glEnable(GL_POLYGON_OFFSET_LINE);
-        glPolygonOffset(-1.0f, -1.0f);
+        glPolygonOffset(-0.50f, -0.50f);
 
         glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
         glLineWidth(2.0f);

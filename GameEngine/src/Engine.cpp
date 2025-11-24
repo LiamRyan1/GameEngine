@@ -7,6 +7,8 @@
 #include "../include/Renderer.h"
 #include "../include/Input.h"
 #include "../include/Camera.h"
+#include "../include/CameraController.h"
+#include "../include/Time.h"
 
 void simulate(double dt)
 {
@@ -20,31 +22,6 @@ void simulate(double dt)
         // std::cout << "Simulating at t = " << totalTime << "s" << std::endl;
     }
 }
-
-static bool keysDown[1024] = { false };       // is currently down
-static bool keysPressed[1024] = { false };    // was pressed this frame
-static bool keysReleased[1024] = { false };   // was released this frame
-
-// This function updates the key states every time a key is pressed or released
-// so the engine knows exactly what happened.
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    // Cant press a key out of bounds
-    if (key < 0 || key >= 1024) return;
-
-    if (action == GLFW_PRESS)
-    {
-        if (!keysDown[key])
-            keysPressed[key] = true; // just pressed
-        keysDown[key] = true;
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        keysDown[key] = false;
-        keysReleased[key] = true; // just released
-    }
-}
-
 
 int Start(void)
 {
@@ -71,8 +48,6 @@ int Start(void)
         return -1;
     }
 
-    glfwSetKeyCallback(window, keyCallback);
-
     std::cout << "Window created" << std::endl;
     glfwMakeContextCurrent(window);
 
@@ -92,6 +67,10 @@ int Start(void)
     // Initialize Input System
     Input::Initialize(window);
 
+    // Initialize Time System
+    Time::Initialize();
+
+
     // Set background color
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
@@ -108,6 +87,11 @@ int Start(void)
         15.0f                           //Pitch
     );
 
+    CameraController cameraController(camera, 5.0f, 0.1f);
+    cameraController.setMode(CameraController::Mode::ORBIT);  // Start in orbit mode
+    cameraController.setOrbitalCenter(glm::vec3(0.0f));
+    cameraController.setOrbitalRadius(20.0f);
+
     // --- Window tracking ---
     bool isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
     bool isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE;
@@ -116,55 +100,49 @@ int Start(void)
     glfwGetFramebufferSize(window, &fbW, &fbH);
 
     // --- Fixed timestep setup ---
-    using clock = std::chrono::high_resolution_clock; // Timer
-    auto currentTime = clock::now(); // Stores the start time of the loop
-    double t = 0.0; // Total time that has passed
-    const double dt = 1.0 / 60.0; // Fixed timestep 60fps
+    const double fixedDt = 1.0 / 60.0; // Fixed timestep 60fps
     double accumulator = 0.0; // Collects the elapsed time to decide when to run the next physics update
+    int physicsSteps = 0;
+    double physicsTimer = 0.0;
 
     // Counters for testing
     double physicsTime = 0.0;
-    int physicsSteps = 0;
 
     std::cout << "Renderer initialized, entering main loop" << std::endl;
+    std::cout << "Controls:" << std::endl;
+    std::cout << "F1 - Toggle camera mode (Orbit/Free)" << std::endl;
+    std::cout << "WASD - Move (Free mode)" << std::endl;
+    std::cout << "Space/Ctrl - Up/Down (Free mode)" << std::endl;
+    std::cout << "Mouse - (Not yet implemented)" << std::endl;
 
     while (!glfwWindowShouldClose(window))
     {
+        //Update time (calculates deltaTime automatically) 
+        Time::Update();
+        float deltaTime = Time::GetDeltaTime();
         // Reset per-frame input states
         Input::BeginFrame();
 
-        // --- Frame timing ---
-        // =======================
-        // Measure how long the last frame took
-        auto newTime = clock::now();
-        // Calculate how much real time passed since the last frame
-        std::chrono::duration<double> frameDuration = newTime - currentTime;
-        // Convert that duration into seconds (as a double value)
-        double frameTime = frameDuration.count();
-        // Update the stored "current time" for the next frame
-        currentTime = newTime;
+        //poll for input events 
+        glfwPollEvents();
 
-        // Limit max frame time to 0.25s
-        if (frameTime > 0.25)
-            frameTime = 0.25; // Prevent spiral of death
+        
 
         // Add the elapsed frame time into the accumulator
-        accumulator += frameTime;
-
+        accumulator += deltaTime;
         // --- Fixed timestep updates ---
         // ====================
         // Run physics updates in fixed 1/60s steps until caught up with real time
-        while (accumulator >= dt)
+        while (accumulator >= fixedDt)
         {
-            simulate(dt); // advance simulation by one fixed step
-            accumulator -= dt; // remove one step’s worth of time from the bucket
-            t += dt; // track total simulated time
+            simulate(fixedDt); // advance simulation by one fixed step
+            accumulator -= fixedDt; // remove one step’s worth of time from the bucket
             physicsSteps++; // count how many physics updates ran this second
         }
 
         // ========================
         // Print how many physics steps occurred every second
-        physicsTime += frameTime;
+        physicsTime += deltaTime;
         if (physicsTime >= 1.0)
         {
             std::cout << "Physics steps per second: " << physicsSteps << std::endl;
@@ -172,91 +150,28 @@ int Start(void)
             physicsSteps = 0;
         }
 
-        // --- Window and input events ---
-        glfwPollEvents();
-        glfwGetFramebufferSize(window, &fbW, &fbH);
-
-        // --- Toggle camera mode with F1 ---
         if (Input::GetKeyPressed(GLFW_KEY_F1))
         {
-            if (gCameraMode == CameraMode::Orbit)
-                gCameraMode = CameraMode::Free;
-            else
-                gCameraMode = CameraMode::Orbit;
-
-            std::cout << "Camera mode switched to: "
-                << (gCameraMode == CameraMode::Orbit ? "Orbit" : "Free")
-                << std::endl;
+            if (cameraController.getMode() == CameraController::Mode::ORBIT) {
+                cameraController.setMode(CameraController::Mode::FREE);
+                std::cout << "Camera mode: FREE (WASD only - mouse not yet wired up)" << std::endl;
+            }
+            else {
+                cameraController.setMode(CameraController::Mode::ORBIT);
+                std::cout << "Camera mode: ORBIT" << std::endl;
+            }
         }
-
-        // --- Camera Mode Logic ---
-        switch (gCameraMode)
-        {
-        case CameraMode::Orbit:
-        {
-            //distance from origin
-            const float radius = 10.0f;
-
-            //calculate camera position in circular path around origin 
-            float camX = sin(glfwGetTime()) * radius;
-            float camZ = cos(glfwGetTime()) * radius;
-
-            //set the new camera position
-            camera.setPosition(glm::vec3(camX, -2.0f, camZ));
-
-            //make the camera look at the origin
-            glm::vec3 direction = glm::normalize(glm::vec3(0.0f) - camera.getPosition());
-
-            //update yaw and pitch based on direction vector
-            float yaw = glm::degrees(atan2(direction.z, direction.x));
-            float pitch = glm::degrees(asin(direction.y));
-
-            camera.setYaw(yaw);
-            camera.setPitch(pitch);
-            break;
-        }
-
-        case CameraMode::Free:
-        {
-            // --- Camera movement speed (per second) ---
-            float speed = 5.0f * frameTime;
-
-            // Forward / Back
-            if (Input::GetKeyDown(GLFW_KEY_W))
-                camera.moveForward(speed);
-            if (Input::GetKeyDown(GLFW_KEY_S))
-                camera.moveForward(-speed);
-
-            // Right / Left
-            if (Input::GetKeyDown(GLFW_KEY_D))
-                camera.moveRight(speed);
-            if (Input::GetKeyDown(GLFW_KEY_A))
-                camera.moveRight(-speed);
-
-            // Up / Down
-            if (Input::GetKeyDown(GLFW_KEY_SPACE))
-                camera.moveUp(speed);
-            if (Input::GetKeyDown(GLFW_KEY_LEFT_CONTROL))
-                camera.moveUp(-speed);
-
-            break;
-        }
-
-        }
-
-        // --- TEST INPUT ---
-        if (Input::GetKeyPressed(GLFW_KEY_SPACE))
-            std::cout << "SPACE pressed\n";
-
-        if (Input::GetKeyDown(GLFW_KEY_SPACE))
-            std::cout << "SPACE held\n";
-
-        if (Input::GetKeyReleased(GLFW_KEY_SPACE))
-            std::cout << "SPACE released\n";
+		//Update camera controller
+        cameraController.update(window, deltaTime);
+        // --- Window
+        glfwGetFramebufferSize(window, &fbW, &fbH);
 
         // --- Render ---
         renderer.draw(fbW, fbH,camera);
         glfwSwapBuffers(window);
+
+		//limit FPS if enabled
+        Time::WaitForNextFrame();
     }
 
     std::cout << "Exiting..." << std::endl;

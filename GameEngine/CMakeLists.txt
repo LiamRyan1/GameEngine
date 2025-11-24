@@ -31,6 +31,8 @@ target_sources(GameEngine PRIVATE
 	src/Renderer.cpp
 	src/Input.cpp
 	src/Mesh.cpp
+	src/Time.cpp
+	src/CameraController.cpp
 )
 target_include_directories(GameEngine PRIVATE include)
 target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})

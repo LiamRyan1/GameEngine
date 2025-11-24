@@ -9,6 +9,7 @@ CameraMode gCameraMode = CameraMode::Orbit;
 int main()
 {
     Start();
+	return 0;
 }
 
 //testCommentS
