@@ -129,6 +129,7 @@
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Engine.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
@@ -142,6 +143,7 @@
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\Input.h" />
+    <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Transform.h" />
   </ItemGroup>

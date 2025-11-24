@@ -9,33 +9,33 @@ private:
     unsigned int VAO, VBO, EBO, edgeEBO;
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
-    std::vector<unsigned int> edgeIndices;  // Add edge indices
+    std::vector<unsigned int> edgeIndices;
     unsigned int indexCount;
-    unsigned int edgeIndexCount;  // Add edge index count
+    unsigned int edgeIndexCount;
 
 public:
     Mesh();
     ~Mesh();
 
+    // Delete copy constructor and copy assignment
     Mesh(const Mesh&) = delete;
     Mesh& operator=(const Mesh&) = delete;
 
+    // Move constructor and move assignment
     Mesh(Mesh&& other) noexcept;
     Mesh& operator=(Mesh&& other) noexcept;
 
     void setData(const std::vector<float>& verts, const std::vector<unsigned int>& inds);
     void setDataWithEdges(const std::vector<float>& verts,
         const std::vector<unsigned int>& inds,
-        const std::vector<unsigned int>& edges);  // New method
+        const std::vector<unsigned int>& edges);
 
     void draw() const;
-    void drawEdges() const;  // New method for drawing just edges
+    void drawEdges() const;
 
     void cleanup();
 
     static Mesh createCube();
-    static Mesh createPlane();
-    static Mesh createSphere(int segments = 32);
 };
 
 #endif

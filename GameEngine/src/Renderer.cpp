@@ -4,136 +4,63 @@
 #include "../include/Camera.h"
 #include "../include/Transform.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp> 
+#include <glm/gtc/type_ptr.hpp>
 
-// Constructor - initializes member variables to zero/null
-Renderer::Renderer() : VAO(0), VBO(0), shaderProgram(0) {
+Renderer::Renderer() : shaderProgram(0) {
 }
 
-// Destructor - ensures cleanup is called when renderer is destroyed
 Renderer::~Renderer() {
     cleanup();
 }
 
-// Main initialization function - sets up shaders and geometry
 void Renderer::initialize() {
     setupShaders();
-    setupCube();  // Changed from setupTriangle to setupCube
-}
 
-// Creates and configures a 3D cube mesh for rendering
-void Renderer::setupCube() {
-    // Define cube vertices - 36 vertices (6 faces * 2 triangles * 3 vertices)
-    // Each face is made of 2 triangles, defined in counter-clockwise order
-    float vertices[] = {
-        // Front face (Z+)
-        -0.5f, -0.5f,  0.5f,  // bottom left
-         0.5f, -0.5f,  0.5f,  // bottom right
-         0.5f,  0.5f,  0.5f,  // top right
-         0.5f,  0.5f,  0.5f,  // top right
-        -0.5f,  0.5f,  0.5f,  // top left
-        -0.5f, -0.5f,  0.5f,  // bottom left
+    // Create cube mesh using factory method
+    cubeMesh = Mesh::createCube();
 
-        // Back face (Z-)
-        -0.5f, -0.5f, -0.5f,  // bottom left
-        -0.5f,  0.5f, -0.5f,  // top left
-         0.5f,  0.5f, -0.5f,  // top right
-         0.5f,  0.5f, -0.5f,  // top right
-         0.5f, -0.5f, -0.5f,  // bottom right
-        -0.5f, -0.5f, -0.5f,  // bottom left
-
-        // Left face (X-)
-        -0.5f,  0.5f,  0.5f,  // top front
-        -0.5f,  0.5f, -0.5f,  // top back
-        -0.5f, -0.5f, -0.5f,  // bottom back
-        -0.5f, -0.5f, -0.5f,  // bottom back
-        -0.5f, -0.5f,  0.5f,  // bottom front
-        -0.5f,  0.5f,  0.5f,  // top front
-
-        // Right face (X+)
-         0.5f,  0.5f,  0.5f,  // top front
-         0.5f, -0.5f,  0.5f,  // bottom front
-         0.5f, -0.5f, -0.5f,  // bottom back
-         0.5f, -0.5f, -0.5f,  // bottom back
-         0.5f,  0.5f, -0.5f,  // top back
-         0.5f,  0.5f,  0.5f,  // top front
-
-         // Top face (Y+)
-         -0.5f,  0.5f, -0.5f,  // back left
-         -0.5f,  0.5f,  0.5f,  // front left
-          0.5f,  0.5f,  0.5f,  // front right
-          0.5f,  0.5f,  0.5f,  // front right
-          0.5f,  0.5f, -0.5f,  // back right
-         -0.5f,  0.5f, -0.5f,  // back left
-
-         // Bottom face (Y-)
-         -0.5f, -0.5f, -0.5f,  // back left
-          0.5f, -0.5f, -0.5f,  // back right
-          0.5f, -0.5f,  0.5f,  // front right
-          0.5f, -0.5f,  0.5f,  // front right
-         -0.5f, -0.5f,  0.5f,  // front left
-         -0.5f, -0.5f, -0.5f   // back left
+    // Define positions for multiple cubes
+    cubePositions = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(4.0f,  0.0f, -6.0f),
+        glm::vec3(-3.0f, -1.0f, -5.0f),
+        glm::vec3(-6.0f,  0.0f, -10.0f),
+        glm::vec3(5.0f,  2.0f, -7.0f),
+        glm::vec3(-3.5f,  3.0f, -5.0f),
+        glm::vec3(2.5f, -2.0f, -5.0f),
+        glm::vec3(3.0f,  1.0f, -3.0f),
+        glm::vec3(3.0f,  0.5f, -5.0f),
+        glm::vec3(-2.5f,  1.0f, -3.0f)
     };
-
-    // Generate Vertex Array Object (VAO) - stores vertex attribute configuration
-    // Generate Vertex Buffer Object (VBO) - stores actual vertex data in GPU memory
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    // Bind VAO first - all subsequent vertex attribute calls will be stored in this VAO
-    glBindVertexArray(VAO);
-
-    // Bind VBO to GL_ARRAY_BUFFER target
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // Upload vertex data to GPU - GL_STATIC_DRAW means data won't change often
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Configure how OpenGL should interpret the vertex data
-    // Attribute 0 (position): 3 floats per vertex, not normalized, tightly packed
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    // Enable vertex attribute array at location 0
-    glEnableVertexAttribArray(0);
-
-    // Unbind VBO and VAO to prevent accidental modifications
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
-// Compiles and links vertex and fragment shaders into a shader program
 void Renderer::setupShaders() {
-    // Vertex shader: processes each vertex, transforming from local to clip space
     const char* vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"  // Input: vertex position
-        "uniform mat4 model;\n"       // Transforms local vertices to world space
-        "uniform mat4 view;\n"        // Transforms world space to camera space
-        "uniform mat4 projection;\n"  // Transforms camera space to clip space (perspective)
+        "layout (location = 0) in vec3 aPos;\n"
+        "uniform mat4 model;\n"
+        "uniform mat4 view;\n"
+        "uniform mat4 projection;\n"
         "void main()\n"
         "{\n"
-        // Apply MVP (Model-View-Projection) transformation pipeline
         "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
         "}\0";
 
-    // Fragment shader: determines the color of each pixel
     const char* fragmentShaderSource = "#version 330 core\n"
-        "out vec4 FragColor;\n"  // Output: final pixel color
+        "out vec4 FragColor;\n"
+        "uniform vec3 objectColor;\n"
         "void main()\n"
         "{\n"
-        // Set all pixels to orange color (R=1.0, G=0.5, B=0.2, A=1.0)
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "   FragColor = vec4(objectColor, 1.0);\n"
         "}\0";
 
-    // Compile both shaders
     unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
     unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
-    // Create shader program and attach both shaders
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
-    // Link shaders into final executable program
     glLinkProgram(shaderProgram);
 
-    // Check if linking was successful
     int success;
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -142,21 +69,15 @@ void Renderer::setupShaders() {
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
 
-    // Delete individual shader objects - no longer needed after linking to program
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 }
 
-// Helper function to compile a shader from source code
 unsigned int Renderer::compileShader(unsigned int type, const char* source) {
-    // Create shader object of specified type (vertex or fragment)
     unsigned int shader = glCreateShader(type);
-    // Attach source code to shader object
     glShaderSource(shader, 1, &source, NULL);
-    // Compile the shader
     glCompileShader(shader);
 
-    // Check for compilation errors
     int success;
     char infoLog[512];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -168,65 +89,56 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
     return shader;
 }
 
-// Main render function - called every frame to draw the scene
-//pass camera in to avoid multiple camera instances
-void Renderer::draw(int windowWidth, int windowHeight,const Camera& camera) {
-
-    // Skip rendering if the window is minimized (height = 0)
+void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera) {
     if (windowHeight == 0)
         return;
-	//ensure viewport matches window size
+
     glViewport(0, 0, windowWidth, windowHeight);
-
-    // Clear color and depth buffers from previous frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Enable depth testing so objects are drawn in correct order (near to far)
     glEnable(GL_DEPTH_TEST);
-
-    // Activate the shader program for rendering
     glUseProgram(shaderProgram);
 
-    // Calculate aspect ratio for proper perspective projection
     float aspectRatio = (float)windowWidth / (float)windowHeight;
-
-    // Get view matrix (camera transformation) and projection matrix (perspective)
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
 
-    // Create model matrix for the cube (its position, rotation, and scale in world)
-    glm::mat4 model = Transform::model(
-        glm::vec3(0.0f, 0.0f, 0.0f),  // Position: at origin
-        glm::vec3(0.0f, 1.0f, 0.0f),  // Rotation axis: Y-axis (vertical)
-        0.0f,                          // Rotation angle: 0 degrees (no rotation)
-        glm::vec3(1.0f, 1.0f, 1.0f)   // Scale: normal size (1x in all dimensions)
-    );
-    //imagine a point at 0, 1, 0 and another at 0, 0, 0 draw a line between them that is the axis
-    //that line is the y axis around which the triangle will rotate 
-    //i.e if the triangle was rotated it would spin around that line to whatever angle is specified
-  
-
-    // Get uniform locations (addresses) in the shader program
-    // These are where we'll send our transformation matrices
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
     int viewLoc = glGetUniformLocation(shaderProgram, "view");
     int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    int colorLoc = glGetUniformLocation(shaderProgram, "objectColor");
 
-    // Send transformation matrices to the GPU
-    // These are used by the vertex shader to transform vertices
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
-    // Bind the cube's VAO and draw it
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);  // Draw 36 vertices (6 faces * 2 triangles * 3 vertices)
-    glBindVertexArray(0);  // Unbind VAO
+    for (size_t i = 0; i < cubePositions.size(); i++) {
+        float angle = 20.0f * i;
+
+        glm::mat4 model = Transform::model(
+            cubePositions[i],
+            glm::vec3(1.0f, 0.3f, 0.5f),
+            angle,
+            glm::vec3(1.0f, 1.0f, 1.0f)
+        );
+
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+        // Draw edges first
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(-1.0f, -1.0f);
+
+        glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
+        glLineWidth(2.0f);
+        cubeMesh.drawEdges();
+
+        glDisable(GL_POLYGON_OFFSET_LINE);
+
+        // Draw filled cube
+        glUniform3f(colorLoc, 1.0f, 0.5f, 0.2f);
+        cubeMesh.draw();
+    }
 }
 
-// Cleanup function - releases all OpenGL resources
 void Renderer::cleanup() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    cubeMesh.cleanup();
     glDeleteProgram(shaderProgram);
 }

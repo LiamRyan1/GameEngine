@@ -3,7 +3,7 @@
 #include <cmath>
 #include <iostream>
 
-Mesh::Mesh() : VAO(0), VBO(0), EBO(0), indexCount(0), edgeIndexCount(0) {
+Mesh::Mesh() : VAO(0), VBO(0), EBO(0), edgeEBO(0), indexCount(0), edgeIndexCount(0) {
 }
 
 Mesh::~Mesh() {
@@ -75,7 +75,6 @@ void Mesh::setData(const std::vector<float>& verts, const std::vector<unsigned i
     glBindVertexArray(0);
 }
 
-// New method: Set data with separate edge indices
 void Mesh::setDataWithEdges(const std::vector<float>& verts,
     const std::vector<unsigned int>& inds,
     const std::vector<unsigned int>& edges) {
@@ -89,7 +88,7 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(1, &edgeEBO);  // Generate edge EBO
+    glGenBuffers(1, &edgeEBO);
 
     glBindVertexArray(VAO);
 
@@ -105,10 +104,10 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Unbind VAO before binding edge EBO (edge EBO is separate)
+    // Unbind VAO before binding edge EBO
     glBindVertexArray(0);
 
-    // Upload edge indices separately (not bound to VAO)
+    // Upload edge indices separately
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, edgeEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, edgeIndices.size() * sizeof(unsigned int), edgeIndices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -116,19 +115,15 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
 
 void Mesh::draw() const {
     glBindVertexArray(VAO);
-    // Re-bind the face EBO to make sure it's the active one
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
-// New method: Draw only edges using GL_LINES
 void Mesh::drawEdges() const {
     glBindVertexArray(VAO);
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, edgeEBO);
     glDrawElements(GL_LINES, edgeIndexCount, GL_UNSIGNED_INT, 0);
-    // Restore the face EBO before unbinding VAO
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBindVertexArray(0);
 }
@@ -145,11 +140,10 @@ void Mesh::cleanup() {
     }
 }
 
-// Updated createCube with edge indices
 Mesh Mesh::createCube() {
     // 8 unique vertices
     std::vector<float> vertices = {
-       -0.5f, -0.5f,  0.5f,  // 0: Front bottom left
+        -0.5f, -0.5f,  0.5f,  // 0: Front bottom left
          0.5f, -0.5f,  0.5f,  // 1: Front bottom right
          0.5f,  0.5f,  0.5f,  // 2: Front top right
         -0.5f,  0.5f,  0.5f,  // 3: Front top left
@@ -161,21 +155,21 @@ Mesh Mesh::createCube() {
 
     // Face indices (triangles)
     std::vector<unsigned int> indices = {
-        // Front face (facing +Z)
-         0, 1, 2,  2, 3, 0,
-         // Back face (facing -Z)
-         5, 4, 7,  7, 6, 5,
-         // Left face (facing -X)
-         4, 0, 3,  3, 7, 4,
-         // Right face (facing +X)
-         1, 5, 6,  6, 2, 1,
-         // Top face (facing +Y)
-         3, 2, 6,  6, 7, 3,
-         // Bottom face (facing -Y)
-         4, 5, 1,  1, 0, 4
+        // Front face
+        0, 1, 2,  2, 3, 0,
+        // Back face
+        5, 4, 7,  7, 6, 5,
+        // Left face
+        4, 0, 3,  3, 7, 4,
+        // Right face
+        1, 5, 6,  6, 2, 1,
+        // Top face
+        3, 2, 6,  6, 7, 3,
+        // Bottom face
+        4, 5, 1,  1, 0, 4
     };
 
-    // Edge indices (lines) - only the 12 edges of the cube
+    // Edge indices (lines)
     std::vector<unsigned int> edgeIndices = {
         // Front face edges
         0, 1,  1, 2,  2, 3,  3, 0,
@@ -190,70 +184,5 @@ Mesh Mesh::createCube() {
     return mesh;
 }
 
-Mesh Mesh::createPlane() {
-    std::vector<float> vertices = {
-        -0.5f, 0.0f, -0.5f,
-         0.5f, 0.0f, -0.5f,
-         0.5f, 0.0f,  0.5f,
-        -0.5f, 0.0f,  0.5f
-    };
 
-    std::vector<unsigned int> indices = {
-        0, 1, 2,  2, 3, 0
-    };
-
-    std::vector<unsigned int> edgeIndices = {
-        0, 1,  1, 2,  2, 3,  3, 0
-    };
-
-    Mesh mesh;
-    mesh.setDataWithEdges(vertices, indices, edgeIndices);
-    return mesh;
-}
-
-Mesh Mesh::createSphere(int segments) {
-    std::vector<float> vertices;
-    std::vector<unsigned int> indices;
-
-    const float PI = 3.14159265359f;
-    const float radius = 0.5f;
-
-    for (int lat = 0; lat <= segments; lat++) {
-        float theta = lat * PI / segments;
-        float sinTheta = sin(theta);
-        float cosTheta = cos(theta);
-
-        for (int lon = 0; lon <= segments; lon++) {
-            float phi = lon * 2.0f * PI / segments;
-            float sinPhi = sin(phi);
-            float cosPhi = cos(phi);
-
-            float x = cosPhi * sinTheta;
-            float y = cosTheta;
-            float z = sinPhi * sinTheta;
-
-            vertices.push_back(radius * x);
-            vertices.push_back(radius * y);
-            vertices.push_back(radius * z);
-        }
-    }
-
-    for (int lat = 0; lat < segments; lat++) {
-        for (int lon = 0; lon < segments; lon++) {
-            int first = (lat * (segments + 1)) + lon;
-            int second = first + segments + 1;
-
-            indices.push_back(first);
-            indices.push_back(second);
-            indices.push_back(first + 1);
-
-            indices.push_back(second);
-            indices.push_back(second + 1);
-            indices.push_back(first + 1);
-        }
-    }
-
-    Mesh mesh;
-    mesh.setData(vertices, indices);  // Sphere doesn't need edge rendering
-    return mesh;
-}
+ 
