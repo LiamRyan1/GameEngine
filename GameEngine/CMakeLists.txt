@@ -30,6 +30,7 @@ target_sources(GameEngine PRIVATE
 	src/Transform.cpp
 	src/Renderer.cpp
 	src/Input.cpp
+	src/Mesh.cpp
 )
 target_include_directories(GameEngine PRIVATE include)
 target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})
