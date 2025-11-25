@@ -1,7 +1,4 @@
-﻿  Main.cpp
-  Engine.cpp
-  Time.cpp
-  Generating Code...
+﻿  CameraController.cpp
   GameEngine.vcxproj -> C:\Users\tiafa\Desktop\GameEngine\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

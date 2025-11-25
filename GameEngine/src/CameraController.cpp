@@ -150,8 +150,8 @@ void CameraController::setMode(Mode mode) {
         firstMouse = true;  // Reset mouse tracking
     }
     else if (mode == Mode::ORBIT) {
-        // Reset orbital angle
-        orbitalAngle = 0.0f;
+        // Reset orbital angle currently not ressiting
+      
     }
 }
 

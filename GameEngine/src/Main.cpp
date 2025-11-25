@@ -2,7 +2,7 @@
 #include "../include/Engine.h"
 #include "../include/Camera.h"
 
-CameraMode gCameraMode = CameraMode::Orbit;
+
 
 
 
