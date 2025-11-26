@@ -3,6 +3,8 @@
 #include <iostream>
 #include "../include/GameTime.h"
 
+// GameTime comment test for including in project
+
 
 // Initialize static members
 Time::TimePoint Time::lastFrameTime;
