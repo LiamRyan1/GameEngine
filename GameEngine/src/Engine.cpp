@@ -150,7 +150,7 @@ int Start(void)
             physicsSteps = 0;
         }
 
-        if (Input::GetKeyPressed(GLFW_KEY_F1))
+        if (Input::GetKeyPressed(GLFW_KEY_ENTER))
         {
             if (cameraController.getMode() == CameraController::Mode::ORBIT) {
                 cameraController.setMode(CameraController::Mode::FREE);
@@ -162,7 +162,7 @@ int Start(void)
             }
         }
 		//Update camera controller
-        cameraController.update(window, deltaTime);
+        cameraController.update(deltaTime);
         // --- Window
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
