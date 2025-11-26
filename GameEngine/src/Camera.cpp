@@ -31,7 +31,7 @@ glm::mat4 Camera::getViewMatrix() const {
 glm::mat4 Camera::getProjectionMatrix(float aspectRatio,
 	float nearPlane,
 	float farPlane) const {
-	//glm::perspective expects fov in radians
+	//glm::perspective expects fov in radians, converts the 3d units to ndc space
 	return glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 }
 

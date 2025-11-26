@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\GameTime.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Engine.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\CameraController.h" />
+    <ClInclude Include="include\GameTime.h" />
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Renderer.h" />
