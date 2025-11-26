@@ -42,7 +42,7 @@ public:
     CameraController(Camera& cam, float speed = 5.0f, float sensitivity = 0.1f);
 
     // Main update (call every frame with delta time)
-    void update(GLFWwindow* window, float deltaTime);
+    void update(float deltaTime);
 
     // Process mouse movement (call from mouse callback)
     void processMouse(double xPos, double yPos);
@@ -64,7 +64,7 @@ public:
     void setOrbitalSpeed(float speed) { orbitalSpeed = speed; }
 
 private:
-    void updateFreeMode(GLFWwindow* window, float deltaTime);
+    void updateFreeMode(float deltaTime);
     void updateOrbitMode(float deltaTime);
 };
 

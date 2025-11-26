@@ -8,7 +8,7 @@ CameraController::CameraController(Camera& cam, float speed, float sensitivity)
 	currentMode(Mode::ORBIT), //Default to orbital mode
 	moveSpeed(speed),           //how fast camera moves in free mode
 	mouseSensitivity(sensitivity), //how sensitive mouse is for rotation
-	velocity(0.0f),     //intial velocity 
+	velocity(0.0f),     //intial velocity (0,0,0)
     acceleration(10.0f),      // Fast acceleration
     deceleration(15.0f),      // Faster deceleration for responsive stop
 	minPitch(-89.0f),         // Prevent gimbal lock at bottom
@@ -24,10 +24,10 @@ CameraController::CameraController(Camera& cam, float speed, float sensitivity)
 }
 
 //takes in delta time to make movement frame rate independent
-void CameraController::update(GLFWwindow* window, float deltaTime) {
+void CameraController::update(float deltaTime) {
     switch (currentMode) {
     case Mode::FREE:
-        updateFreeMode(window, deltaTime);
+        updateFreeMode(deltaTime);
         break;
 
     case Mode::ORBIT:
@@ -36,20 +36,21 @@ void CameraController::update(GLFWwindow* window, float deltaTime) {
     }
 }
 
-void CameraController::updateFreeMode(GLFWwindow* window, float deltaTime) {
+void CameraController::updateFreeMode(float deltaTime) {
     
 	//calculate target velocity based on input( where we want to be moving)
-    glm::vec3 targetVelocity(0.0f);
+    glm::vec3 targetVelocity(0.0f);//(0,0,0)
 
     // Forward/Backward
     if (Input::GetKeyDown(GLFW_KEY_W))
-        targetVelocity += camera.getFront() * moveSpeed; 
+        targetVelocity += camera.getFront() * moveSpeed; //(0,0,-1) * 5 = (0,0,-5)
     if (Input::GetKeyDown(GLFW_KEY_S))
         targetVelocity -= camera.getFront() * moveSpeed;
 
     // Right/Left
     if (Input::GetKeyDown(GLFW_KEY_D))
-        targetVelocity += camera.getRight() * moveSpeed;
+        targetVelocity += camera.getRight() * moveSpeed; //(1,0,0) * 5 = (5,0,0) 
+                                                         //(0,0,-5) + (5,0,0) = (5,0,-5)
     if (Input::GetKeyDown(GLFW_KEY_A))
         targetVelocity -= camera.getRight() * moveSpeed;
 
