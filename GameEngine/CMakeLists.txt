@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 4.2.0)
 project(GameEngine)
 
 set(CMAKE_CXX_STANDARD 17)
+# Add this line for Windows
+
 
 find_package(Bullet REQUIRED)
 message(STATUS "BULLET_LIBRARIES: ${BULLET_LIBRARIES}")
@@ -31,7 +33,7 @@ target_sources(GameEngine PRIVATE
 	src/Renderer.cpp
 	src/Input.cpp
 	src/Mesh.cpp
-	src/Time.cpp
+	src/GameTime.cpp
 	src/CameraController.cpp
 )
 target_include_directories(GameEngine PRIVATE include)

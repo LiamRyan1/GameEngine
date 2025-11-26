@@ -1,5 +1,4 @@
 ﻿#include <iostream>
-#include <chrono>
 #include "../include/Engine.h"
 #include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
@@ -8,7 +7,7 @@
 #include "../include/Input.h"
 #include "../include/Camera.h"
 #include "../include/CameraController.h"
-#include "../include/Time.h"
+#include "../include/GameTime.h"
 
 void simulate(double dt)
 {

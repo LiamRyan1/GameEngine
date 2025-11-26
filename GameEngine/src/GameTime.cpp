@@ -1,6 +1,8 @@
-#include "../include/Time.h"
+#include <chrono>
 #include <thread>
 #include <iostream>
+#include "../include/GameTime.h"
+
 
 // Initialize static members
 Time::TimePoint Time::lastFrameTime;
