@@ -1,1 +1,16 @@
-﻿  GameEngine.vcxproj -> C:\Users\User\Documents\GitHub\GameEngine\x64\Debug\GameEngine.exe
+﻿  Camera.cpp
+  Input.cpp
+  Main.cpp
+  Engine.cpp
+  Mesh.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Mesh.cpp(93,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Mesh.cpp(143,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Mesh.cpp(144,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+  Renderer.cpp
+  CameraController.cpp
+  Time.cpp
+\src\Time.cpp(1,1): error C1083: Cannot open source file: 'src\Time.cpp': No such file or directory
+  (compiling source file '/src/Time.cpp')
+  
+  Transform.cpp
+  Generating Code...

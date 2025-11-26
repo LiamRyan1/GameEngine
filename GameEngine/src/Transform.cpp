@@ -13,6 +13,7 @@ namespace Transform {
 	};
 	//glm expects angles in radians
 	//	creates a identity matrix and rotates it by angle(degrees) around axis(vec3) passed in
+	//if a axis of 0,0,0 is passed in glm will return nan values so the object will disappear as were then doing divide by zero somewhere internally
 	glm::mat4 rotate(float angleDegrees, const glm::vec3 &axis) {
 		return glm::rotate(glm::mat4(1.0f), glm::radians(angleDegrees), axis);
 	};
