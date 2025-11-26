@@ -1,9 +1,1 @@
-﻿  Camera.cpp
-  CameraController.cpp
-  Engine.cpp
-  Main.cpp
-  Renderer.cpp
-  Generating Code...
-  GameEngine.vcxproj -> C:\Users\User\Documents\GitHub\GameEngine\x64\Debug\GameEngine.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+﻿  GameEngine.vcxproj -> C:\Users\User\Documents\GitHub\GameEngine\x64\Debug\GameEngine.exe

@@ -60,10 +60,11 @@ void CameraController::updateFreeMode(float deltaTime) {
     if (Input::GetKeyDown(GLFW_KEY_LEFT_CONTROL))
         targetVelocity -= glm::vec3(0.0f, 1.0f, 0.0f) * moveSpeed;
 
-    // Smooth acceleration/deceleration
+
+    //Smooth acceleration/deceleration(how quickly )
     float lerpFactor;
     if (glm::length(targetVelocity) > 0.001f) {
-        // Accelerating toward target
+        //Accelerating toward target
         lerpFactor = acceleration * deltaTime;
     }
     else {
