@@ -39,9 +39,7 @@
     <ClCompile Include="src\CameraController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Time.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+ 
     <ClCompile Include="src\GameTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,12 +69,9 @@
     <ClInclude Include="include\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\CameraController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+	  <ClInclude Include="include\CameraController.h">
+		  <Filter>Header Files</Filter>
+	  </ClInclude>
     <ClInclude Include="include\GameTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
