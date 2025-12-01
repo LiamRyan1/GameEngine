@@ -1,6 +1,8 @@
 #include <GL/glew.h>
 #include "../include/Renderer.h"
 #include <iostream>
+#include <fstream>   
+#include <sstream> 
 #include "../include/Camera.h"
 #include "../include/Transform.h"
 #include <glm/glm.hpp>
@@ -34,33 +36,50 @@ void Renderer::initialize() {
     };
 }
 
+// Load shader source from file
+std::string Renderer::loadShaderSource(const std::string& filepath) {
+    std::ifstream file(filepath);
+
+    if (!file.is_open()) {
+        std::cerr << "ERROR::SHADER::FILE_NOT_FOUND: " << filepath << std::endl;
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+
+    std::cout << "Loaded shader: " << filepath << std::endl;
+    return buffer.str();
+}
+
+// Updated setupShaders method
 void Renderer::setupShaders() {
-    const char* vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "uniform mat4 model;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 projection;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-        "}\0";
+    // Load shader source from files
+    std::string vertexSource = loadShaderSource("shaders/basic.vert");
+    std::string fragmentSource = loadShaderSource("shaders/basic.frag");
 
-    const char* fragmentShaderSource = "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "uniform vec3 objectColor;\n"
-        "void main()\n"
-        "{\n"
-        "   FragColor = vec4(objectColor, 1.0);\n"
-        "}\0";
+    // Check if files loaded successfully
+    if (vertexSource.empty() || fragmentSource.empty()) {
+        std::cerr << "ERROR::SHADER::FAILED_TO_LOAD_SHADER_FILES" << std::endl;
+        return;
+    }
 
+    // Convert to C strings for OpenGL
+    const char* vertexShaderSource = vertexSource.c_str();
+    const char* fragmentShaderSource = fragmentSource.c_str();
+
+    // Compile shaders
     unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
     unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
+    // Create shader program
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
+    // Check for linking errors
     int success;
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -69,6 +88,7 @@ void Renderer::setupShaders() {
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
 
+    // Delete shaders (no longer needed after linking)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 }

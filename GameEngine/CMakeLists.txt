@@ -36,6 +36,15 @@ target_sources(GameEngine PRIVATE
 	src/GameTime.cpp
 	src/CameraController.cpp
 )
+
+# Copy shaders to build directory
+add_custom_command(TARGET GameEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/shaders
+    $<TARGET_FILE_DIR:GameEngine>/shaders
+    COMMENT "Copying shaders to build directory"
+)
+
 target_include_directories(GameEngine PRIVATE include)
 target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})
 target_link_libraries(GameEngine ${BULLET_LIBRARIES}

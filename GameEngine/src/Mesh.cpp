@@ -318,6 +318,9 @@ Mesh Mesh::createCube() {
     Mesh mesh;
     mesh.setDataWithEdges(vertices, indices, edgeIndices);
 
+    std::cout << "Cube created - indexCount: " << mesh.indexCount
+        << ", edgeIndexCount: " << mesh.edgeIndexCount << std::endl;
+
     // Return by value - move semantics will transfer ownership efficiently
     return mesh;
 }

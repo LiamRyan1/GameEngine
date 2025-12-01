@@ -6,6 +6,7 @@
 #include <vector>
 #include "../include/Camera.h"
 #include "../include/Mesh.h"
+#include <string>
 
 
 class Renderer {
@@ -18,6 +19,8 @@ private:
 
     void setupShaders();
     unsigned int compileShader(unsigned int type, const char* source);
+    std::string loadShaderSource(const std::string& filepath);  
+
 
 public:
     Renderer();
