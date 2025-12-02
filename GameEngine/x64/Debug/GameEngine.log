@@ -1,16 +1,4 @@
-﻿  Camera.cpp
-  GameTime.cpp
-  Input.cpp
-  Main.cpp
-  Engine.cpp
-  Mesh.cpp
-C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Mesh.cpp(93,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Mesh.cpp(143,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Mesh.cpp(144,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-  Renderer.cpp
-  CameraController.cpp
-  Transform.cpp
-  Generating Code...
+﻿  Engine.cpp
   GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

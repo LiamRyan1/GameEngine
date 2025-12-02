@@ -91,6 +91,9 @@ int Start(void)
     cameraController.setOrbitalCenter(glm::vec3(0.0f));
     cameraController.setOrbitalRadius(20.0f);
 
+    // Tell Input which camera to rotate
+    Input::SetCameraController(&cameraController);
+
     // --- Window tracking ---
     bool isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
     bool isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE;
@@ -153,10 +156,12 @@ int Start(void)
         {
             if (cameraController.getMode() == CameraController::Mode::ORBIT) {
                 cameraController.setMode(CameraController::Mode::FREE);
-                std::cout << "Camera mode: FREE (WASD only - mouse not yet wired up)" << std::endl;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                std::cout << "Camera mode: FREE" << std::endl;
             }
             else {
                 cameraController.setMode(CameraController::Mode::ORBIT);
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 std::cout << "Camera mode: ORBIT" << std::endl;
             }
         }
