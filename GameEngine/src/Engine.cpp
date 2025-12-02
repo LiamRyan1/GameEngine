@@ -165,6 +165,12 @@ int Start(void)
                 std::cout << "Camera mode: ORBIT" << std::endl;
             }
         }
+
+        // Allow ESC to unlock cursor
+        if (Input::GetKeyPressed(GLFW_KEY_ESCAPE)) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+
 		//Update camera controller
         cameraController.update(deltaTime);
         // --- Window
