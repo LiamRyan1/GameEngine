@@ -1,5 +1,7 @@
-#pragma once
+﻿#pragma once
 #include <GLFW/glfw3.h>
+
+class CameraController;
 
 namespace Input
 {
@@ -9,4 +11,7 @@ namespace Input
     bool GetKeyDown(int key);         // is held
     bool GetKeyPressed(int key);      // pressed this frame
     bool GetKeyReleased(int key);     // released this frame
+
+    // Mouse support
+    void SetCameraController(CameraController* controller);
 }

@@ -1,4 +1,5 @@
 ﻿#include "../include/Input.h"
+#include "../include/CameraController.h"
 
 // keysDown[key]     → true while key is being held
 // keysPressed[key]  → true for ONE frame when key transitions RELEASED → PRESSED
@@ -13,6 +14,9 @@ static bool keysReleased[1024] = { false }; //was released this frame
 // It’s the Input system’s saved reference to the game window.
 // Without it, we can’t read input from GLFW.
 static GLFWwindow* internalWindow = nullptr;
+
+// Pointer to active CameraController
+static CameraController* s_CameraController = nullptr;
 
 // KeyCallback
 // This function updates the key states every time a key is pressed or released
@@ -42,6 +46,14 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
 }
 
+// Mouse movement callback
+static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (s_CameraController)
+    {
+        s_CameraController->processMouse(xpos, ypos);
+    }
+}
 
 // Initialize
 // Registers the GLFW key callback and stores the window pointer.
@@ -55,6 +67,7 @@ void Input::Initialize(GLFWwindow* window)
     // GLFW knows whenever a key is pressed or released on this window,
     // and it calls our KeyCallback function.”
     glfwSetKeyCallback(window, KeyCallback);
+    glfwSetCursorPosCallback(window, CursorPosCallback);
 }
 
 // BeginFrame
@@ -88,4 +101,10 @@ bool Input::GetKeyPressed(int key)
 bool Input::GetKeyReleased(int key)
 {
     return keysReleased[key];
+}
+
+// Allow engine to set active camera controller
+void Input::SetCameraController(CameraController* controller)
+{
+    s_CameraController = controller;
 }
