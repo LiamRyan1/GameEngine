@@ -140,6 +140,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="shaders\basic.frag" />
+    <None Include="shaders\basic.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />

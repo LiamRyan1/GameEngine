@@ -39,7 +39,6 @@
     <ClCompile Include="src\CameraController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
- 
     <ClCompile Include="src\GameTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="shaders\basic.frag" />
+    <None Include="shaders\basic.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Engine.h">
@@ -69,9 +70,9 @@
     <ClInclude Include="include\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	  <ClInclude Include="include\CameraController.h">
-		  <Filter>Header Files</Filter>
-	  </ClInclude>
+    <ClInclude Include="include\CameraController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\GameTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
