@@ -7,6 +7,12 @@
 #include "../include/Transform.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <GLFW/glfw3.h>
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+
 
 Renderer::Renderer() : shaderProgram(0) {
 }
@@ -34,6 +40,15 @@ void Renderer::initialize() {
         glm::vec3(3.0f,  0.5f, -5.0f),
         glm::vec3(-2.5f,  1.0f, -3.0f)
     };
+
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 // Load shader source from file
@@ -58,6 +73,8 @@ void Renderer::setupShaders() {
     // Load shader source from files
     std::string vertexSource = loadShaderSource("shaders/basic.vert");
     std::string fragmentSource = loadShaderSource("shaders/basic.frag");
+
+
 
     // Check if files loaded successfully
     if (vertexSource.empty() || fragmentSource.empty()) {
@@ -113,6 +130,10 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, boo
     if (windowHeight == 0)
         return;
 
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -156,9 +177,25 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, boo
         glUniform3f(colorLoc, 1.0f, 0.5f, 0.2f);
         cubeMesh.draw();
     }
+
+    if (showUI)
+    {
+        ImGui::Begin("Debug UI");
+        ImGui::Text("Hello from ImGui!");
+        ImGui::Text("UI Toggle = TAB");
+        ImGui::End();
+    }
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Renderer::cleanup() {
     cubeMesh.cleanup();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glDeleteProgram(shaderProgram);
 }

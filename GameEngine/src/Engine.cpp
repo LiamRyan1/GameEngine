@@ -194,7 +194,7 @@ int Start(void)
     }
 
     std::cout << "Exiting..." << std::endl;
-    renderer.cleanup();
+    
     glfwTerminate();
     return 0;
 }

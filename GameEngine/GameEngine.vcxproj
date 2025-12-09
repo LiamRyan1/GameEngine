@@ -102,7 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\vcpkg\installed\x64-windows\include;C:\vcpkg\installed\x64-windows\include\bullet</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;external\imgui;C:\vcpkg\installed\x64-windows\include;C:\vcpkg\installed\x64-windows\include\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\vcpkg\installed\x64-windows\include;C:\vcpkg\installed\x64-windows\include\bullet</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;external\imgui;C:\vcpkg\installed\x64-windows\include;C:\vcpkg\installed\x64-windows\include\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +125,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="external\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="external\imgui\core\imgui.cpp" />
+    <ClCompile Include="external\imgui\core\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
+    <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\GameTime.cpp" />
     <ClCompile Include="src\Input.cpp" />
@@ -144,6 +150,11 @@
     <None Include="shaders\basic.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="external\imgui\core\imconfig.h" />
+    <ClInclude Include="external\imgui\core\imgui.h" />
+    <ClInclude Include="external\imgui\core\imgui_internal.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\CameraController.h" />

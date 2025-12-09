@@ -37,15 +37,15 @@ target_sources(GameEngine PRIVATE
 	src/CameraController.cpp
 
 	
-    # --- Added ImGui Core ---
-    external/imgui/core/imgui.cpp
-    external/imgui/core/imgui_draw.cpp
-    external/imgui/core/imgui_widgets.cpp
-    external/imgui/core/imgui_tables.cpp
+    # --- ImGui Core ---
+    ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_draw.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_widgets.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_tables.cpp
 
-    # --- Added ImGui Backends ---
-    external/imgui/backends/imgui_impl_glfw.cpp
-    external/imgui/backends/imgui_impl_opengl3.cpp
+    # --- ImGui Backends ---
+    ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.cpp
+    ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 # Copy shaders to build directory
@@ -56,14 +56,19 @@ add_custom_command(TARGET GameEngine POST_BUILD
     COMMENT "Copying shaders to build directory"
 )
 
-# --- Added ImGui include dirs ---
-target_include_directories(GameEngine PRIVATE external/imgui/core)
-target_include_directories(GameEngine PRIVATE external/imgui/backends)
+# --- ImGui include dirs ---
+target_include_directories(GameEngine PRIVATE
+    include
+    ${BULLET_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/external/imgui
+)
 
-target_include_directories(GameEngine PRIVATE include)
-target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})
+
 target_link_libraries(GameEngine ${BULLET_LIBRARIES}
 	glfw
 	OpenGL::GL
 	glm::glm
-	GLEW::GLEW)
+	GLEW::GLEW
+)
+
+
