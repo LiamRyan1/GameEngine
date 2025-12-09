@@ -35,6 +35,17 @@ target_sources(GameEngine PRIVATE
 	src/Mesh.cpp
 	src/GameTime.cpp
 	src/CameraController.cpp
+
+	
+    # --- Added ImGui Core ---
+    external/imgui/core/imgui.cpp
+    external/imgui/core/imgui_draw.cpp
+    external/imgui/core/imgui_widgets.cpp
+    external/imgui/core/imgui_tables.cpp
+
+    # --- Added ImGui Backends ---
+    external/imgui/backends/imgui_impl_glfw.cpp
+    external/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 # Copy shaders to build directory
@@ -44,6 +55,10 @@ add_custom_command(TARGET GameEngine POST_BUILD
     $<TARGET_FILE_DIR:GameEngine>/shaders
     COMMENT "Copying shaders to build directory"
 )
+
+# --- Added ImGui include dirs ---
+target_include_directories(GameEngine PRIVATE external/imgui/core)
+target_include_directories(GameEngine PRIVATE external/imgui/backends)
 
 target_include_directories(GameEngine PRIVATE include)
 target_include_directories(GameEngine PRIVATE ${BULLET_INCLUDE_DIRS})

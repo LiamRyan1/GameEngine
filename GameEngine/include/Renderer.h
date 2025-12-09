@@ -21,12 +21,14 @@ private:
     unsigned int compileShader(unsigned int type, const char* source);
     std::string loadShaderSource(const std::string& filepath);  
 
+    // UI function
+    void drawUI(int windowWidth, int windowHeight);
 
 public:
     Renderer();
     ~Renderer();
     void initialize();
-    void draw(int windowWidth, int windowHeight, const Camera& camera);
+    void draw(int windowWidth, int windowHeight, const Camera& camera, bool showUI);
     void cleanup();
 };
 

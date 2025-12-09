@@ -186,7 +186,7 @@ int Start(void)
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
         // --- Render ---
-        renderer.draw(fbW, fbH,camera);
+        renderer.draw(fbW, fbH,camera, showUI);
         glfwSwapBuffers(window);
 
 		//limit FPS if enabled

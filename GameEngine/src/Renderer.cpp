@@ -109,7 +109,7 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
     return shader;
 }
 
-void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera) {
+void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, bool showUI) {
     if (windowHeight == 0)
         return;
 
