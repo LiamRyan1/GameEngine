@@ -119,6 +119,10 @@ int Start(void)
 
     while (!glfwWindowShouldClose(window))
     {
+
+        // UI Toggle flag
+        static bool showUI = true;
+
         //Update time (calculates deltaTime automatically) 
         Time::Update();
         float deltaTime = Time::GetDeltaTime();
@@ -128,7 +132,12 @@ int Start(void)
         //poll for input events 
         glfwPollEvents();
 
-        
+        // Toggle UI visibility with TAB key
+        if (Input::GetKeyPressed(GLFW_KEY_TAB))
+        {
+            showUI = !showUI;
+            std::cout << "UI: " << (showUI ? "ON" : "OFF") << std::endl;
+        }
 
         // Add the elapsed frame time into the accumulator
         accumulator += deltaTime;
