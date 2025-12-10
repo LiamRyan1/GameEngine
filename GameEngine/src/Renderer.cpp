@@ -18,7 +18,6 @@ Renderer::Renderer() : shaderProgram(0) {
 }
 
 Renderer::~Renderer() {
-    cleanup();
 }
 
 void Renderer::initialize() {
@@ -191,6 +190,7 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, boo
 }
 
 void Renderer::cleanup() {
+    std::cout << "Cleaning up renderer..." << std::endl;
     cubeMesh.cleanup();
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -198,4 +198,5 @@ void Renderer::cleanup() {
     ImGui::DestroyContext();
 
     glDeleteProgram(shaderProgram);
+    std::cout << "Renderer cleaned up" << std::endl;
 }

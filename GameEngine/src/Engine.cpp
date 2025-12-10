@@ -8,6 +8,7 @@
 #include "../include/Camera.h"
 #include "../include/CameraController.h"
 #include "../include/GameTime.h"
+#include "../include/Physics.h"
 
 void simulate(double dt)
 {
@@ -76,6 +77,11 @@ int Start(void)
     // Create and initialize renderer
     Renderer renderer;
     renderer.initialize();
+
+	// Create and initialize physics system
+    Physics physics;
+    physics.initialize();
+    std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
 
     //create camera
     Camera camera(
@@ -146,7 +152,7 @@ int Start(void)
         // Run physics updates in fixed 1/60s steps until caught up with real time
         while (accumulator >= fixedDt)
         {
-            simulate(fixedDt); // advance simulation by one fixed step
+            physics.update(fixedDt); // advance simulation by one fixed step
             accumulator -= fixedDt; // remove one step’s worth of time from the bucket
             physicsSteps++; // count how many physics updates ran this second
         }
@@ -154,6 +160,7 @@ int Start(void)
         // ========================
         // Print how many physics steps occurred every second
         physicsTime += deltaTime;
+
         if (physicsTime >= 1.0)
         {
             std::cout << "Physics steps per second: " << physicsSteps << std::endl;
@@ -194,7 +201,9 @@ int Start(void)
     }
 
     std::cout << "Exiting..." << std::endl;
-    
+
+    renderer.cleanup();
+    physics.cleanup();
     glfwTerminate();
     return 0;
 }

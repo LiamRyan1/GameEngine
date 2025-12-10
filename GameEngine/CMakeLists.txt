@@ -35,7 +35,7 @@ target_sources(GameEngine PRIVATE
 	src/Mesh.cpp
 	src/GameTime.cpp
 	src/CameraController.cpp
-
+    src/Physics.cpp
 	
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp

@@ -137,6 +137,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Physics.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Transform.cpp" />
@@ -146,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="imgui.ini" />
     <None Include="shaders\basic.frag" />
     <None Include="shaders\basic.vert" />
   </ItemGroup>
@@ -161,6 +163,7 @@
     <ClInclude Include="include\GameTime.h" />
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\Physics.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Transform.h" />
   </ItemGroup>

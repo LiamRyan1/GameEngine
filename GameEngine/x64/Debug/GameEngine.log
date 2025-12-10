@@ -1,23 +1,7 @@
-﻿  imgui_impl_glfw.cpp
-  imgui_impl_opengl3.cpp
-  imgui.cpp
-  imgui_draw.cpp
-  imgui_tables.cpp
-  imgui_widgets.cpp
-  Camera.cpp
-  GameTime.cpp
-  Input.cpp
-  Main.cpp
-  Engine.cpp
-  Mesh.cpp
-C:\Users\brian\Desktop\GameEngine\GameEngine\src\Mesh.cpp(93,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\brian\Desktop\GameEngine\GameEngine\src\Mesh.cpp(143,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\brian\Desktop\GameEngine\GameEngine\src\Mesh.cpp(144,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+﻿  Engine.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Engine.cpp(155,28): warning C4305: 'argument': truncation from 'const double' to 'float'
   Renderer.cpp
-  CameraController.cpp
-  Transform.cpp
   Generating Code...
-  LINK : C:\Users\brian\Desktop\GameEngine\x64\Debug\GameEngine.exe not found or not built by the last incremental link; performing full link
-  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngine\x64\Debug\GameEngine.exe
+  GameEngine.vcxproj -> C:\Users\tiafa\Desktop\GameEngine\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
