@@ -3,7 +3,8 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
-
+#include <vector>
+enum class ShapeType;
 class Physics {
 public:
     Physics();
@@ -18,6 +19,13 @@ public:
 
     // Clean up physics resources
     void cleanup();
+    
+    btRigidBody* createRigidBody(ShapeType type,
+        const glm::vec3& position,
+        const glm::vec3& size,
+        float mass);
+
+
 
     // Getters for physics world (useful when adding objects later)
     btDiscreteDynamicsWorld* getWorld() { return dynamicsWorld; }
@@ -33,10 +41,9 @@ private:
     btSequentialImpulseConstraintSolver* solver;
     btDiscreteDynamicsWorld* dynamicsWorld;
 
-    // Ground plane
-    btCollisionShape* groundShape;
-    btRigidBody* groundRigidBody;
-    btDefaultMotionState* groundMotionState;
+	// store created rigid bodies and shapes in collections for cleanup
+    std::vector<btRigidBody*> rigidBodies;
+    std::vector<btCollisionShape*> collisionShapes;
 };
 
 #endif // PHYSICS_H

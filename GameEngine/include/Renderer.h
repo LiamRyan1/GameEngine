@@ -6,29 +6,32 @@
 #include <vector>
 #include "../include/Camera.h"
 #include "../include/Mesh.h"
+#include "../include/GameObject.h"
 #include <string>
+#include <memory>  // for std::unique_ptr
 
 
 class Renderer {
 private:
     unsigned int shaderProgram;
-    Camera camera;
 
     Mesh cubeMesh;
-    std::vector<glm::vec3> cubePositions;
 
     void setupShaders();
     unsigned int compileShader(unsigned int type, const char* source);
     std::string loadShaderSource(const std::string& filepath);  
 
-    // UI function
-    void drawUI(int windowWidth, int windowHeight);
+	// draw a single game object
+    void drawGameObject(const GameObject& obj, int modelLoc, int colorLoc);
 
 public:
     Renderer();
     ~Renderer();
     void initialize();
-    void draw(int windowWidth, int windowHeight, const Camera& camera, bool showUI);
+    void draw(int windowWidth, int windowHeight, 
+        const Camera& camera, 
+        const std::vector<std::unique_ptr<GameObject>>& objects, 
+        bool showUI);
     void cleanup();
 };
 

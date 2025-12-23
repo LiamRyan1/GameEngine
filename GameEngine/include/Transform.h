@@ -9,5 +9,8 @@ namespace Transform {
 	///Helper so all transformations can be done in one call rather than 3
     glm::mat4 model(const  glm::vec3& position, const glm::vec3& axis, float angleDegrees, const glm::vec3& scale);
 
+	// Overloaded model function using quaternion for rotation
+    glm::mat4 model(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
+
 }
 #endif //TRANSFORM_H

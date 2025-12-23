@@ -91,7 +91,7 @@ void CameraController::updateOrbitMode(float deltaTime) {
     // Calculate new camera position in circular path
     float x = orbitalCenter.x + sin(orbitalAngle) * orbitalRadius;
     float z = orbitalCenter.z + cos(orbitalAngle) * orbitalRadius;
-    float y = orbitalCenter.y - 2.0f;  // Match your current offset
+    float y = orbitalCenter.y + 1.8f;  // Match your current offset
 
     camera.setPosition(glm::vec3(x, y, z));
 

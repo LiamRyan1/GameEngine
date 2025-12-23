@@ -5,6 +5,7 @@
 #include <sstream> 
 #include "../include/Camera.h"
 #include "../include/Transform.h"
+#include "../include/GameObject.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
@@ -25,20 +26,6 @@ void Renderer::initialize() {
 
     // Create cube mesh using factory method
     cubeMesh = Mesh::createCube();
-
-    // Define positions for multiple cubes
-    cubePositions = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(4.0f,  0.0f, -6.0f),
-        glm::vec3(-3.0f, -1.0f, -5.0f),
-        glm::vec3(-6.0f,  0.0f, -10.0f),
-        glm::vec3(5.0f,  2.0f, -7.0f),
-        glm::vec3(-3.5f,  3.0f, -5.0f),
-        glm::vec3(2.5f, -2.0f, -5.0f),
-        glm::vec3(3.0f,  1.0f, -3.0f),
-        glm::vec3(3.0f,  0.5f, -5.0f),
-        glm::vec3(-2.5f,  1.0f, -3.0f)
-    };
 
 
     IMGUI_CHECKVERSION();
@@ -124,8 +111,43 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
 
     return shader;
 }
+void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc) {
+    // Use Transform helper with quaternion rotation
+    glm::mat4 model = Transform::model(
+        obj.getPosition(),
+        obj.getRotation(),
+        obj.getScale()
+    );
 
-void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, bool showUI) {
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+    // Select mesh and color based on shape type
+    Mesh* mesh = nullptr;
+    glm::vec3 color;
+
+    switch (obj.getShapeType()) {
+    case ShapeType::CUBE:
+        mesh = &cubeMesh;
+        color = glm::vec3(1.0f, 0.5f, 0.2f); // Orange
+        break;
+    }
+
+    if (!mesh) return;
+
+    // Draw edges first
+    glEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(-0.50f, -0.50f);
+    glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f); // Black edges
+    glLineWidth(2.0f);
+    mesh->drawEdges();
+    glDisable(GL_POLYGON_OFFSET_LINE);
+
+    // Draw filled shape
+    glUniform3f(colorLoc, color.r, color.g, color.b);
+    mesh->draw();
+}
+
+void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects ,bool showUI) {
     if (windowHeight == 0)
         return;
 
@@ -150,31 +172,9 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, boo
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
-    for (size_t i = 0; i < cubePositions.size(); i++) {
-        float angle = 20.0f * i;
-
-        glm::mat4 model = Transform::model(
-            cubePositions[i],
-            glm::vec3(1.0f, 0.3f, 0.5f),
-            angle,
-            glm::vec3(1.0f, 1.0f, 1.0f)
-        );
-
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
-
-        // Draw edges first
-        glEnable(GL_POLYGON_OFFSET_LINE);
-        glPolygonOffset(-0.50f, -0.50f);
-
-        glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
-        glLineWidth(2.0f);
-        cubeMesh.drawEdges();
-
-        glDisable(GL_POLYGON_OFFSET_LINE);
-
-        // Draw filled cube
-        glUniform3f(colorLoc, 1.0f, 0.5f, 0.2f);
-        cubeMesh.draw();
+    // Draw all game objects
+    for (const auto& obj : objects) {
+        drawGameObject(*obj, modelLoc, colorLoc);
     }
 
     if (showUI)

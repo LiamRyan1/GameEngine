@@ -5,6 +5,7 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui_draw.cpp;
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui_tables.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\imgui_tables.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui_widgets.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\imgui_widgets.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Camera.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Camera.obj
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\GameObject.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\GameObject.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\GameTime.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\GameTime.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Input.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Input.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Main.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Main.obj
@@ -13,4 +14,5 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Mesh.cpp;C:\Users\tiafa\Desktop
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Physics.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Renderer.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Renderer.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\CameraController.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\CameraController.obj
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Scene.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Scene.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Transform.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Transform.obj

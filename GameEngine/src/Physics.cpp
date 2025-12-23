@@ -1,15 +1,14 @@
 #include "../include/Physics.h"
+#include "../include/GameObject.h"
 #include <iostream>
+
 
 Physics::Physics(): 
     collisionConfiguration(nullptr), 
     dispatcher(nullptr), 
     broadphase(nullptr),
     solver(nullptr),
-    dynamicsWorld(nullptr),
-    groundShape(nullptr), 
-    groundRigidBody(nullptr),
-    groundMotionState(nullptr)
+    dynamicsWorld(nullptr)
 {
 }
 
@@ -43,38 +42,52 @@ void Physics::initialize() {
     );
 
     //Set gravity (9.8 m/s² downward)
-    dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
+    dynamicsWorld->setGravity(btVector3(0, -1.8, 0));
 
-    std::cout << "Physics world created with gravity: (0, -9.8, 0)" << std::endl;
-
-    
-	//create ground plane
-    groundShape = new btBoxShape(btVector3(50.0f, 0.25f, 50.0f));
-
-    //Ground transform: at origin, no rotation
-    btTransform groundTransform;
-    groundTransform.setIdentity();
-	//place the ground slightly below y=0 to align top surface with y=0
-    groundTransform.setOrigin(btVector3(0, -0.25f, 0));
-   
-	//tell bullet the position and orientation of the ground
-	groundMotionState = new btDefaultMotionState(groundTransform);
-
-
-    //Rigid body info: mass=0 means static
-    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(
-        0,                    // mass (0 = static)
-        groundMotionState,
-        groundShape,
-        btVector3(0, 0, 0)    // local inertia
-    );
-
-    //Create and add ground to world
-    groundRigidBody = new btRigidBody(groundRigidBodyCI);
-    dynamicsWorld->addRigidBody(groundRigidBody);
-
-    std::cout << "Ground plane created at y=0" << std::endl;
+    std::cout << "Physics world created with gravity: (0, -1.8, 0)" << std::endl;
     std::cout << "Physics initialized successfully" << std::endl;
+}
+btRigidBody* Physics::createRigidBody(ShapeType type,
+    const glm::vec3& position,
+    const glm::vec3& size,
+    float mass) {
+    btCollisionShape* shape = nullptr;
+
+    // Create collision shape
+    switch (type) {
+    case ShapeType::CUBE:
+        // Bullet uses halfs for box shapes size
+        shape = new btBoxShape(btVector3(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f));
+        break;
+    case ShapeType::SPHERE:
+        shape = new btSphereShape(size.x); // size.x = radius
+        break;
+    }
+
+    collisionShapes.push_back(shape);
+
+    // Set initial transform
+    btTransform transform;
+    transform.setIdentity();
+    transform.setOrigin(btVector3(position.x, position.y, position.z));
+
+    // Calculate inertia for dynamic objects
+    btVector3 localInertia(0, 0, 0);
+    if (mass > 0.0f) {
+        shape->calculateLocalInertia(mass, localInertia);
+    }
+
+    // Create motion state
+    btDefaultMotionState* motionState = new btDefaultMotionState(transform);
+
+    // Create rigid body
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
+    btRigidBody* body = new btRigidBody(rbInfo);
+
+    dynamicsWorld->addRigidBody(body);
+    rigidBodies.push_back(body);
+
+    return body;
 }
 
 void Physics::update(float fixedDeltaTime) {
@@ -92,21 +105,23 @@ int Physics::getRigidBodyCount() const {
 }
 
 void Physics::cleanup() {
-    if (!dynamicsWorld) return;
+    if (!dynamicsWorld) return ;
 
     std::cout << "Cleaning up physics..." << std::endl;
 
-    //Remove and delete ground body
-    if (groundRigidBody) {
-        dynamicsWorld->removeRigidBody(groundRigidBody);
-        delete groundRigidBody->getMotionState();
-        delete groundRigidBody;
-        groundRigidBody = nullptr;
+    // delete all rigid bodies (including ground)
+    for (btRigidBody* body : rigidBodies) {
+        dynamicsWorld->removeRigidBody(body);
+        delete body->getMotionState();
+        delete body;
     }
+    rigidBodies.clear();
 
-    //Delete collision shapes
-    delete groundShape;
-    groundShape = nullptr;
+    // delete all collision shapes
+    for (btCollisionShape* shape : collisionShapes) {
+        delete shape;
+    }
+    collisionShapes.clear();
 
     //Delete dynamics world and components
     delete dynamicsWorld;

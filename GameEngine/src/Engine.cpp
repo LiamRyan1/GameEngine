@@ -9,6 +9,7 @@
 #include "../include/CameraController.h"
 #include "../include/GameTime.h"
 #include "../include/Physics.h"
+#include "../include/Scene.h"
 
 void simulate(double dt)
 {
@@ -83,6 +84,24 @@ int Start(void)
     physics.initialize();
     std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
 
+    // Create scene manager
+    Scene scene(physics);
+
+
+    // x Remove this hardcoded scene setup when loading from files
+    // Create ground plane as a visible GameObject
+    scene.createCube(glm::vec3(0, -0.25f, 0), glm::vec3(100.0f, 0.5f, 100.0f), 0.0f);
+    // Create some test cubes - only using cubes for now
+    scene.createCube(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f), 1.0f);
+    scene.createCube(glm::vec3(4.0f, 8.0f, -6.0f), glm::vec3(1.0f), 1.0f);
+    scene.createCube(glm::vec3(-3.0f, 6.0f, -5.0f), glm::vec3(1.0f), 1.0f);
+    scene.createCube(glm::vec3(-6.0f, 10.0f, -10.0f), glm::vec3(1.0f), 1.0f);
+    scene.createCube(glm::vec3(5.0f, 12.0f, -7.0f), glm::vec3(1.0f), 1.0f);
+
+    // TODO: Replace hardcoded scene with file loading
+    // scene.loadFromFile("scenes/test_level.json");
+
+
     //create camera
     Camera camera(
         glm::vec3(0.0f, 0.0f, 5.0f),  //Position
@@ -95,7 +114,7 @@ int Start(void)
     CameraController cameraController(camera, 5.0f, 0.1f);
     cameraController.setMode(CameraController::Mode::ORBIT);  // Start in orbit mode
     cameraController.setOrbitalCenter(glm::vec3(0.0f));
-    cameraController.setOrbitalRadius(20.0f);
+    cameraController.setOrbitalRadius(25.0f);
 
     // Tell Input which camera to rotate
     Input::SetCameraController(&cameraController);
@@ -156,7 +175,7 @@ int Start(void)
             accumulator -= fixedDt; // remove one step’s worth of time from the bucket
             physicsSteps++; // count how many physics updates ran this second
         }
-
+        scene.update();
         // ========================
         // Print how many physics steps occurred every second
         physicsTime += deltaTime;
@@ -167,7 +186,7 @@ int Start(void)
             physicsTime = 0.0;
             physicsSteps = 0;
         }
-
+		// Camera mode toggle
         if (Input::GetKeyPressed(GLFW_KEY_ENTER))
         {
             if (cameraController.getMode() == CameraController::Mode::ORBIT) {
@@ -193,7 +212,7 @@ int Start(void)
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
         // --- Render ---
-        renderer.draw(fbW, fbH,camera, showUI);
+        renderer.draw(fbW, fbH,camera, scene.getObjects(), showUI);
         glfwSwapBuffers(window);
 
 		//limit FPS if enabled

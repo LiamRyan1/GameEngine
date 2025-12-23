@@ -2,7 +2,7 @@
 #include "../include/Transform.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glm/gtc/quaternion.hpp>
 
 //https://learnopengl.com/Getting-started/Transformations
 // Define the Transform namespace(used namespace as transform wont alter any data )
@@ -31,6 +31,15 @@ namespace Transform {
 		//apply transformations
 		model = glm::translate(model, position);
 		model = glm::rotate(model, glm::radians(angleDegrees), axis);
+		model = glm::scale(model, scale);
+		return model;
+	}
+
+	// overloaded model function that takes a quaternion for rotation instead of axis and angle
+	glm::mat4 model(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, position);
+		model = model * glm::mat4_cast(rotation);  // Convert quaternion to rotation matrix
 		model = glm::scale(model, scale);
 		return model;
 	}
