@@ -237,7 +237,7 @@ int Start(void)
         uiContext.scene.spawnCube = nullptr;
 
         // Draw Debug UI (logic only)
-        debugUI.draw(uiContext);
+        //debugUI.draw(uiContext);
 
         // --- Render ---
         renderer.draw(fbW, fbH,camera, scene.getObjects(), showUI);

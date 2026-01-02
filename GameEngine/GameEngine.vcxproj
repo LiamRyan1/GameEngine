@@ -132,6 +132,7 @@
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\DebugUI.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\GameTime.cpp" />
     <ClCompile Include="src\Input.cpp" />
@@ -160,6 +161,11 @@
     <ClInclude Include="external\imgui\core\imgui.h" />
     <ClInclude Include="external\imgui\core\imgui_internal.h" />
     <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Debug\DebugUI.h" />
+    <ClInclude Include="include\Debug\DebugUIContext.h" />
+    <ClInclude Include="include\Debug\PhysicsDebugView.h" />
+    <ClInclude Include="include\Debug\SceneDebugCommands.h" />
+    <ClInclude Include="include\Debug\TimeDebugView.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\CameraController.h" />
     <ClInclude Include="include\GameObject.h" />

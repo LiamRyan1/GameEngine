@@ -5,6 +5,7 @@ C:\Users\brian\Desktop\GameEngineProject\GameEngine\external\imgui\core\imgui_dr
 C:\Users\brian\Desktop\GameEngineProject\GameEngine\external\imgui\core\imgui_tables.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\imgui_tables.obj
 C:\Users\brian\Desktop\GameEngineProject\GameEngine\external\imgui\core\imgui_widgets.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\imgui_widgets.obj
 C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Camera.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\Camera.obj
+C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\DebugUI.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\DebugUI.obj
 C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\GameObject.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\GameObject.obj
 C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\GameTime.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\GameTime.obj
 C:\Users\brian\Desktop\GameEngineProject\GameEngine\src\Input.cpp;C:\Users\brian\Desktop\GameEngineProject\GameEngine\x64\Debug\Input.obj
