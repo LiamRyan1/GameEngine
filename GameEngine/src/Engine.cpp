@@ -10,6 +10,8 @@
 #include "../include/GameTime.h"
 #include "../include/Physics.h"
 #include "../include/Scene.h"
+#include "../include/Debug/DebugUI.h"
+#include "../include/Debug/DebugUIContext.h"
 
 void simulate(double dt)
 {
@@ -87,7 +89,6 @@ int Start(void)
     // Create scene manager
     Scene scene(physics);
 
-
     // x Remove this hardcoded scene setup when loading from files
     // Create ground plane as a visible GameObject
     scene.createCube(glm::vec3(0, -0.25f, 0), glm::vec3(100.0f, 0.5f, 100.0f), 0.0f);
@@ -119,6 +120,9 @@ int Start(void)
     // Tell Input which camera to rotate
     Input::SetCameraController(&cameraController);
 
+    // Create Debug UI
+    DebugUI debugUI;
+
     // --- Window tracking ---
     bool isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
     bool isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE;
@@ -142,6 +146,9 @@ int Start(void)
     std::cout << "Space/Ctrl - Up/Down (Free mode)" << std::endl;
     std::cout << "Mouse - (Not yet implemented)" << std::endl;
 
+    // ===================================
+    // Main Loop
+    // ===================================
     while (!glfwWindowShouldClose(window))
     {
 
@@ -210,6 +217,27 @@ int Start(void)
         cameraController.update(deltaTime);
         // --- Window
         glfwGetFramebufferSize(window, &fbW, &fbH);
+
+        
+        // Build Debug UI Context
+        // This packages up read-only engine data and approved debug commands
+        // so DebugUI can display stats and issue requests without owning systems.
+        DebugUIContext uiContext;
+
+        // Timing / performance data
+        uiContext.time.deltaTime = deltaTime;
+        uiContext.time.fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
+
+        // Physics debug data
+        uiContext.physics.rigidBodyCount = physics.getRigidBodyCount();
+        uiContext.physics.physicsEnabled = true;
+
+        // Scene debug commands (wired later)
+        // DebugUI will call this to REQUEST object creation
+        uiContext.scene.spawnCube = nullptr;
+
+        // Draw Debug UI (logic only)
+        debugUI.draw(uiContext);
 
         // --- Render ---
         renderer.draw(fbW, fbH,camera, scene.getObjects(), showUI);
