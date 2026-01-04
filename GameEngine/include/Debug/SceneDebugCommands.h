@@ -1,10 +1,12 @@
 #pragma once
 
+#include <functional>
 #include <glm/glm.hpp>
 
 struct SceneDebugCommands
 {
-    // I will change this later when we have a spawn cube function in place. (currently hardcoded cubes in scene)
-    // Then DebugCommands will be able to request a cube be spawned
-    void (*spawnCube)(const glm::vec3& position, bool withPhysics);
+    // Command interface exposed to Debug UI.
+    // DebugUI can only REQUEST actions.
+    // The Engine wires this function to real scene logic at runtime.
+    std::function<void(const glm::vec3& position, bool withPhysics)> spawnCube;
 };

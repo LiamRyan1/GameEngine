@@ -247,9 +247,18 @@ int Start(void)
         uiContext.physics.rigidBodyCount = physics.getRigidBodyCount();
         uiContext.physics.physicsEnabled = true;
 
-        // Scene debug commands (wired later)
-        // DebugUI will call this to REQUEST object creation
-        uiContext.scene.spawnCube = nullptr;
+        // Scene debug commands
+        // Wire DebugUI requests to real scene actions.
+        // This keeps DebugUI decoupled from Scene and Physics ownership.
+        uiContext.scene.spawnCube =
+            [&scene](const glm::vec3& position, bool withPhysics)
+            {
+                scene.createCube(
+                    position,
+                    glm::vec3(1.0f),
+                    withPhysics ? 1.0f : 0.0f
+                );
+            };
 
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
