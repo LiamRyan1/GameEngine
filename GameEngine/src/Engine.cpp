@@ -12,6 +12,10 @@
 #include "../include/Scene.h"
 #include "../include/Debug/DebugUI.h"
 #include "../include/Debug/DebugUIContext.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 
 void simulate(double dt)
 {
@@ -66,6 +70,17 @@ int Start(void)
 
     std::cout << "GLEW initialized successfully" << std::endl;
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+    // ImGui initialization (Engine-owned)
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 
     // Initialize Input System
     Input::Initialize(window);
@@ -236,11 +251,20 @@ int Start(void)
         // DebugUI will call this to REQUEST object creation
         uiContext.scene.spawnCube = nullptr;
 
+        // Start ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         // Draw Debug UI (logic only)
-        //debugUI.draw(uiContext);
+        debugUI.draw(uiContext);
+
+        // End ImGui frame
+        ImGui::Render();
 
         // --- Render ---
-        renderer.draw(fbW, fbH,camera, scene.getObjects(), showUI);
+        renderer.draw(fbW, fbH,camera, scene.getObjects());
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
 
 		//limit FPS if enabled
@@ -248,6 +272,11 @@ int Start(void)
     }
 
     std::cout << "Exiting..." << std::endl;
+
+    // ImGui shutdown
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     renderer.cleanup();
     physics.cleanup();

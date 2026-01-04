@@ -30,8 +30,7 @@ public:
     void initialize();
     void draw(int windowWidth, int windowHeight, 
         const Camera& camera, 
-        const std::vector<std::unique_ptr<GameObject>>& objects, 
-        bool showUI);
+        const std::vector<std::unique_ptr<GameObject>>& objects);
     void cleanup();
 };
 
