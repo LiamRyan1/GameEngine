@@ -38,6 +38,7 @@ target_sources(GameEngine PRIVATE
     src/Physics.cpp
     src/GameObject.cpp
     src/Scene.cpp
+    src/DebugUI.cpp
 	
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
