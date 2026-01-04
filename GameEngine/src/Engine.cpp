@@ -79,7 +79,7 @@ int Start(void)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init("#version 330");
 
     // Initialize Input System

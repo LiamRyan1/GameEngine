@@ -1,5 +1,7 @@
 ﻿#include "../include/Input.h"
 #include "../include/CameraController.h"
+#include "imgui_impl_glfw.h"
+
 
 // keysDown[key]     → true while key is being held
 // keysPressed[key]  → true for ONE frame when key transitions RELEASED → PRESSED
@@ -26,6 +28,9 @@ static CameraController* s_CameraController = nullptr;
 // GLFW calls KeyCallback -> Update the key states ->  Engine reads them.
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {   
+    // Forward event to ImGui
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
     // Cant press a key out of bounds
     // Ignore keys outside our array range
     if (key < 0 || key >= 1024) return;
@@ -49,11 +54,30 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 // Mouse movement callback
 static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
+    // Forward event to ImGui
+    ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+
     if (s_CameraController)
     {
         s_CameraController->processMouse(xpos, ypos);
     }
 }
+
+static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+}
+
+static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+}
+
+static void CharCallback(GLFWwindow* window, unsigned int c)
+{
+    ImGui_ImplGlfw_CharCallback(window, c);
+}
+
 
 // Initialize
 // Registers the GLFW key callback and stores the window pointer.
@@ -64,10 +88,14 @@ void Input::Initialize(GLFWwindow* window)
 {
     // Remember which window we are using for input
     internalWindow = window;
+
     // GLFW knows whenever a key is pressed or released on this window,
     // and it calls our KeyCallback function.”
     glfwSetKeyCallback(window, KeyCallback);
     glfwSetCursorPosCallback(window, CursorPosCallback);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetCharCallback(window, CharCallback);
 }
 
 // BeginFrame
