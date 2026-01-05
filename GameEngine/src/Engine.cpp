@@ -51,7 +51,7 @@ int Start(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(640, 480, "Game Engine", NULL, NULL);
+    window = glfwCreateWindow(960, 720, "Game Engine", NULL, NULL);
     if (!window)
     {
         std::cout << "Failed to create window" << std::endl;
@@ -196,7 +196,7 @@ int Start(void)
         //  - Mouse cursor is captured
         //  - Camera controls are active
         //  - Editor interaction is disabled
-        if (Input::GetKeyPressed(GLFW_KEY_TAB))
+        if (Input::GetKeyPressed(GLFW_KEY_E))
         {
             if (engineMode == EngineMode::Editor)
             {
@@ -265,6 +265,51 @@ int Start(void)
         cameraController.update(deltaTime);
         // --- Window
         glfwGetFramebufferSize(window, &fbW, &fbH);
+
+        // ===============================
+        // Editor Ray Test (LOG ONLY)
+        // ===============================
+        if (engineMode == EngineMode::Editor &&
+            //Input::GetKeyPressed(GLFW_MOUSE_BUTTON_LEFT))
+            Input::GetMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+
+        {
+            // Step 1: Get mouse position (screen space)
+            double mouseX, mouseY;
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+
+            // Step 2: Convert screen → NDC
+            float x = (2.0f * static_cast<float>(mouseX)) / fbW - 1.0f;
+            float y = 1.0f - (2.0f * static_cast<float>(mouseY)) / fbH;
+
+            // Step 3: Build ray
+            glm::vec4 rayClip(x, y, -1.0f, 1.0f);
+
+            glm::mat4 projection = camera.getProjectionMatrix(
+                static_cast<float>(fbW) / static_cast<float>(fbH)
+            );
+
+            glm::vec4 rayEye = glm::inverse(projection) * rayClip;
+            rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+            glm::mat4 view = camera.getViewMatrix();
+            glm::vec3 rayDirection =
+                glm::normalize(glm::vec3(glm::inverse(view) * rayEye));
+
+            glm::vec3 rayOrigin = camera.getPosition();
+
+            // Step 4: LOG IT
+            std::cout << "[Editor Ray]\n";
+            std::cout << "  Mouse: (" << mouseX << ", " << mouseY << ")\n";
+            std::cout << "  Origin: ("
+                << rayOrigin.x << ", "
+                << rayOrigin.y << ", "
+                << rayOrigin.z << ")\n";
+            std::cout << "  Direction: ("
+                << rayDirection.x << ", "
+                << rayDirection.y << ", "
+                << rayDirection.z << ")\n";
+        }
 
         
         // Build Debug UI Context

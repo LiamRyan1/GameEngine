@@ -12,6 +12,10 @@ static bool keysDown[1024] = { false }; //is currently down
 static bool keysPressed[1024] = { false };//was pressed this frame
 static bool keysReleased[1024] = { false }; //was released this frame
 
+static bool mouseButtonsDown[8] = { false }; //is currently down
+static bool mouseButtonsPressed[8] = { false }; //was pressed this frame
+static bool mouseButtonsReleased[8] = { false }; //was released this frame
+
 // GLFW window pointer, stored so the input module knows which window it belongs to.
 // It’s the Input system’s saved reference to the game window.
 // Without it, we can’t read input from GLFW.
@@ -66,6 +70,21 @@ static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
     ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
+    if (button < 0 || button >= 8) return;
+
+    if (action == GLFW_PRESS)
+    {
+        if (!mouseButtonsDown[button])
+            mouseButtonsPressed[button] = true;
+
+        mouseButtonsDown[button] = true;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        mouseButtonsDown[button] = false;
+        mouseButtonsReleased[button] = true;
+    }
 }
 
 static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -108,6 +127,13 @@ void Input::BeginFrame()
         keysPressed[i] = false;
         keysReleased[i] = false;
     }
+
+    for (int i = 0; i < 8; i++)
+    {
+        mouseButtonsPressed[i] = false;
+        mouseButtonsReleased[i] = false;
+    }
+
 }
 
 // Query Functions
@@ -136,3 +162,22 @@ void Input::SetCameraController(CameraController* controller)
 {
     s_CameraController = controller;
 }
+
+bool Input::GetMouseDown(int button)
+{
+    if (button < 0 || button >= 8) return false;
+    return mouseButtonsDown[button];
+}
+
+bool Input::GetMousePressed(int button)
+{
+    if (button < 0 || button >= 8) return false;
+    return mouseButtonsPressed[button];
+}
+
+bool Input::GetMouseReleased(int button)
+{
+    if (button < 0 || button >= 8) return false;
+    return mouseButtonsReleased[button];
+}
+
