@@ -34,6 +34,10 @@ int Start(void)
 {
     GLFWwindow* window;
 
+    // Tracks whether the engine is currently running in editor mode
+    // Editor mode (UI + selection) or game mode (gameplay + camera control).
+    EngineMode engineMode = EngineMode::Editor;
+
     if (!glfwInit())
     {
         std::cout << "Failed to init GLFW" << std::endl;
@@ -183,12 +187,37 @@ int Start(void)
         //poll for input events 
         glfwPollEvents();
 
-        // Toggle UI visibility with TAB key
+        // Toggle between Editor and Game modes.
+        // Editor mode:
+        //  - Mouse cursor is visible
+        //  - ImGui and editor tools are active
+        //  - Object selection is allowed
+        // Game mode:
+        //  - Mouse cursor is captured
+        //  - Camera controls are active
+        //  - Editor interaction is disabled
         if (Input::GetKeyPressed(GLFW_KEY_TAB))
         {
-            showUI = !showUI;
-            std::cout << "UI: " << (showUI ? "ON" : "OFF") << std::endl;
+            if (engineMode == EngineMode::Editor)
+            {
+                engineMode = EngineMode::Game;
+
+                // Capture the mouse for gameplay / camera control
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+                std::cout << "Mode: GAME" << std::endl;
+            }
+            else
+            {
+                engineMode = EngineMode::Editor;
+
+                // Release the mouse so the user can interact with the editor UI
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+                std::cout << "Mode: EDITOR" << std::endl;
+            }
         }
+
 
         // Add the elapsed frame time into the accumulator
         accumulator += deltaTime;
@@ -213,7 +242,7 @@ int Start(void)
             physicsSteps = 0;
         }
 		// Camera mode toggle
-        if (Input::GetKeyPressed(GLFW_KEY_ENTER))
+        if (Input::GetKeyPressed(GLFW_KEY_F))
         {
             if (cameraController.getMode() == CameraController::Mode::ORBIT) {
                 cameraController.setMode(CameraController::Mode::FREE);
