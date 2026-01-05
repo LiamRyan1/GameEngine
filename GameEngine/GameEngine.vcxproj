@@ -143,6 +143,8 @@
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\Stb_image.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +177,7 @@
     <ClInclude Include="include\Physics.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Transform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

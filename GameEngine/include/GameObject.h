@@ -24,6 +24,14 @@ public:
     glm::vec3 getScale() const { return scale; }
     btRigidBody* getRigidBody() const { return rigidBody; }
 
+    void setTexturePath(const std::string& path) {
+        texturePath = path;
+    }
+
+    const std::string& getTexturePath() const {
+        return texturePath;
+    }
+
 private:
     ShapeType shapeType;
     btRigidBody* rigidBody;
@@ -31,4 +39,6 @@ private:
     glm::vec3 position;
     glm::quat rotation;
     glm::vec3 scale;
+
+	std::string texturePath;
 };

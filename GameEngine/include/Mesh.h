@@ -14,11 +14,13 @@ private:
     unsigned int VBO;      // Vertex Buffer Object - stores vertex position data
     unsigned int EBO;      // Element Buffer Object - stores face indices (for triangles)
     unsigned int edgeEBO;  // Edge Element Buffer Object - stores edge indices (for lines)
+	unsigned int texCoordVBO; // Texture Coordinate VBO - stores UV mapping data
 
     // CPU-side Data (kept for reference/debugging)
     std::vector<float> vertices;              // Raw vertex data (x,y,z coordinates)
     std::vector<unsigned int> indices;        // Face indices (which vertices form triangles)
     std::vector<unsigned int> edgeIndices;    // Edge indices (which vertices form lines)
+	std::vector<float> texCoords; // Texture coordinates (u,v) for each vertex
 
     // Drawing Metadata 
     unsigned int indexCount;      // Number of face indices (used in draw())
@@ -42,13 +44,15 @@ public:
 	// setData: Basic setup for meshes that only need triangle rendering (e.g. cube, sphere)
     // Uploads vertices and face indices to GPU
     void setData(const std::vector<float>& verts,
-        const std::vector<unsigned int>& inds);
+        const std::vector<unsigned int>& inds,
+        const std::vector<float>& texCoords);
 
     // setDataWithEdges: Full setup for meshes that need both faces AND edge outlines
     // Uploads vertices, face indices, and separate edge indices to GPU
     void setDataWithEdges(const std::vector<float>& verts,
         const std::vector<unsigned int>& inds,
-        const std::vector<unsigned int>& edges);
+        const std::vector<unsigned int>& edges,
+        const std::vector<float>& texCoords);
 
     // draw: Renders the mesh as filled triangles
     // Uses EBO (face indices) with GL_TRIANGLES

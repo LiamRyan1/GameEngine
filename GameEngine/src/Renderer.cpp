@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include "../include/Renderer.h"
+#include "../include/Texture.h"
 #include <iostream>
 #include <fstream>   
 #include <sstream> 
@@ -97,6 +98,28 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
 
     return shader;
 }
+
+Texture* Renderer::loadTexture(const std::string& filepath) {
+    // Check if texture is already cached
+    auto it = textureCache.find(filepath);
+    if (it != textureCache.end()) {
+        // Already loaded - return cached texture
+        return &it->second;
+    }
+
+    // Not cached - load new texture
+    Texture texture;
+    if (!texture.loadFromFile(filepath)) {
+        std::cerr << "Failed to load texture: " << filepath << std::endl;
+        return nullptr;
+    }
+
+    // Store in cache and return pointer
+    textureCache[filepath] = std::move(texture);
+    std::cout << "Cached texture: " << filepath << std::endl;
+    return &textureCache[filepath];
+}
+
 void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc) {
     // Use Transform helper with quaternion rotation
     glm::mat4 model = Transform::model(
@@ -120,6 +143,30 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 
     if (!mesh) return;
 
+    //handle textures
+	bool hasTexture = !obj.getTexturePath().empty();
+	Texture* texture = nullptr;
+    if (hasTexture) {
+        texture = loadTexture(obj.getTexturePath());
+        if (texture) {
+			texture->bind(0); // Bind to texture unit 0 
+            
+			// Set shader uniform to use texture unit 0
+			int texLoc = glGetUniformLocation(shaderProgram, "texture1");
+			glUniform1i(texLoc, 0);
+
+        }
+    }
+	// tell shader to use texture or not
+	int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
+    glUniform1i(useTexLoc, texture != nullptr);
+    
+	//fallback color if no texture
+    if (!texture) {
+        glUniform3f(colorLoc, color.r, color.g, color.b);
+    }
+
+
     // Draw edges first
     glEnable(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(-0.50f, -0.50f);
@@ -131,6 +178,11 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     // Draw filled shape
     glUniform3f(colorLoc, color.r, color.g, color.b);
     mesh->draw();
+
+	// Unbind texture after drawing
+    if (texture) {
+        texture->unbind();
+	}
 }
 
 void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects) {
@@ -164,6 +216,12 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
 void Renderer::cleanup() {
     std::cout << "Cleaning up renderer..." << std::endl;
     cubeMesh.cleanup();
+
+    for (auto& pair : textureCache) {
+        pair.second.cleanup();
+    }
+    textureCache.clear();
+    std::cout << "Cleaned up " << textureCache.size() << " textures" << std::endl;
 
     glDeleteProgram(shaderProgram);
     std::cout << "Renderer cleaned up" << std::endl;

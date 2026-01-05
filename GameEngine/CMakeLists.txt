@@ -38,8 +38,14 @@ target_sources(GameEngine PRIVATE
     src/Physics.cpp
     src/GameObject.cpp
     src/Scene.cpp
+<<<<<<< Updated upstream
     src/DebugUI.cpp
 	
+=======
+	src/Stb_image.cpp  
+    src/Texture.cpp 
+
+>>>>>>> Stashed changes
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_draw.cpp
@@ -57,6 +63,14 @@ add_custom_command(TARGET GameEngine POST_BUILD
     ${CMAKE_SOURCE_DIR}/shaders
     $<TARGET_FILE_DIR:GameEngine>/shaders
     COMMENT "Copying shaders to build directory"
+)
+
+# Copy textures to build directory
+add_custom_command(TARGET GameEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/textures
+    $<TARGET_FILE_DIR:GameEngine>/textures
+    COMMENT "Copying textures to build directory"
 )
 
 # --- ImGui include dirs ---

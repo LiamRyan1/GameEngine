@@ -39,9 +39,11 @@ Mesh::Mesh(Mesh&& other) noexcept
     VBO(other.VBO),
     EBO(other.EBO),
     edgeEBO(other.edgeEBO),
+    texCoordVBO(other.texCoordVBO),
     vertices(std::move(other.vertices)),     // Move vectors (efficient, no copy)
     indices(std::move(other.indices)),
     edgeIndices(std::move(other.edgeIndices)),
+    texCoords(std::move(other.texCoords)),
     indexCount(other.indexCount),
     edgeIndexCount(other.edgeIndexCount) {
 
@@ -50,6 +52,7 @@ Mesh::Mesh(Mesh&& other) noexcept
     other.VBO = 0;
     other.EBO = 0;
     other.edgeEBO = 0;
+    other.texCoordVBO = 0;
     other.indexCount = 0;
     other.edgeIndexCount = 0;
 }
@@ -66,9 +69,11 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
         VBO = other.VBO;
         EBO = other.EBO;
         edgeEBO = other.edgeEBO;
+        texCoordVBO = other.texCoordVBO;
         vertices = std::move(other.vertices);
         indices = std::move(other.indices);
         edgeIndices = std::move(other.edgeIndices);
+        texCoords = std::move(other.texCoords);
         indexCount = other.indexCount;
         edgeIndexCount = other.edgeIndexCount;
 
@@ -77,6 +82,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
         other.VBO = 0;
         other.EBO = 0;
         other.edgeEBO = 0;
+        other.texCoordVBO = 0;
         other.indexCount = 0;
         other.edgeIndexCount = 0;
     }
@@ -86,26 +92,42 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
 // setData: Basic mesh setup without edge rendering
 // Used for shapes like spheres where we don't need separate edge outlines
 void Mesh::setData(const std::vector<float>& verts,
-    const std::vector<unsigned int>& inds) {
+    const std::vector<unsigned int>& inds,
+    const std::vector<float>& texCoordsData) {
     // Store data on CPU side (useful for debugging or later modifications)
     vertices = verts;
     indices = inds;
+	texCoords = texCoordsData; // Store texture coordinates
     indexCount = inds.size();
 
     // Generate OpenGL buffer IDs
     glGenVertexArrays(1, &VAO);  // Create VAO
     glGenBuffers(1, &VBO);       // Create VBO
     glGenBuffers(1, &EBO);       // Create EBO
+	glGenBuffers(1, &texCoordVBO); // Create VBO for texture coordinates
 
     // Bind VAO first - all following buffer bindings will be "recorded" in this VAO
     glBindVertexArray(VAO);
 
     // Upload vertex data to GPU
+	// Position buffer (attribute location 0)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);  // Bind VBO as the active array buffer
     glBufferData(GL_ARRAY_BUFFER,        // Target buffer type
         vertices.size() * sizeof(float),  // Size in bytes
         vertices.data(),                  // Pointer to data
         GL_STATIC_DRAW);                  // Usage hint (data won't change often)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+	// Texture coordinate buffer (attribute location 1)
+    glBindBuffer(GL_ARRAY_BUFFER, texCoordVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+        texCoords.size() * sizeof(float),
+        texCoords.data(),
+        GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
 
     // Upload index data to GPU
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);  // Bind EBO
@@ -114,18 +136,7 @@ void Mesh::setData(const std::vector<float>& verts,
         indices.data(),                         // Pointer to data
         GL_STATIC_DRAW);                        // Usage hint
 
-    // Configure vertex attribute layout (tell GPU how to interpret vertex data)
-    // Attribute location 0: position (3 floats per vertex: x, y, z)
-    glVertexAttribPointer(0,              // Attribute location (matches shader layout)
-        3,              // Number of components (x, y, z)
-        GL_FLOAT,       // Data type
-        GL_FALSE,       // Don't normalize
-        3 * sizeof(float),  // Stride (bytes between vertices)
-        (void*)0);      // Offset (start at beginning)
-
-    // Enable vertex attribute array at location 0
-    glEnableVertexAttribArray(0);
-
+ 
     // Unbind buffers (good practice to avoid accidental modifications)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -135,11 +146,13 @@ void Mesh::setData(const std::vector<float>& verts,
 // Used for shapes like cubes where we want clean edge outlines
 void Mesh::setDataWithEdges(const std::vector<float>& verts,
     const std::vector<unsigned int>& inds,
-    const std::vector<unsigned int>& edges) {
+    const std::vector<unsigned int>& edges,
+    const std::vector<float>& texCoordsData) {
     // Store all data on CPU side
     vertices = verts;
     indices = inds;
     edgeIndices = edges;
+	texCoords = texCoordsData;
     indexCount = inds.size();
     edgeIndexCount = edges.size();
 
@@ -147,17 +160,31 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(1, &edgeEBO);  // Extra buffer for edge indices
+    glGenBuffers(1, &edgeEBO);// Extra buffer for edge indices
+	glGenBuffers(1, &texCoordVBO);// VBO for texture coordinates
 
     // Configure VAO with vertex and face index data
     glBindVertexArray(VAO);
 
+	// position buffer
     // Upload vertices to VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER,
         vertices.size() * sizeof(float),
         vertices.data(),
         GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+	// texture coordinate buffer
+    glBindBuffer(GL_ARRAY_BUFFER, texCoordVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+        texCoords.size() * sizeof(float),
+        texCoords.data(),
+        GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
 
     // Upload face indices to EBO
     // This EBO is bound to the VAO, so it will be used automatically in draw()
@@ -166,10 +193,6 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
         indices.size() * sizeof(unsigned int),
         indices.data(),
         GL_STATIC_DRAW);
-
-    // Configure vertex attribute (position)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
 
     // IMPORTANT: Unbind VAO BEFORE binding edgeEBO
     // We don't want edgeEBO to be part of the VAO's state yet
@@ -239,6 +262,7 @@ void Mesh::cleanup() {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
+		glDeleteBuffers(1, &texCoordVBO); // Delete texture coordinate VBO
 
         // Only delete edgeEBO if it was created
         if (edgeEBO != 0) {
@@ -246,7 +270,7 @@ void Mesh::cleanup() {
         }
 
         // Reset all IDs to 0 (marks as "cleaned up")
-        VAO = VBO = EBO = edgeEBO = 0;
+        VAO = VBO = EBO = edgeEBO = texCoordVBO = 0;
     }
 }
 
@@ -267,6 +291,19 @@ Mesh Mesh::createCube() {
          0.5f,  0.5f, -0.5f,  // 6: Back top right
         -0.5f,  0.5f, -0.5f   // 7: Back top left
     };
+    
+	// Texture coordinates for each vertex (u,v)
+	// Each vertex gets a (u,v) pair for texturing
+    std::vector <float> texCoords = {
+		0.0f, 0.0f, // 0 bottom left
+		1.0f, 0.0f, // 1 bottom right
+		1.0f, 1.0f, // 2 top right
+		0.0f, 1.0f, // 3 top left
+		0.0f, 0.0f, // 4 back bottom left
+		1.0f, 0.0f, // 5 back bottom right
+		1.0f, 1.0f, // 6 back top right
+		0.0f, 1.0f  // 7 back top left
+	};
 
     // Define face indices (which vertices form triangles)
     // 36 indices = 12 triangles = 6 faces (each face is 2 triangles)
@@ -316,7 +353,7 @@ Mesh Mesh::createCube() {
 
     // Create mesh object and upload data to GPU
     Mesh mesh;
-    mesh.setDataWithEdges(vertices, indices, edgeIndices);
+    mesh.setDataWithEdges(vertices, indices, edgeIndices,texCoords);
 
     std::cout << "Cube created - indexCount: " << mesh.indexCount
         << ", edgeIndexCount: " << mesh.edgeIndexCount << std::endl;
