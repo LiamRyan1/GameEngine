@@ -38,14 +38,10 @@ target_sources(GameEngine PRIVATE
     src/Physics.cpp
     src/GameObject.cpp
     src/Scene.cpp
-<<<<<<< Updated upstream
     src/DebugUI.cpp
-	
-=======
 	src/Stb_image.cpp  
     src/Texture.cpp 
 
->>>>>>> Stashed changes
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_draw.cpp
