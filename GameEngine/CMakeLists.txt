@@ -41,6 +41,7 @@ target_sources(GameEngine PRIVATE
     src/DebugUI.cpp
 	src/Stb_image.cpp  
     src/Texture.cpp 
+    src/Raycast.cpp
 
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp

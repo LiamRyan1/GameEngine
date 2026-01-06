@@ -140,6 +140,7 @@
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Physics.cpp" />
+    <ClCompile Include="src\Raycast.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Scene.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Physics.h" />
+    <ClInclude Include="include\Raycast.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Texture.h" />

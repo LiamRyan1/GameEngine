@@ -15,6 +15,8 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "../include/Raycast.h"
+
 
 
 void simulate(double dt)
@@ -267,51 +269,77 @@ int Start(void)
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
         // ===============================
-        // Editor Ray Test (LOG ONLY)
+        // Editor Ray → AABB Picking
         // ===============================
         if (engineMode == EngineMode::Editor &&
-            //Input::GetKeyPressed(GLFW_MOUSE_BUTTON_LEFT))
             Input::GetMousePressed(GLFW_MOUSE_BUTTON_LEFT))
-
         {
-            // Step 1: Get mouse position (screen space)
+            // Mouse position
             double mouseX, mouseY;
             glfwGetCursorPos(window, &mouseX, &mouseY);
 
-            // Step 2: Convert screen → NDC
+            // Screen -> NDC 
             float x = (2.0f * static_cast<float>(mouseX)) / fbW - 1.0f;
             float y = 1.0f - (2.0f * static_cast<float>(mouseY)) / fbH;
 
-            // Step 3: Build ray
+            // Build ray
             glm::vec4 rayClip(x, y, -1.0f, 1.0f);
 
-            glm::mat4 projection = camera.getProjectionMatrix(
-                static_cast<float>(fbW) / static_cast<float>(fbH)
-            );
+            glm::mat4 projection =
+                camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
 
             glm::vec4 rayEye = glm::inverse(projection) * rayClip;
             rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 
-            glm::mat4 view = camera.getViewMatrix();
             glm::vec3 rayDirection =
-                glm::normalize(glm::vec3(glm::inverse(view) * rayEye));
+                glm::normalize(glm::vec3(glm::inverse(camera.getViewMatrix()) * rayEye));
 
             glm::vec3 rayOrigin = camera.getPosition();
 
-            // Step 4: LOG IT
             std::cout << "[Editor Ray]\n";
             std::cout << "  Mouse: (" << mouseX << ", " << mouseY << ")\n";
-            std::cout << "  Origin: ("
-                << rayOrigin.x << ", "
+            std::cout << "  Origin: (" << rayOrigin.x << ", "
                 << rayOrigin.y << ", "
                 << rayOrigin.z << ")\n";
-            std::cout << "  Direction: ("
-                << rayDirection.x << ", "
+            std::cout << "  Direction: (" << rayDirection.x << ", "
                 << rayDirection.y << ", "
                 << rayDirection.z << ")\n";
+
+            // Test against scene objects
+            float closestHit = FLT_MAX;
+
+            for (const auto& obj : scene.getObjects())
+            {
+                const glm::vec3& position = obj->getPosition();
+                const glm::vec3& scale = obj->getScale();
+
+                
+                // Build AABB from the object's transform
+                glm::vec3 aabbMin = position - scale * 0.5f;
+                glm::vec3 aabbMax = position + scale * 0.5f;
+
+                float hitDistance;
+                if (RayIntersectsAABB(
+                    rayOrigin,
+                    rayDirection,
+                    aabbMin,
+                    aabbMax,
+                    hitDistance))
+                {
+                    if (hitDistance < closestHit)
+                    {
+                        closestHit = hitDistance;
+                    }
+                }
+            }
+
+            if (closestHit < FLT_MAX)
+            {
+                std::cout << "[Editor Pick] HIT at distance "
+                    << closestHit << "\n";
+            }
         }
 
-        
         // Build Debug UI Context
         // This packages up read-only engine data and approved debug commands
         // so DebugUI can display stats and issue requests without owning systems.
