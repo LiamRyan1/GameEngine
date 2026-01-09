@@ -7,6 +7,11 @@
 #include "../include/Physics.h"
 
 class Scene {
+
+private:
+    Physics& physicsWorld;
+    std::vector<std::unique_ptr<GameObject>> gameObjects;
+
 public:
     Scene(Physics& physics);
     ~Scene();
@@ -30,9 +35,7 @@ public:
     // void loadFromFile(const std::string& filepath);
     // void saveToFile(const std::string& filepath);
 
-private:
-    Physics& physicsWorld;
-    std::vector<std::unique_ptr<GameObject>> gameObjects;
+
 };
 
 #endif

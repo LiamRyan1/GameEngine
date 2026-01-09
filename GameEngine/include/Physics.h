@@ -6,6 +6,18 @@
 #include <vector>
 enum class ShapeType;
 class Physics {
+private:
+    // Core Bullet components
+    btDefaultCollisionConfiguration* collisionConfiguration;
+    btCollisionDispatcher* dispatcher;
+    btBroadphaseInterface* broadphase;
+    btSequentialImpulseConstraintSolver* solver;
+    btDiscreteDynamicsWorld* dynamicsWorld;
+
+    // store created rigid bodies and shapes in collections for cleanup
+    std::vector<btRigidBody*> rigidBodies;
+    std::vector<btCollisionShape*> collisionShapes;
+
 public:
     Physics();
     ~Physics();
@@ -32,18 +44,7 @@ public:
 
     // Get number of active rigid bodies
     int getRigidBodyCount() const;
-
-private:
-    // Core Bullet components
-    btDefaultCollisionConfiguration* collisionConfiguration;
-    btCollisionDispatcher* dispatcher;
-    btBroadphaseInterface* broadphase;
-    btSequentialImpulseConstraintSolver* solver;
-    btDiscreteDynamicsWorld* dynamicsWorld;
-
-	// store created rigid bodies and shapes in collections for cleanup
-    std::vector<btRigidBody*> rigidBodies;
-    std::vector<btCollisionShape*> collisionShapes;
 };
+
 
 #endif // PHYSICS_H

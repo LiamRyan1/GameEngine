@@ -26,22 +26,35 @@ add_executable(GameEngine)
 
 
 target_sources(GameEngine PRIVATE
-	src/Main.cpp
-	src/Engine.cpp
-	src/Camera.cpp
-	src/Transform.cpp
-	src/Renderer.cpp
-	src/Input.cpp
-	src/Mesh.cpp
-	src/GameTime.cpp
-	src/CameraController.cpp
-    src/Physics.cpp
-    src/GameObject.cpp
-    src/Scene.cpp
-    src/DebugUI.cpp
-	src/Stb_image.cpp  
-    src/Texture.cpp 
-    src/Raycast.cpp
+   # Core
+    src/Core/Main.cpp
+    src/Core/Engine.cpp
+    src/Core/GameTime.cpp
+    
+    # Rendering
+    src/Rendering/Renderer.cpp
+    src/Rendering/Mesh.cpp
+    src/Rendering/Texture.cpp
+    src/Rendering/Camera.cpp
+    
+    # Physics
+    src/Physics/Physics.cpp
+    src/Physics/Raycast.cpp 
+
+    # Scene
+    src/Scene/Scene.cpp
+    src/Scene/GameObject.cpp
+    src/Scene/Transform.cpp
+    
+    # Input
+    src/Input/Input.cpp
+    src/Input/CameraController.cpp
+
+    # UI
+    src/UI/DebugUI.cpp 
+    
+    # External
+    src/External/stb_image.cpp
 
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp

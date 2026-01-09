@@ -3,6 +3,11 @@
 #include <GL/glew.h>
 
 class Texture {
+private:
+    unsigned int textureID;
+    int width;
+    int height;
+    int channels; 
 public:
     Texture();
     ~Texture();
@@ -29,9 +34,5 @@ public:
     int getHeight() const { return height; }
     bool isLoaded() const { return textureID != 0; }
 
-private:
-    unsigned int textureID;
-    int width;
-    int height;
-    int channels;
+
 };
