@@ -73,6 +73,7 @@ bool Texture::loadFromFile(const std::string& filepath) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrap vertically , repeat texture if coords > 1.0
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // set minification filter to use mipmaps( precomputed smaller version of the texture) allows one pixel to cover multiple texels, making the texture appear simpler
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // set magnification filter to linear interpolation, allows one texel to cover multiple pixel, stretching the texture
+   
     // Determine format
     GLenum format = GL_RGB;
     if (channels == 1)
@@ -84,7 +85,7 @@ bool Texture::loadFromFile(const std::string& filepath) {
 
     // Upload to GPU
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+	glGenerateMipmap(GL_TEXTURE_2D); // generate mipmaps for the texture
 
     // Free CPU data
     stbi_image_free(data);
