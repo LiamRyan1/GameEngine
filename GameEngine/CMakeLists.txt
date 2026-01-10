@@ -39,7 +39,7 @@ target_sources(GameEngine PRIVATE
     
     # Physics
     src/Physics/Physics.cpp
-    src/Physics/Raycast.cpp 
+
 
     # Scene
     src/Scene/Scene.cpp
@@ -52,7 +52,8 @@ target_sources(GameEngine PRIVATE
 
     # UI
     src/UI/DebugUI.cpp 
-    
+    src/UI/Raycast.cpp 
+
     # External
     src/External/stb_image.cpp
 

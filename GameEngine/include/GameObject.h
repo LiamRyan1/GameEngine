@@ -9,6 +9,7 @@ class Mesh;
 enum class ShapeType {
     CUBE,
     SPHERE,
+    CAPSULE,
 };
 
 class GameObject {

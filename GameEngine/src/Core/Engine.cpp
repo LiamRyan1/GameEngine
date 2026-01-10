@@ -124,6 +124,8 @@ int Start(void)
 	cube4->setTexturePath("textures/texture_06.png");
     auto cube5 = scene.createCube(glm::vec3(5.0f, 12.0f, -7.0f), glm::vec3(1.0f), 1.0f);
 
+	auto sphere1 = scene.createSphere(glm::vec3(2.0f, 15.0f, 3.0f), 1.0f, 1.0f);
+
     // TODO: Replace hardcoded scene with file loading
     // scene.loadFromFile("scenes/test_level.json");
 

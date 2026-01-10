@@ -139,6 +139,12 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
         mesh = &cubeMesh;
         color = glm::vec3(1.0f, 0.5f, 0.2f); // Orange
         break;
+    default:
+		//default to cube for unknown shapes
+        mesh = &cubeMesh;
+        color = glm::vec3(1.0f, 0.5f, 0.2f); // Orange
+
+        break;
     }
 
     if (!mesh) return;

@@ -140,13 +140,13 @@
     <ClCompile Include="src\Core\Engine.cpp" />
     <ClCompile Include="src\Rendering\Mesh.cpp" />
     <ClCompile Include="src\Physics\Physics.cpp" />
-    <ClCompile Include="src\Physics\Raycast.cpp" />
     <ClCompile Include="src\Rendering\Renderer.cpp" />
     <ClCompile Include="src\Input\CameraController.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\External\Stb_image.cpp" />
     <ClCompile Include="src\Rendering\Texture.cpp" />
     <ClCompile Include="src\Scene\Transform.cpp" />
+    <ClCompile Include="src\UI\Raycast.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

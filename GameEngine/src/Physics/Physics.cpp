@@ -58,10 +58,24 @@ btRigidBody* Physics::createRigidBody(ShapeType type,
     case ShapeType::CUBE:
         // Bullet uses halfs for box shapes size
         shape = new btBoxShape(btVector3(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f));
+        std::cout << "Created box collider: " << size.x << "x" << size.y << "x" << size.z << std::endl;
         break;
     case ShapeType::SPHERE:
-        shape = new btSphereShape(size.x); // size.x = radius
+        // size.x = radius
+        shape = new btSphereShape(size.x);
+        std::cout << "Created sphere collider: radius=" << size.x << std::endl;
         break;
+    case ShapeType::CAPSULE:
+        // size.x = radius, size.y = height
+		shape = new btCapsuleShape(size.x, size.y);
+        std::cout << "Created capsule collider: radius= " << size.x << ", height=" << size.y << std::endl;
+        break;
+
+    default:
+        std:: cerr << "Unknown ShapeType for rigid body creation! defaulting to cube" << std::endl;
+        shape = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
+        break;
+
     }
 
     collisionShapes.push_back(shape);
