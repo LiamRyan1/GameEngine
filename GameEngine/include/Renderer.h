@@ -19,6 +19,11 @@ private:
     Mesh cubeMesh;
 
     std::unordered_map<std::string, Texture> textureCache;  //texture cache
+
+    // Lighting properties
+    glm::vec3 lightPos;
+    glm::vec3 lightColor;
+
 	Texture* loadTexture(const std::string& filepath); // load texture with caching
 
 
@@ -36,6 +41,11 @@ public:
         const Camera& camera, 
         const std::vector<std::unique_ptr<GameObject>>& objects);
     void cleanup();
+
+    // Lighting control
+    void setLightPosition(const glm::vec3& pos) { lightPos = pos; }
+    void setLightColor(const glm::vec3& color) { lightColor = color; }
+
 };
 
 #endif

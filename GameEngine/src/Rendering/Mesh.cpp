@@ -147,66 +147,40 @@ void Mesh::setData(const std::vector<float>& verts,
 void Mesh::setDataWithEdges(const std::vector<float>& verts,
     const std::vector<unsigned int>& inds,
     const std::vector<unsigned int>& edges,
-    const std::vector<float>& texCoordsData) {
-    // Store all data on CPU side
+    const std::vector<float>& texCoordsData) {  // ADD THIS PARAMETER
     vertices = verts;
     indices = inds;
     edgeIndices = edges;
-	texCoords = texCoordsData;
+    texCoords = texCoordsData;  // Store texture coordinates
     indexCount = inds.size();
     edgeIndexCount = edges.size();
 
-    // Generate all OpenGL buffer IDs
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(1, &edgeEBO);// Extra buffer for edge indices
-	glGenBuffers(1, &texCoordVBO);// VBO for texture coordinates
+    glGenBuffers(1, &edgeEBO);
 
-    // Configure VAO with vertex and face index data
     glBindVertexArray(VAO);
 
-	// position buffer
-    // Upload vertices to VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER,
-        vertices.size() * sizeof(float),
-        vertices.data(),
-        GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    // Position attribute (location 0) - 3 floats
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-	// texture coordinate buffer
-    glBindBuffer(GL_ARRAY_BUFFER, texCoordVBO);
-    glBufferData(GL_ARRAY_BUFFER,
-        texCoords.size() * sizeof(float),
-        texCoords.data(),
-        GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    // Normal attribute (location 1) - 3 floats, starts at offset 3
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
-    // Upload face indices to EBO
-    // This EBO is bound to the VAO, so it will be used automatically in draw()
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        indices.size() * sizeof(unsigned int),
-        indices.data(),
-        GL_STATIC_DRAW);
-
-    // IMPORTANT: Unbind VAO BEFORE binding edgeEBO
-    // We don't want edgeEBO to be part of the VAO's state yet
     glBindVertexArray(0);
 
-    // Upload edge indices to a separate buffer (NOT bound to VAO)
-    // This allows us to switch between face and edge rendering
+    // Upload edge indices separately
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, edgeEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        edgeIndices.size() * sizeof(unsigned int),
-        edgeIndices.data(),
-        GL_STATIC_DRAW);
-
-    // Unbind edge buffer
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, edgeIndices.size() * sizeof(unsigned int), edgeIndices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
@@ -278,87 +252,77 @@ void Mesh::cleanup() {
 // createCube: Factory method to create a unit cube (1x1x1) centered at origin
 // Returns a fully configured Mesh ready to render
 Mesh Mesh::createCube() {
-    // Define 8 unique corner vertices of a cube
-    // Cube ranges from -0.5 to +0.5 on all axes (centered at origin, size 1)
+    // 24 vertices (6 faces * 4 vertices per face)
+    // Each vertex: 6 floats (x, y, z, nx, ny, nz)
     std::vector<float> vertices = {
-        // Each vertex is 3 floats: x, y, z
-        -0.5f, -0.5f,  0.5f,  // 0: Front bottom left
-         0.5f, -0.5f,  0.5f,  // 1: Front bottom right
-         0.5f,  0.5f,  0.5f,  // 2: Front top right
-        -0.5f,  0.5f,  0.5f,  // 3: Front top left
-        -0.5f, -0.5f, -0.5f,  // 4: Back bottom left
-         0.5f, -0.5f, -0.5f,  // 5: Back bottom right
-         0.5f,  0.5f, -0.5f,  // 6: Back top right
-        -0.5f,  0.5f, -0.5f   // 7: Back top left
-    };
-    
-	// Texture coordinates for each vertex (u,v)
-	// Each vertex gets a (u,v) pair for texturing
-    std::vector <float> texCoords = {
-		0.0f, 0.0f, // 0 bottom left
-		1.0f, 0.0f, // 1 bottom right
-		1.0f, 1.0f, // 2 top right
-		0.0f, 1.0f, // 3 top left
-		0.0f, 0.0f, // 4 back bottom left
-		1.0f, 0.0f, // 5 back bottom right
-		1.0f, 1.0f, // 6 back top right
-		0.0f, 1.0f  // 7 back top left
-	};
+        // Front face (normal pointing +Z: 0, 0, 1)
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  // 0: bottom-left
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  // 1: bottom-right
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  // 2: top-right
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  // 3: top-left
 
-    // Define face indices (which vertices form triangles)
-    // 36 indices = 12 triangles = 6 faces (each face is 2 triangles)
-    // Triangles are wound counter-clockwise when viewed from outside
+        // Back face (normal pointing -Z: 0, 0, -1)
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  // 4: bottom-left
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  // 5: top-left
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  // 6: top-right
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  // 7: bottom-right
+
+         // Left face (normal pointing -X: -1, 0, 0)
+         -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  // 8: bottom-back
+         -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  // 9: bottom-front
+         -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  // 10: top-front
+         -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  // 11: top-back
+
+         // Right face (normal pointing +X: 1, 0, 0)
+          0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  // 12: bottom-back
+          0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  // 13: top-back
+          0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  // 14: top-front
+          0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  // 15: bottom-front
+
+          // Top face (normal pointing +Y: 0, 1, 0)
+          -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  // 16: back-left
+          -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  // 17: front-left
+           0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  // 18: front-right
+           0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  // 19: back-right
+
+           // Bottom face (normal pointing -Y: 0, -1, 0)
+           -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  // 20: back-left
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  // 21: back-right
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  // 22: front-right
+           -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f   // 23: front-left
+    };
+
+    // Face indices - 36 indices (6 faces * 2 triangles * 3 vertices)
     std::vector<unsigned int> indices = {
-        // Front face (+Z direction)
-        0, 1, 2,  2, 3, 0,  // Two triangles: 0→1→2 and 2→3→0
-
-        // Back face (-Z direction)
-        5, 4, 7,  7, 6, 5,  // Winding order reversed for back face
-
-        // Left face (-X direction)
-        4, 0, 3,  3, 7, 4,
-
-        // Right face (+X direction)
-        1, 5, 6,  6, 2, 1,
-
-        // Top face (+Y direction)
-        3, 2, 6,  6, 7, 3,
-
-        // Bottom face (-Y direction)
-        4, 5, 1,  1, 0, 4
+        // Front face
+        0, 1, 2,  2, 3, 0,
+        // Back face
+        4, 5, 6,  6, 7, 4,
+        // Left face
+        8, 9, 10,  10, 11, 8,
+        // Right face
+        12, 13, 14,  14, 15, 12,
+        // Top face
+        16, 17, 18,  18, 19, 16,
+        // Bottom face
+        20, 21, 22,  22, 23, 20
     };
 
-    // Define edge indices (which vertices form lines)
-    // 24 indices = 12 edges (each edge connects 2 vertices)
-    // This creates ONLY the 12 actual edges of the cube (no diagonal triangle edges)
+    // Edge indices - 24 indices (12 edges * 2 vertices)
     std::vector<unsigned int> edgeIndices = {
-        // Front face edges (4 edges forming a square)
-        0, 1,  // Bottom edge
-        1, 2,  // Right edge
-        2, 3,  // Top edge
-        3, 0,  // Left edge
-
-        // Back face edges (4 edges forming a square)
-        4, 5,  // Bottom edge
-        5, 6,  // Right edge
-        6, 7,  // Top edge
-        7, 4,  // Left edge
-
-        // Connecting edges between front and back (4 edges)
-        0, 4,  // Bottom-left connection
-        1, 5,  // Bottom-right connection
-        2, 6,  // Top-right connection
-        3, 7   // Top-left connection
+        // Front face edges
+        0, 1,  1, 2,  2, 3,  3, 0,
+        // Back face edges
+        4, 5,  5, 6,  6, 7,  7, 4,
+        // Connecting edges (front to back)
+        0, 23,  1, 15,  2, 14,  3, 17,  // Front-bottom to back
+        4, 20,  5, 11,  6, 13,  7, 12   // Back vertices
     };
 
-    // Create mesh object and upload data to GPU
+    std::vector<float> emptyTexCoords;  // No texture coordinates for cube yet
+
     Mesh mesh;
-    mesh.setDataWithEdges(vertices, indices, edgeIndices,texCoords);
-
-    std::cout << "Cube created - indexCount: " << mesh.indexCount
-        << ", edgeIndexCount: " << mesh.edgeIndexCount << std::endl;
-
-    // Return by value - move semantics will transfer ownership efficiently
+    mesh.setDataWithEdges(vertices, indices, edgeIndices, emptyTexCoords);
     return mesh;
 }
 

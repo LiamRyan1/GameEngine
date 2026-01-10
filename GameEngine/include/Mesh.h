@@ -43,12 +43,11 @@ public:
 
 	// setData: Basic setup for meshes that only need triangle rendering (e.g. cube, sphere)
     // Uploads vertices and face indices to GPU
+   // Updated: vertices now include normals (6 floats per vertex: pos + normal)
     void setData(const std::vector<float>& verts,
         const std::vector<unsigned int>& inds,
         const std::vector<float>& texCoords);
 
-    // setDataWithEdges: Full setup for meshes that need both faces AND edge outlines
-    // Uploads vertices, face indices, and separate edge indices to GPU
     void setDataWithEdges(const std::vector<float>& verts,
         const std::vector<unsigned int>& inds,
         const std::vector<unsigned int>& edges,
