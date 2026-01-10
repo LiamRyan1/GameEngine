@@ -8,6 +8,10 @@ Scene::Scene(Physics& physics) : physicsWorld(physics) {
 Scene::~Scene() {
     clear();
 }
+// replace with more general loading system
+// register different object types, properties, etc.
+// then seperate function to spawn based on data
+// loadFromFile, saveToFile, etc.
 
 //  Remove when loading from files
 GameObject* Scene::createCube(const glm::vec3& position, const glm::vec3& size, float mass) {
@@ -42,6 +46,7 @@ GameObject* Scene::createSphere(const glm::vec3& position, float radius, float m
 void Scene::update() {
     // Sync all game objects with their physics simulation
     for (auto& obj : gameObjects) {
+		// Update each object's transform from its physics body
         obj->updateFromPhysics();
     }
 }

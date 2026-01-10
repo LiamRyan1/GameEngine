@@ -12,26 +12,27 @@ Texture::~Texture() {
 
 // Move Constructor
 Texture::Texture(Texture&& other) noexcept
-    : textureID(other.textureID),
-    width(other.width),
-    height(other.height),
-    channels(other.channels) {
-    other.textureID = 0;
-    other.width = 0;
-    other.height = 0;
-    other.channels = 0;
+	: textureID(other.textureID), // Transfer ownership
+	width(other.width), // Copy width
+	height(other.height), // Copy height
+	channels(other.channels) { // copy channels(number of color channels)
+	other.textureID = 0; // Nullify other to prevent double deletion
+	other.width = 0; 
+	other.height = 0; 
+	other.channels = 0;
 }
 
 // Move Assignment
 Texture& Texture::operator=(Texture&& other) noexcept {
     if (this != &other) {
         cleanup();
-
-        textureID = other.textureID;
-        width = other.width;
+		// transfer ownership from other to this and copy width height and channels
+		textureID = other.textureID; 
+		width = other.width; 
         height = other.height;
         channels = other.channels;
 
+		// Nullify other to prevent double deletion
         other.textureID = 0;
         other.width = 0;
         other.height = 0;
@@ -45,6 +46,7 @@ bool Texture::loadFromFile(const std::string& filepath) {
     stbi_set_flip_vertically_on_load(true);
 
     // Load image data
+	// stbi_load returns unsigned char* pointing to pixel data
     unsigned char* data = stbi_load(
         filepath.c_str(),
         &width,
@@ -63,15 +65,14 @@ bool Texture::loadFromFile(const std::string& filepath) {
     std::cout << "  Size: " << width << "x" << height << ", Channels: " << channels << std::endl;
 
     // Generate OpenGL texture
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+	glGenTextures(1, &textureID); // Generate texture ID
+	glBindTexture(GL_TEXTURE_2D, textureID); // Bind as 2D texture
 
-    // Set texture wrapping/filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+    // Set texture wrapping/filtering parameters 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrap horizontally , repeat texture if coords > 1.0
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrap vertically , repeat texture if coords > 1.0
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // set minification filter to use mipmaps( precomputed smaller version of the texture) allows one pixel to cover multiple texels, making the texture appear simpler
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // set magnification filter to linear interpolation, allows one texel to cover multiple pixel, stretching the texture
     // Determine format
     GLenum format = GL_RGB;
     if (channels == 1)
