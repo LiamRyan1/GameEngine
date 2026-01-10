@@ -4,11 +4,14 @@ out vec4 FragColor;
 
 in vec3 FragPos;    // From vertex shader
 in vec3 Normal;     // From vertex shader
+in vec2 TexCoord;   // Texture coordinates
 
 uniform vec3 objectColor;
 uniform vec3 lightPos;      // Light position in world space
 uniform vec3 viewPos;       // Camera position
 uniform vec3 lightColor;    // Light color
+uniform sampler2D textureSampler;  // Texture sampler
+uniform bool useTexture;           // Flag to enable/disable texture
 
 void main()
 {
@@ -16,6 +19,14 @@ void main()
     if (objectColor.r < 0.1 && objectColor.g < 0.1 && objectColor.b < 0.1) {
         FragColor = vec4(0.0, 0.0, 0.0, 1.0);
         return;
+    }
+
+    // Get base color (either from texture or objectColor uniform)
+    vec3 baseColor;
+    if (useTexture) {
+        baseColor = texture(textureSampler, TexCoord).rgb;
+    } else {
+        baseColor = objectColor;
     }
     
     // Ambient lighting (base light level)
@@ -36,6 +47,6 @@ void main()
     vec3 specular = specularStrength * spec * lightColor;
     
     // Combine all lighting components
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse + specular) * baseColor;
     FragColor = vec4(result, 1.0);
 }

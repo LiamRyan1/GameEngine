@@ -147,7 +147,7 @@ void Mesh::setData(const std::vector<float>& verts,
 void Mesh::setDataWithEdges(const std::vector<float>& verts,
     const std::vector<unsigned int>& inds,
     const std::vector<unsigned int>& edges,
-    const std::vector<float>& texCoordsData) {  // ADD THIS PARAMETER
+    const std::vector<float>& texCoordsData) {  
     vertices = verts;
     indices = inds;
     edgeIndices = edges;
@@ -159,6 +159,7 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
     glGenBuffers(1, &edgeEBO);
+    glGenBuffers(1, &texCoordVBO);
 
     glBindVertexArray(VAO);
 
@@ -175,6 +176,14 @@ void Mesh::setDataWithEdges(const std::vector<float>& verts,
     // Normal attribute (location 1) - 3 floats, starts at offset 3
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // Texture coordinates (location 2) - 2 floats
+    if (!texCoords.empty()) {
+        glBindBuffer(GL_ARRAY_BUFFER, texCoordVBO);
+        glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), texCoords.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(2);
+    }
 
     glBindVertexArray(0);
 
@@ -319,10 +328,48 @@ Mesh Mesh::createCube() {
         4, 20,  5, 11,  6, 13,  7, 12   // Back vertices
     };
 
-    std::vector<float> emptyTexCoords;  // No texture coordinates for cube yet
+    // TEXTURE COORDINATES (2 floats per vertex, 24 vertices = 48 floats)
+    std::vector<float> texCoords = {
+        // Front face (4 vertices)
+        0.0f, 0.0f,  // 0: bottom-left
+        1.0f, 0.0f,  // 1: bottom-right
+        1.0f, 1.0f,  // 2: top-right
+        0.0f, 1.0f,  // 3: top-left
+
+        // Back face (4 vertices)
+        0.0f, 0.0f,  // 4
+        0.0f, 1.0f,  // 5
+        1.0f, 1.0f,  // 6
+        1.0f, 0.0f,  // 7
+
+        // Left face (4 vertices)
+        0.0f, 0.0f,  // 8
+        1.0f, 0.0f,  // 9
+        1.0f, 1.0f,  // 10
+        0.0f, 1.0f,  // 11
+
+        // Right face (4 vertices)
+        0.0f, 0.0f,  // 12
+        0.0f, 1.0f,  // 13
+        1.0f, 1.0f,  // 14
+        1.0f, 0.0f,  // 15
+
+        // Top face (4 vertices)
+        0.0f, 0.0f,  // 16
+        0.0f, 1.0f,  // 17
+        1.0f, 1.0f,  // 18
+        1.0f, 0.0f,  // 19
+
+        // Bottom face (4 vertices)
+        0.0f, 0.0f,  // 20
+        1.0f, 0.0f,  // 21
+        1.0f, 1.0f,  // 22
+        0.0f, 1.0f   // 23
+    };
+
 
     Mesh mesh;
-    mesh.setDataWithEdges(vertices, indices, edgeIndices, emptyTexCoords);
+    mesh.setDataWithEdges(vertices, indices, edgeIndices, texCoords);
     return mesh;
 }
 

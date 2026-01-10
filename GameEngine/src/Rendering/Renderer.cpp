@@ -121,79 +121,62 @@ Texture* Renderer::loadTexture(const std::string& filepath) {
 }
 
 void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc) {
-    // Use Transform helper with quaternion rotation
     glm::mat4 model = Transform::model(
         obj.getPosition(),
         obj.getRotation(),
         obj.getScale()
     );
-
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
-    // Select mesh and color based on shape type
-    Mesh* mesh = nullptr;
-    glm::vec3 color;
+    Mesh* mesh = &cubeMesh;
+    glm::vec3 color(1.0f, 0.5f, 0.2f);
 
-    switch (obj.getShapeType()) {
-    case ShapeType::CUBE:
-        mesh = &cubeMesh;
-        color = glm::vec3(1.0f, 0.5f, 0.2f); // Orange
-        break;
-    default:
-		//default to cube for unknown shapes
-        mesh = &cubeMesh;
-        color = glm::vec3(1.0f, 0.5f, 0.2f); // Orange
+    bool hasTexture = !obj.getTexturePath().empty();
+    Texture* texture = nullptr;
 
-        break;
-    }
-
-    if (!mesh) return;
-
-    //handle textures
-	bool hasTexture = !obj.getTexturePath().empty();
-	Texture* texture = nullptr;
     if (hasTexture) {
         texture = loadTexture(obj.getTexturePath());
-        if (texture) {
-			texture->bind(0); // Bind to texture unit 0 
-            
-			// Set shader uniform to use texture unit 0
-			int texLoc = glGetUniformLocation(shaderProgram, "texture1");
-			glUniform1i(texLoc, 0);
-
-        }
     }
-	// tell shader to use texture or not
-	int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
-    glUniform1i(useTexLoc, texture != nullptr);
-    
-	//fallback color if no texture
+
+    int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
+    int texLoc = glGetUniformLocation(shaderProgram, "textureSampler");
+
+    // SKIP EDGES FOR TEXTURED OBJECTS (TEMPORARY TEST)
     if (!texture) {
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(-0.50f, -0.50f);
+        glUniform1i(useTexLoc, 0);
+        glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
+        glLineWidth(2.0f);
+        mesh->drawEdges();
+        glDisable(GL_POLYGON_OFFSET_LINE);
+    }
+
+    // DRAW FILLED
+    if (texture) {
+        texture->bind(0);
+        glUniform1i(texLoc, 0);
+        glUniform1i(useTexLoc, 1);
+        std::cout << "Drawing textured, bound texture ID: " << texture->getID() << std::endl;
+    }
+    else {
+        glUniform1i(useTexLoc, 0);
         glUniform3f(colorLoc, color.r, color.g, color.b);
     }
 
-
-    // Draw edges first
-    glEnable(GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset(-0.50f, -0.50f);
-    glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f); // Black edges
-    glLineWidth(2.0f);
-    mesh->drawEdges();
-    glDisable(GL_POLYGON_OFFSET_LINE);
-
-    // Draw filled shape
-    glUniform3f(colorLoc, color.r, color.g, color.b);
     mesh->draw();
 
-	// Unbind texture after drawing
     if (texture) {
         texture->unbind();
-	}
+    }
 }
 
 void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects) {
     if (windowHeight == 0)
         return;
+
+    std::cout << "\n=== FRAME START ===" << std::endl;
+    std::cout << "Number of objects: " << objects.size() << std::endl;
 
     glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,6 +195,9 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");         
     int lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
 
+
+
+
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
@@ -223,6 +209,17 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     glUniform3fv(lightPosLoc, 1, &lightPos[0]);
     glUniform3fv(viewPosLoc, 1, &cameraPos[0]);
     glUniform3fv(lightColorLoc, 1, &lightColor[0]);
+
+    // Right before the loop:
+    std::cout << "About to draw objects..." << std::endl;
+
+    for (const auto& obj : objects) {
+        std::cout << "Drawing object at position: ("
+            << obj->getPosition().x << ", "
+            << obj->getPosition().y << ", "
+            << obj->getPosition().z << ")" << std::endl;
+        drawGameObject(*obj, modelLoc, colorLoc);
+    }
 
     // Draw each GameObject
     for (const auto& obj : objects) {
