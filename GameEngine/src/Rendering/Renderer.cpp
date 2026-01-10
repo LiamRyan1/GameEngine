@@ -141,7 +141,6 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
     int texLoc = glGetUniformLocation(shaderProgram, "textureSampler");
 
-    // SKIP EDGES FOR TEXTURED OBJECTS (TEMPORARY TEST)
     if (!texture) {
         glEnable(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(-0.50f, -0.50f);
@@ -152,12 +151,10 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
         glDisable(GL_POLYGON_OFFSET_LINE);
     }
 
-    // DRAW FILLED
     if (texture) {
         texture->bind(0);
         glUniform1i(texLoc, 0);
         glUniform1i(useTexLoc, 1);
-        std::cout << "Drawing textured, bound texture ID: " << texture->getID() << std::endl;
     }
     else {
         glUniform1i(useTexLoc, 0);
@@ -174,9 +171,6 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects) {
     if (windowHeight == 0)
         return;
-
-    std::cout << "\n=== FRAME START ===" << std::endl;
-    std::cout << "Number of objects: " << objects.size() << std::endl;
 
     glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -210,16 +204,6 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     glUniform3fv(viewPosLoc, 1, &cameraPos[0]);
     glUniform3fv(lightColorLoc, 1, &lightColor[0]);
 
-    // Right before the loop:
-    std::cout << "About to draw objects..." << std::endl;
-
-    for (const auto& obj : objects) {
-        std::cout << "Drawing object at position: ("
-            << obj->getPosition().x << ", "
-            << obj->getPosition().y << ", "
-            << obj->getPosition().z << ")" << std::endl;
-        drawGameObject(*obj, modelLoc, colorLoc);
-    }
 
     // Draw each GameObject
     for (const auto& obj : objects) {
