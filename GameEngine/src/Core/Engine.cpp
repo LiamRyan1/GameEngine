@@ -93,7 +93,8 @@ int Start(void)
 
     // Initialize Time System
     Time::Initialize();
-
+    Time::SetTargetFPS(60.0f);
+    Time::EnableFPSLimit(true);
 
     // Set background color
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -186,6 +187,7 @@ int Start(void)
         //Update time (calculates deltaTime automatically) 
         Time::Update();
         float deltaTime = Time::GetDeltaTime();
+        std::cout << "deltaTime" << deltaTime << std::endl;
         // Reset per-frame input states
         Input::BeginFrame();
 
@@ -349,8 +351,8 @@ int Start(void)
         DebugUIContext uiContext;
 
         // Timing / performance data
-        uiContext.time.deltaTime = deltaTime;
-        uiContext.time.fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
+        uiContext.time.deltaTime = Time::GetDeltaTime();
+        uiContext.time.fps = Time::GetFPS();
 
         // Physics debug data
         uiContext.physics.rigidBodyCount = physics.getRigidBodyCount();

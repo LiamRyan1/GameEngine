@@ -86,19 +86,26 @@ void Time::WaitForNextFrame() {
     //check if  fps limit is on to decide if next frame should wait or not
     if (!fpsLimitEnabled)
         return;
+    while (true) {
+        //calculate how long this frame took
+        TimePoint now = Clock::now();
+        std::chrono::duration<float> frameDuration = now - lastFrameTime;
+        float actualFrameTime = frameDuration.count();
 
-    //calculate how long this frame took
-    TimePoint now = Clock::now();
-    std::chrono::duration<float> frameDuration = now - lastFrameTime;
-    float actualFrameTime = frameDuration.count();
+        // If frame finished early
+        //calculate how long until next frame 
+        float remainingTime = targetFrameTime - actualFrameTime;
 
-    // If frame finished early
-    //calculate how long until next frame 
-    float remainingTime = targetFrameTime - actualFrameTime;
-    //if frame is finished early sleep for the remaining time
-    if (remainingTime > 0.0f) {
-        // Sleep for most of the remaining time (leave a small buffer for sleep inaccuracy)
-        float sleepTime = remainingTime * 0.95f;
-        std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+        if (remainingTime <= 0.0f) {
+            break; // Target time reached
+        }
+
+        //if frame is finished early sleep for the remaining time
+        if (remainingTime > 0.0f) {
+            // Sleep for most of the remaining time (leave a small buffer for sleep inaccuracy)
+            float sleepTime = remainingTime * 0.95f;
+            std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+        }
+        //otherwise spin lock for precise timing
     }
 }
