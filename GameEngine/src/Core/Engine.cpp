@@ -187,7 +187,7 @@ int Start(void)
         //Update time (calculates deltaTime automatically) 
         Time::Update();
         float deltaTime = Time::GetDeltaTime();
-        std::cout << "deltaTime" << deltaTime << std::endl;
+        
         // Reset per-frame input states
         Input::BeginFrame();
 
