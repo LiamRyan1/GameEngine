@@ -283,22 +283,34 @@ int Start(void)
             double mouseX, mouseY;
             glfwGetCursorPos(window, &mouseX, &mouseY);
 
-            // Screen -> NDC 
+            // Reverse the rendering pipeline to build a ray from mouse click:
+            // 1. Screen pixels (where user clicked)
+            // 2. NDC (standard -1 to 1 range)
+            // 3. Unproject using inverse camera matrices
+            // 4. 3D ray in world space for intersection testing
             float x = (2.0f * static_cast<float>(mouseX)) / fbW - 1.0f;
             float y = 1.0f - (2.0f * static_cast<float>(mouseY)) / fbH;
 
-            // Build ray
+            // Create a point in clip space at the near clipping plane
+            // (x, y) = NDC coordinates of mouse click
+            // z = -1.0 = near plane (start of visible depth)
+            // w = 1.0 = this is a POINT/position (not a direction yet)
             glm::vec4 rayClip(x, y, -1.0f, 1.0f);
 
+            // Get the camera's projection matrix
+            // Aspect ratio is needed to match screen dimensions
             glm::mat4 projection =
                 camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
 
+            // Unproject clip space to eye space, then convert to forward-pointing direction vector
             glm::vec4 rayEye = glm::inverse(projection) * rayClip;
             rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 
+            // Inverse view matrix transforms from eye space -> world space, then normalize to unit direction
             glm::vec3 rayDirection =
                 glm::normalize(glm::vec3(glm::inverse(camera.getViewMatrix()) * rayEye));
 
+            // Ray starts at the camera's position in world space
             glm::vec3 rayOrigin = camera.getPosition();
 
             std::cout << "[Editor Ray]\n";
@@ -310,20 +322,24 @@ int Start(void)
                 << rayDirection.y << ", "
                 << rayDirection.z << ")\n";
 
-            // Test against scene objects
+            // Shoot the laser through the scene. Check every object. Did laser hit any? Keep closest one. What object did laser hit, if any.
+            // Test ray against all scene objects to find closest hit
             float closestHit = FLT_MAX;
 
+            // Loop through every object in the scene
             for (const auto& obj : scene.getObjects())
             {
+                // Get object's world position and size
                 const glm::vec3& position = obj->getPosition();
                 const glm::vec3& scale = obj->getScale();
 
-                
-                // Build AABB from the object's transform
+                // Build AABB (bounding box) from object's transform
+                // Assumes object origin is at center
                 glm::vec3 aabbMin = position - scale * 0.5f;
                 glm::vec3 aabbMax = position + scale * 0.5f;
 
                 float hitDistance;
+                // Test if ray intersects this object's bounding box
                 if (RayIntersectsAABB(
                     rayOrigin,
                     rayDirection,
@@ -331,13 +347,14 @@ int Start(void)
                     aabbMax,
                     hitDistance))
                 {
+                    // Keep track of the closest object hit so far
                     if (hitDistance < closestHit)
                     {
                         closestHit = hitDistance;
                     }
                 }
             }
-
+            // Report results if we hit something
             if (closestHit < FLT_MAX)
             {
                 std::cout << "[Editor Pick] HIT at distance "
