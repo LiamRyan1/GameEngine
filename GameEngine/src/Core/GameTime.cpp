@@ -100,10 +100,9 @@ void Time::WaitForNextFrame() {
             break; // Target time reached
         }
 
-        //if frame is finished early sleep for the remaining time
-        if (remainingTime > 0.0f) {
-            // Sleep for most of the remaining time (leave a small buffer for sleep inaccuracy)
-            float sleepTime = remainingTime * 0.95f;
+        // If significant time remains, sleep
+        if (remainingTime > 0.001f) {// More than 1ms left
+            float sleepTime = remainingTime * 0.001f;// Leave 1ms for spin-lock
             std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
         }
         //otherwise spin lock for precise timing

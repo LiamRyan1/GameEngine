@@ -63,6 +63,7 @@ int Start(void)
 
     std::cout << "Window created" << std::endl;
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
 
     std::cout << "Initializing GLEW..." << std::endl;
     glewExperimental = GL_TRUE;
@@ -94,7 +95,7 @@ int Start(void)
     // Initialize Time System
     Time::Initialize();
     Time::SetTargetFPS(60.0f);
-    Time::EnableFPSLimit(true);
+  
 
     // Set background color
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
