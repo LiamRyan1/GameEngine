@@ -2,7 +2,8 @@
 
 GameObject::GameObject(ShapeType type, btRigidBody* body, const glm::vec3& scale)
     : shapeType(type), rigidBody(body), scale(scale),
-    position(0.0f), rotation(1.0f, 0.0f, 0.0f, 0.0f),texturePath("") {
+    position(0.0f), rotation(1.0f, 0.0f, 0.0f, 0.0f),
+    texturePath(""), materialName("Default") {
 }
 
 GameObject::~GameObject() {
@@ -16,7 +17,7 @@ void GameObject::updateFromPhysics() {
     btTransform trans;
     rigidBody->getMotionState()->getWorldTransform(trans);
     
-	//  Update position and rotation from the transform
+	// Update position and rotation from the transform
     // Extract position
     btVector3 origin = trans.getOrigin();
     position = glm::vec3(origin.x(), origin.y(), origin.z());

@@ -1,5 +1,1 @@
-﻿  Engine.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(237,28): warning C4305: 'argument': truncation from 'const double' to 'float'
-  GameEngine.vcxproj -> C:\Users\tiafa\Desktop\GameEngine\x64\Debug\GameEngine.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+﻿  GameEngine.vcxproj -> C:\Users\tiafa\Desktop\GameEngine\x64\Debug\GameEngine.exe

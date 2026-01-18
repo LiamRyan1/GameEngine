@@ -114,20 +114,20 @@ int Start(void)
 
     // x Remove this hardcoded scene setup when loading from files
     // Create ground plane as a visible GameObject
-    scene.createCube(glm::vec3(0, -0.25f, 0), glm::vec3(100.0f, 0.5f, 100.0f), 0.0f);
+    scene.createCube(glm::vec3(0, -0.25f, 0), glm::vec3(100.0f, 0.5f, 100.0f), 0.0f, "Default");
     // Create some test cubes - only using cubes for now
-    auto cube1 = scene.createCube(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f), 1.0f);
+    auto cube1 = scene.createCube(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f), 1.0f,"Metal");
     cube1->setTexturePath("textures/stone-1024.jpg");
-    auto cube2 = scene.createCube(glm::vec3(4.0f, 8.0f, -6.0f), glm::vec3(1.0f), 1.0f);
+    auto cube2 = scene.createCube(glm::vec3(4.0f, 8.0f, -6.0f), glm::vec3(1.0f), 1.0f, "Wood");
     cube2->setTexturePath("textures/wood1.jpg");
-    auto cube3 = scene.createCube(glm::vec3(-3.0f, 6.0f, -5.0f), glm::vec3(1.0f), 1.0f);
+    auto cube3 = scene.createCube(glm::vec3(-3.0f, 6.0f, -5.0f), glm::vec3(1.0f), 1.0f , "Rubber");
     // no texture default to orange
-    auto cube4 = scene.createCube(glm::vec3(-6.0f, 10.0f, -10.0f), glm::vec3(1.0f), 1.0f);
+    auto cube4 = scene.createCube(glm::vec3(-6.0f, 10.0f, -10.0f), glm::vec3(1.0f), 1.0f, "Ice");
 	cube4->setTexturePath("textures/texture_06.png");
-    auto cube5 = scene.createCube(glm::vec3(5.0f, 12.0f, -7.0f), glm::vec3(1.0f), 1.0f);
+    auto cube5 = scene.createCube(glm::vec3(5.0f, 12.0f, -7.0f), glm::vec3(1.0f), 1.0f,"Plastic");
 
 	// currently only cubes are supported so spheres will be cubes too`but with sphere colliders
-	auto sphere1 = scene.createSphere(glm::vec3(2.0f, 15.0f, 3.0f), 1.0f, 1.0f);
+	auto sphere1 = scene.createSphere(glm::vec3(2.0f, 15.0f, 3.0f), 1.0f, 1.0f, "Rubber");
 
     // TODO: Replace hardcoded scene with file loading
     // scene.loadFromFile("scenes/test_level.json");

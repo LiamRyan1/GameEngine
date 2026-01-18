@@ -14,32 +14,37 @@ Scene::~Scene() {
 // loadFromFile, saveToFile, etc.
 
 //  Remove when loading from files
-GameObject* Scene::createCube(const glm::vec3& position, const glm::vec3& size, float mass) {
-    btRigidBody* body = physicsWorld.createRigidBody(ShapeType::CUBE, position, size, mass);
+GameObject* Scene::createCube(const glm::vec3& position, const glm::vec3& size, float mass, const std::string& materialName) {
+    btRigidBody* body = physicsWorld.createRigidBody(ShapeType::CUBE, position, size, mass, materialName);
 
     auto obj = std::make_unique<GameObject>(ShapeType::CUBE, body, size);
+    obj->setMaterialName(materialName);
+
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
 
-    std::cout << "Created cube at (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+    std::cout << "Created cube at (" << position.x << ", " << position.y << ", " << position.z << ") with material: " << materialName << std::endl;
 
     return ptr;
 }
 
 //  Remove when loading from files
-GameObject* Scene::createSphere(const glm::vec3& position, float radius, float mass) {
+GameObject* Scene::createSphere(const glm::vec3& position, float radius, float mass, const std::string& materialName) {
     btRigidBody* body = physicsWorld.createRigidBody(
         ShapeType::SPHERE,
         position,
         glm::vec3(radius),
-        mass
+        mass,
+        materialName
     );
 
     auto obj = std::make_unique<GameObject>(ShapeType::SPHERE, body, glm::vec3(radius));
+    obj->setMaterialName(materialName);
+
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
 
-    std::cout << "Created sphere at (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+    std::cout << "Created sphere at (" << position.x << ", " << position.y << ", " << position.z << ") with material: " << materialName << std::endl;
 
     return ptr;
 }

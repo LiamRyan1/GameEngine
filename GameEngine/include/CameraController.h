@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 class CameraController {
+
 public:
     enum class Mode {
         ORBIT,
@@ -38,6 +39,11 @@ private:
     double lastMouseX;
     double lastMouseY;
 
+
+private:
+    void updateFreeMode(float deltaTime);
+    void updateOrbitMode(float deltaTime);
+
 public:
     CameraController(Camera& cam, float speed = 5.0f, float sensitivity = 0.1f);
 
@@ -63,9 +69,7 @@ public:
     void setOrbitalRadius(float radius) { orbitalRadius = radius; }
     void setOrbitalSpeed(float speed) { orbitalSpeed = speed; }
 
-private:
-    void updateFreeMode(float deltaTime);
-    void updateOrbitMode(float deltaTime);
+
 };
 
 #endif // CAMERA_CONTROLLER_H

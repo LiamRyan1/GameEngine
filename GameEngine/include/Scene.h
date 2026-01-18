@@ -18,8 +18,8 @@ public:
 
     // Factory methods for creating objects
     // temporary methods - Remove when loading from files
-    GameObject* createCube(const glm::vec3& position, const glm::vec3& size, float mass);
-    GameObject* createSphere(const glm::vec3& position, float radius, float mass);
+    GameObject* createCube(const glm::vec3& position, const glm::vec3& size, float mass, const std::string& materialName = "Default");
+    GameObject* createSphere(const glm::vec3& position, float radius, float mass, const std::string& materialName = "Default");
 
 
     // Update all objects from physics simulation

@@ -4,6 +4,7 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui.cpp;C:\Us
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui_draw.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\imgui_draw.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui_tables.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\imgui_tables.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\core\imgui_widgets.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\imgui_widgets.obj
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\PhysicsMaterial.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\PhysicsMaterial.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Camera.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\Camera.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\UI\DebugUI.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\DebugUI.obj
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Scene\GameObject.cpp;C:\Users\tiafa\Desktop\GameEngine\GameEngine\x64\Debug\GameObject.obj

@@ -1,5 +1,6 @@
 #include "../include/Physics.h"
 #include "../include/GameObject.h"
+#include "../include/PhysicsMaterial.h"
 #include <iostream>
 
 
@@ -18,6 +19,9 @@ Physics::~Physics() {
 
 void Physics::initialize() {
     std::cout << "Initializing Bullet Physics..." << std::endl;
+
+    // Initialize material registry
+    MaterialRegistry::getInstance().initializeDefaults();
 
 	//create collision configuration, default memory and collision setup
     collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -42,15 +46,26 @@ void Physics::initialize() {
     );
 
     //Set gravity (9.8 m/s² downward)
-    dynamicsWorld->setGravity(btVector3(0, -1.8, 0));
+    dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
 
     std::cout << "Physics world created with gravity: (0, -1.8, 0)" << std::endl;
     std::cout << "Physics initialized successfully" << std::endl;
 }
+// create a rigid body without a material
 btRigidBody* Physics::createRigidBody(ShapeType type,
     const glm::vec3& position,
     const glm::vec3& size,
     float mass) {
+    return createRigidBody(type, position, size, mass, "Default");
+}
+// create a rigid body with a material
+btRigidBody* Physics::createRigidBody(
+    ShapeType type,
+    const glm::vec3& position,
+    const glm::vec3& size,
+    float mass,
+    const std::string& materialName)
+{
     btCollisionShape* shape = nullptr;
 
     // Create collision shape
@@ -98,10 +113,29 @@ btRigidBody* Physics::createRigidBody(ShapeType type,
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
     btRigidBody* body = new btRigidBody(rbInfo);
 
+	// Apply material properties - create material var and get instance of material from registry
+    const PhysicsMaterial& material = MaterialRegistry::getInstance().getMaterial(materialName);
+    applyMaterial(body, material);
+
     dynamicsWorld->addRigidBody(body);
     rigidBodies.push_back(body);
 
     return body;
+}
+void Physics::applyMaterial(btRigidBody* body, const PhysicsMaterial& material) {
+    if (!body) return;
+
+    // Set friction (surface grip)
+    body->setFriction(material.friction);
+
+    // Set restitution (bounciness)
+    body->setRestitution(material.restitution);
+
+    // Density is used at creation time to calculate mass
+    std::cout << " Applied '" << material.name << "': "
+        << "friction=" << body->getFriction()
+        << ", restitution=" << body->getRestitution() << std::endl;
+    
 }
 
 void Physics::update(float fixedDeltaTime) {

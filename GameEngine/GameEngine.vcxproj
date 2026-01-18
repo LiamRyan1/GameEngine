@@ -131,6 +131,7 @@
     <ClCompile Include="external\imgui\core\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
+    <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
     <ClCompile Include="src\UI\DebugUI.cpp" />
     <ClCompile Include="src\Scene\GameObject.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Physics.h" />
+    <ClInclude Include="include\PhysicsMaterial.h" />
     <ClInclude Include="include\Raycast.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Scene.h" />
