@@ -40,6 +40,11 @@ int Start(void)
     // Editor mode (UI + selection) or game mode (gameplay + camera control).
     EngineMode engineMode = EngineMode::Editor;
 
+    // Currently selected object in editor mode.
+    // This is editor-only state and does NOT belong in Renderer or Scene.
+    GameObject* selectedObject = nullptr;
+
+
     if (!glfwInit())
     {
         std::cout << "Failed to init GLFW" << std::endl;
@@ -275,7 +280,7 @@ int Start(void)
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
         // ===============================
-        // Editor Ray → AABB Picking
+        // Editor Ray -> AABB Picking
         // ===============================
         if (engineMode == EngineMode::Editor &&
             Input::GetMousePressed(GLFW_MOUSE_BUTTON_LEFT))
@@ -326,6 +331,7 @@ int Start(void)
             // Shoot the laser through the scene. Check every object. Did laser hit any? Keep closest one. What object did laser hit, if any.
             // Test ray against all scene objects to find closest hit
             float closestHit = FLT_MAX;
+            GameObject* hitObject = nullptr;
 
             // Loop through every object in the scene
             for (const auto& obj : scene.getObjects())
@@ -352,15 +358,28 @@ int Start(void)
                     if (hitDistance < closestHit)
                     {
                         closestHit = hitDistance;
+                        hitObject = obj.get();
                     }
                 }
             }
-            // Report results if we hit something
-            if (closestHit < FLT_MAX)
+
+            // If the ray hit something, update the editor selection
+            if (hitObject)
             {
-                std::cout << "[Editor Pick] HIT at distance "
-                    << closestHit << "\n";
+                selectedObject = hitObject;
+
+                std::cout << "[Editor Pick] HIT - Selected object at ("
+                    << selectedObject->getPosition().x << ", "
+                    << selectedObject->getPosition().y << ", "
+                    << selectedObject->getPosition().z << ")\n";
             }
+            else
+            {
+                // Clicked empty space -> clear selection
+                selectedObject = nullptr;
+                std::cout << "[Editor Pick] Miss\n";
+            }
+
         }
 
         // Build Debug UI Context
