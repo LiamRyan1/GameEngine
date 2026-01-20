@@ -50,6 +50,7 @@
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\PhysicsMaterial.h" />
+    <ClInclude Include="include\FileUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

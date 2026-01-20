@@ -7,7 +7,7 @@ enum class EngineMode
 {
     Editor,
     Game
-};
+}; 
 
 // Starts up the engine and runs the main loop.
 // Returns 0 on clean exit, or -1 on failure.

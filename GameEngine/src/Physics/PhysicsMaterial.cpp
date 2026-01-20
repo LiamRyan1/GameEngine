@@ -89,6 +89,18 @@ bool MaterialRegistry::hasMaterial(const std::string& name) const {
     return materials.find(name) != materials.end();
 }
 
+// Get all material names for UI dropdowns
+std::vector<std::string> MaterialRegistry::getAllMaterialNames() const {
+    std::vector<std::string> names;
+    names.reserve(materials.size());
+
+    for (const auto& pair : materials) {
+        names.push_back(pair.first);
+    }
+
+    return names;
+}
+
 void MaterialRegistry::initializeDefaults() {
     std::cout << "Initializing default physics materials..." << std::endl;
 

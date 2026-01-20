@@ -5,8 +5,24 @@
 #include <unordered_map>
 #include <memory>
 
-// physical material properties for rigid bodies
-// Wraps Bullet Physics friction and restitution (bounciness) values
+/**
+ * @brief Defines physical material properties for rigid bodies.
+ *
+ * PhysicsMaterial wraps Bullet Physics friction and restitution values,
+ * providing a high-level interface for defining how objects interact physically.
+ *
+ * Key concepts:
+ * - Friction: Controls surface grip (0=ice, 1+=rubber)
+ * - Restitution: Controls bounciness (0=no bounce, 1=perfect bounce)
+ *
+ * Design pattern:
+ * - Preset materials via static factory methods (Wood(), Metal(), etc.)
+ * - Runtime customization via MaterialRegistry
+ * - Applied to rigid bodies when objects are spawned
+ *
+ * @note These values are applied when creating rigid bodies and don't
+ *       automatically update existing objects if the registry is modified.
+ */
 class PhysicsMaterial {
 public:
     // Material properties
@@ -48,16 +64,95 @@ public:
     // Get the singleton instance
     static MaterialRegistry& getInstance();
 
-    // Register a new material or update existing one
+    /**
+     * @brief Registers a new material or updates an existing one.
+     *
+     * If a material with the same name already exists, it will be replaced.
+     * This allows runtime customization of material properties.
+     *
+     * @param material The material to register
+     *
+     * @note Logs registration to console for debugging
+     * @note Does NOT update existing rigid bodies - only affects new objects
+     *
+     * @example
+     * // Create custom material
+     * PhysicsMaterial custom("SuperBouncy", 0.9f, 0.98f);
+     * MaterialRegistry::getInstance().registerMaterial(custom);
+     *
+     * // Use in scene
+     * scene.spawnObject(ShapeType::SPHERE, pos, size, 1.0f, "SuperBouncy");
+     */
     void registerMaterial(const PhysicsMaterial& material);
 
-    // Get material by name (returns Default if not found)
+    /**
+      * @brief Retrieves a material by name.
+      *
+      * Looks up a material in the registry. If not found, returns "Default"
+      * as a safe fallback and logs a warning.
+      *
+      * @param name Material name to look up (case-sensitive)
+      * @return Const reference to the material (or Default if not found)
+      *
+      * @warning Returns reference to internal storage - valid until material
+      *          is unregistered or registry is destroyed
+      *
+      * @example
+      * const PhysicsMaterial& wood = registry.getMaterial("Wood");
+      * body->setFriction(wood.friction);
+      * body->setRestitution(wood.restitution);
+      */
     const PhysicsMaterial& getMaterial(const std::string& name) const;
 
-    // Check if material exists
+    /**
+      * @brief Checks if a material exists in the registry.
+      *
+      * Useful for validating material names before use, especially when
+      * loading from configuration files or user input.
+      *
+      * @param name Material name to check
+      * @return true if material exists, false otherwise
+      *
+      * @example
+      * if (!registry.hasMaterial(userMaterial)) {
+      *     std::cerr << "Unknown material: " << userMaterial << std::endl;
+      *     userMaterial = "Default";
+      * }
+      */
     bool hasMaterial(const std::string& name) const;
 
-    // Initialize with common presets
+
+    /**
+     * @brief Gets all registered material names.
+     *
+     * Returns a list of all materials currently in the registry.
+     * Perfect for populating UI dropdowns or listing available options.
+     *
+     * @return Vector of material name strings
+     *
+     * @note Order is unspecified (unordered_map iteration)
+     * @note Returns by value (copy) but vector is small
+     *
+     * @example
+     * // ImGui dropdown
+     * auto names = registry.getAllMaterialNames();
+     * for (const auto& name : names) {
+     *     if (ImGui::Selectable(name.c_str())) {
+     *         selectedMaterial = name;
+     *     }
+     * }
+     */
+    std::vector<std::string> getAllMaterialNames() const;
+
+    /**
+    * @brief Initializes the registry with preset materials.
+    *
+    * Called automatically by the constructor. Registers these 8 presets:
+    * Default, Wood, Metal, Rubber, Ice, Concrete, Plastic, Glass
+    *
+    * @note Idempotent - safe to call multiple times
+    * @note Public for potential re-initialization scenarios
+    */
     void initializeDefaults();
 };
 

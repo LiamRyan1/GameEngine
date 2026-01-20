@@ -1,53 +1,108 @@
 #include "../include/Scene.h"
 #include <iostream>
 
+
+/**
+ * @brief Constructs a new Scene with a reference to the physics world.
+ *
+ * The Scene does not own the Physics system - it just needs a reference to
+ * create rigid bodies when spawning objects.
+ *
+ * @param physics Reference to the game's Physics system
+ */
 Scene::Scene(Physics& physics) : physicsWorld(physics) {
     std::cout << "Scene created" << std::endl;
 }
 
+
+/**
+ * @brief Destroys the scene and cleans up all game objects.
+ *
+ * Calls clear() to remove all objects. The Physics system handles cleanup
+ * of rigid bodies separately.
+ */
 Scene::~Scene() {
     clear();
 }
-// replace with more general loading system
-// register different object types, properties, etc.
-// then seperate function to spawn based on data
-// loadFromFile, saveToFile, etc.
 
-//  Remove when loading from files
-GameObject* Scene::createCube(const glm::vec3& position, const glm::vec3& size, float mass, const std::string& materialName) {
-    btRigidBody* body = physicsWorld.createRigidBody(ShapeType::CUBE, position, size, mass, materialName);
 
-    auto obj = std::make_unique<GameObject>(ShapeType::CUBE, body, size);
-    obj->setMaterialName(materialName);
 
-    GameObject* ptr = obj.get();
-    gameObjects.push_back(std::move(obj));
-
-    std::cout << "Created cube at (" << position.x << ", " << position.y << ", " << position.z << ") with material: " << materialName << std::endl;
-
-    return ptr;
-}
-
-//  Remove when loading from files
-GameObject* Scene::createSphere(const glm::vec3& position, float radius, float mass, const std::string& materialName) {
+/**
+ * @brief Spawns a new game object in the scene with physics.
+ *
+ * This is the primary method for creating objects at runtime. It handles:
+ * - Creating the physics rigid body with the specified material properties
+ * - Creating the GameObject wrapper with rendering data
+ * - Adding the object to the scene's management
+ *
+ * @param type The shape type (CUBE, SPHERE, or CAPSULE)
+ * @param position World position to spawn at
+ * @param size Shape dimensions (half-extents for cube, radius for sphere, radius+height for capsule)
+ * @param mass Object mass in kg (0.0 = static/immovable object)
+ * @param materialName Physics material name from MaterialRegistry (default: "Default")
+ * @param texturePath Optional texture file path (default: "" = use default orange material)
+ * @return GameObject* Pointer to the created object (owned by Scene, don't delete)
+ *
+ * @note The returned pointer remains valid until the object is removed or the scene is cleared.
+ *
+ * @example
+ * // Create a dynamic wooden crate
+ * auto* crate = scene.spawnObject(ShapeType::CUBE, glm::vec3(0, 5, 0),
+ *                                  glm::vec3(1.0f), 10.0f, "Wood", "textures/crate.jpg");
+ *
+ * // Create a static ground plane
+ * scene.spawnObject(ShapeType::CUBE, glm::vec3(0, 0, 0),
+ *                   glm::vec3(100, 0.5f, 100), 0.0f, "Concrete");
+ */
+GameObject* Scene::spawnObject(ShapeType type,
+    const glm::vec3& position,
+    const glm::vec3& size,
+    float mass,
+    const std::string& materialName,
+    const std::string& texturePath) 
+{
+    // Create physics body
     btRigidBody* body = physicsWorld.createRigidBody(
-        ShapeType::SPHERE,
+        type,
         position,
-        glm::vec3(radius),
+        size,
         mass,
         materialName
     );
 
-    auto obj = std::make_unique<GameObject>(ShapeType::SPHERE, body, glm::vec3(radius));
-    obj->setMaterialName(materialName);
+    // Create game object 
+    auto obj = std::make_unique<GameObject>(type, body, size, materialName, texturePath);
 
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
 
-    std::cout << "Created sphere at (" << position.x << ", " << position.y << ", " << position.z << ") with material: " << materialName << std::endl;
+    // Log creation
+    const char* shapeName = "Unknown";
+    switch (type) {
+    case ShapeType::CUBE: shapeName = "Cube"; break;
+    case ShapeType::SPHERE: shapeName = "Sphere"; break;
+    case ShapeType::CAPSULE: shapeName = "Capsule"; break;
+    }
+
+    std::cout << "Spawned " << shapeName << " at ("
+        << position.x << ", " << position.y << ", " << position.z
+        << ") with material: " << materialName << std::endl;
 
     return ptr;
 }
+
+/**
+ * @brief Updates all game objects in the scene.
+ *
+ * Synchronizes each GameObject's position and rotation with its physics
+ * rigid body state. This should be called every frame after physics simulation
+ * has stepped forward.
+ *
+ * The update flow is:
+ * 1. Physics system simulates forces and collisions
+ * 2. Scene::update() syncs GameObject transforms from physics
+ * 3. Renderer draws objects at their updated positions
+ */
 void Scene::update() {
     // Sync all game objects with their physics simulation
     for (auto& obj : gameObjects) {
@@ -56,6 +111,16 @@ void Scene::update() {
     }
 }
 
+
+/**
+ * @brief Removes all objects from the scene.
+ *
+ * Destroys all GameObjects and their associated physics bodies.
+ * The Physics system handles cleanup of rigid bodies when GameObject
+ * destructors are called.
+ *
+ * @note This does NOT reset the Physics world itself - only removes objects.
+ */
 void Scene::clear() {
     std::cout << "Clearing scene (" << gameObjects.size() << " objects)" << std::endl;
     gameObjects.clear();
