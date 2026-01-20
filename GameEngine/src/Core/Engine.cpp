@@ -387,6 +387,10 @@ int Start(void)
         // so DebugUI can display stats and issue requests without owning systems.
         DebugUIContext uiContext;
 
+        // Pass editor selection into the UI so Inspector can display it.
+        // DebugUI does not decide selection — it only reacts to it.
+        uiContext.selectedObject = selectedObject;
+
         // Timing / performance data
         uiContext.time.deltaTime = Time::GetDeltaTime();
         uiContext.time.fps = Time::GetFPS();

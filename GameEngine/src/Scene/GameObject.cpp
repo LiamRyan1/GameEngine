@@ -16,7 +16,7 @@ void GameObject::updateFromPhysics() {
 	// Get the world transform from the rigid body's motion state
     btTransform trans;
     rigidBody->getMotionState()->getWorldTransform(trans);
-    
+
 	// Update position and rotation from the transform
     // Extract position
     btVector3 origin = trans.getOrigin();
@@ -25,4 +25,36 @@ void GameObject::updateFromPhysics() {
     // Extract rotation
     btQuaternion rot = trans.getRotation();
     rotation = glm::quat(rot.w(), rot.x(), rot.y(), rot.z());
+}
+
+// Sets the object's position.
+// If this object has physics, we must update Bullet too or physics will snap it back.
+void GameObject::setPosition(const glm::vec3& newPos)
+{
+    position = newPos;
+
+    if (rigidBody)
+    {
+        btTransform trans;
+        trans.setIdentity();
+
+        // Keep current rotation
+        trans.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+        trans.setOrigin(btVector3(newPos.x, newPos.y, newPos.z));
+
+        rigidBody->setWorldTransform(trans);
+
+        if (rigidBody->getMotionState())
+            rigidBody->getMotionState()->setWorldTransform(trans);
+
+        // Wake up so the change takes effect immediately
+        rigidBody->activate(true);
+    }
+}
+
+// Sets the object's scale (render + picking).
+// NOTE: This does NOT resize the Bullet collision shape yet (we’ll add that later).
+void GameObject::setScale(const glm::vec3& newScale)
+{
+    scale = newScale;
 }

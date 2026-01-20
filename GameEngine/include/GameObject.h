@@ -43,5 +43,9 @@ public:
 	// Setters for texture and material
     void setTexturePath(const std::string& path) { texturePath = path; }
     void setMaterialName(const std::string& name) { materialName = name; }
+
+    // Transform setters (Editor / gameplay code can move objects safely)
+    void setPosition(const glm::vec3& newPos);
+    void setScale(const glm::vec3& newScale);
 };
 #endif // GAMEOBJECT_H
