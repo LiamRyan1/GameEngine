@@ -1,14 +1,12 @@
-﻿  imgui_impl_glfw.cpp
-  DebugUI.cpp
-  GameObject.cpp
-  Engine.cpp
+﻿  Engine.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(240,28): warning C4305: 'argument': truncation from 'const double' to 'float'
-  Mesh.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(101,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(155,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(156,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-  Stb_image.cpp
-  Raycast.cpp
+  Physics.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Physics.cpp(49,44): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
+  PhysicsMaterial.cpp
+  Renderer.cpp
+  GameObject.cpp
+  Scene.cpp
+  DebugUI.cpp
   Generating Code...
   GameEngine.vcxproj -> C:\Users\tiafa\Desktop\GameEngine\x64\Debug\GameEngine.exe
   'pwsh.exe' is not recognized as an internal or external command,

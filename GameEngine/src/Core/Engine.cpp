@@ -399,22 +399,8 @@ int Start(void)
 
         // Populate available materials from the registry
         uiContext.physics.availableMaterials = MaterialRegistry::getInstance().getAllMaterialNames();
-
-
-        // Scene debug commands
-        // Wire DebugUI requests to real scene actions.
-        // This keeps DebugUI decoupled from Scene and Physics ownership.
-        /*uiContext.scene.spawnCube =
-            [&scene](const glm::vec3& position, bool withPhysics)
-            {
-                scene.createCube(
-                    position,
-                    glm::vec3(1.0f),
-                    withPhysics ? 1.0f : 0.0f
-                );
-            };*/
+        
 		// generic spawn function
-         // New generic spawn object command
         uiContext.scene.spawnObject =
             [&scene](ShapeType type, const glm::vec3& position,
                 const glm::vec3& size, float mass,
