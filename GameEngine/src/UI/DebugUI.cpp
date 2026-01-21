@@ -2,6 +2,44 @@
 #include "imgui.h"
 #include <vector>
 #include <string>
+#include <cmath> // std::atan2, std::asin
+
+static glm::vec3 QuatToEulerRad(const glm::quat& q)
+{
+    // Returns (pitch, yaw, roll) in radians using a standard Tait-Bryan conversion.
+    // NOTE: This is good enough for editor UI. We’ll refine later if needed.
+    glm::vec3 euler;
+
+    // pitch (x)
+    float sinp = 2.0f * (q.w * q.x - q.z * q.y);
+    if (std::abs(sinp) >= 1.0f)
+        euler.x = std::copysign(glm::half_pi<float>(), sinp);
+    else
+        euler.x = std::asin(sinp);
+
+    // yaw (y)
+    float siny_cosp = 2.0f * (q.w * q.y + q.x * q.z);
+    float cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.x * q.x);
+    euler.y = std::atan2(siny_cosp, cosy_cosp);
+
+    // roll (z)
+    float sinr_cosp = 2.0f * (q.w * q.z + q.y * q.x);
+    float cosr_cosp = 1.0f - 2.0f * (q.z * q.z + q.x * q.x);
+    euler.z = std::atan2(sinr_cosp, cosr_cosp);
+
+    return euler;
+}
+
+static glm::quat EulerRadToQuat(const glm::vec3& euler)
+{
+    // euler = (pitch, yaw, roll) in radians
+    // Build quaternion from axis rotations (X then Y then Z).
+    glm::quat qx = glm::angleAxis(euler.x, glm::vec3(1, 0, 0));
+    glm::quat qy = glm::angleAxis(euler.y, glm::vec3(0, 1, 0));
+    glm::quat qz = glm::angleAxis(euler.z, glm::vec3(0, 0, 1));
+    return qy * qx * qz;
+}
+
 void DebugUI::draw(const DebugUIContext& context)
 {
 
@@ -235,6 +273,9 @@ void DebugUI::draw(const DebugUIContext& context)
     // We copy into local values because ImGui works with plain floats.
     glm::vec3 pos = context.selectedObject->getPosition();
     glm::vec3 scale = context.selectedObject->getScale();
+    glm::quat rot = context.selectedObject->getRotation();
+
+
 
     ImGui::Text("Selected Object");
     ImGui::Separator();
@@ -249,6 +290,20 @@ void DebugUI::draw(const DebugUIContext& context)
     if (ImGui::DragFloat3("Position", posArr, 0.05f))
     {
         context.selectedObject->setPosition(glm::vec3(posArr[0], posArr[1], posArr[2]));
+    }
+
+    // ----------------------------
+    // Rotation
+    // ----------------------------
+    // Convert quaternion -> Euler (degrees) for UI editing.
+    glm::vec3 eulerRad = QuatToEulerRad(rot);
+    glm::vec3 eulerDeg = glm::degrees(eulerRad);
+
+    float rotArr[3] = { eulerDeg.x, eulerDeg.y, eulerDeg.z };
+    if (ImGui::DragFloat3("Rotation (deg)", rotArr, 0.5f))
+    {
+        glm::vec3 newEulerRad = glm::radians(glm::vec3(rotArr[0], rotArr[1], rotArr[2]));
+        context.selectedObject->setRotation(EulerRadToQuat(newEulerRad));
     }
 
     // ----------------------------

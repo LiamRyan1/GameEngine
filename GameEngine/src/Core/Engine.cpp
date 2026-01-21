@@ -277,10 +277,22 @@ int Start(void)
         // --- Window
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
+        // Start ImGui frame BEFORE using io.WantCaptureMouse.
+        // Otherwise uiWantsMouse is either invalid or from last frame.
+        // Start ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // ImGui tells us if the UI wants mouse input this frame
+        // (hovering, dragging sliders, clicking windows, etc.)
+        bool uiWantsMouse = ImGui::GetIO().WantCaptureMouse;
+
         // ===============================
         // Editor Ray -> AABB Picking
         // ===============================
-        if (engineMode == EngineMode::Editor &&
+        if (engineMode == EngineMode::Editor && 
+            !uiWantsMouse &&
             Input::GetMousePressed(GLFW_MOUSE_BUTTON_LEFT))
         {
             // Mouse position
@@ -426,11 +438,6 @@ int Start(void)
             {
                 return FileUtils::getTextureFiles("textures");
             };
-
-        // Start ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
 
         // Draw Debug UI (logic only)
         debugUI.draw(uiContext);

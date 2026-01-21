@@ -1,13 +1,1 @@
-﻿  Engine.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(240,28): warning C4305: 'argument': truncation from 'const double' to 'float'
-  Physics.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Physics.cpp(49,44): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
-  PhysicsMaterial.cpp
-  Renderer.cpp
-  GameObject.cpp
-  Scene.cpp
-  DebugUI.cpp
-  Generating Code...
-  GameEngine.vcxproj -> C:\Users\tiafa\Desktop\GameEngine\x64\Debug\GameEngine.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+﻿  GameEngine.vcxproj -> C:\Users\brian\Desktop\GameEngineProject\x64\Debug\GameEngine.exe

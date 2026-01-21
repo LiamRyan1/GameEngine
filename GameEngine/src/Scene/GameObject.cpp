@@ -92,26 +92,22 @@ void GameObject::setPosition(const glm::vec3& newPos)
 {
     position = newPos;
 
-    if (rigidBody)
-    {
+    if (!rigidBody) return;
+    
         btTransform trans;
-        trans.setIdentity();
+        rigidBody->getMotionState()->getWorldTransform(trans);
 
         // Keep current rotation
-        trans.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
         trans.setOrigin(btVector3(newPos.x, newPos.y, newPos.z));
+        rigidBody->getMotionState()->setWorldTransform(trans);
+        rigidBody->setWorldTransform(trans);
 
         rigidBody->setWorldTransform(trans);
 
-        if (rigidBody->getMotionState())
-            rigidBody->getMotionState()->setWorldTransform(trans);
-
         // Wake up so the change takes effect immediately
         rigidBody->activate(true);
-    }
+    
 }
-
-
 
 /**
  * @brief Sets the object's scale for rendering and editor picking.
@@ -135,4 +131,22 @@ void GameObject::setPosition(const glm::vec3& newPos)
 void GameObject::setScale(const glm::vec3& newScale)
 {
     scale = newScale;
+}
+
+void GameObject::setRotation(const glm::quat& newRot)
+{
+    rotation = newRot;
+
+    if (!rigidBody) return;
+
+    btTransform t;
+    rigidBody->getMotionState()->getWorldTransform(t);
+
+    btQuaternion bq(newRot.x, newRot.y, newRot.z, newRot.w);
+    t.setRotation(bq);
+
+    rigidBody->getMotionState()->setWorldTransform(t);
+    rigidBody->setWorldTransform(t);
+
+    rigidBody->activate(true);
 }
