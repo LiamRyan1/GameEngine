@@ -1,5 +1,5 @@
 #include "../include/GameObject.h"
-
+#include <iostream>
 
 /**
  * @brief Constructs a new GameObject with physics and rendering data.
@@ -17,20 +17,39 @@
  * @note Position and rotation are initialized to origin and identity - they get updated from
  *       physics on the first updateFromPhysics() call.
  */
-GameObject::GameObject(ShapeType type, btRigidBody* body, const glm::vec3& scale, const std::string& materialName,
-    const std::string& texturePath)
-    : shapeType(type), rigidBody(body), scale(scale),
-    materialName(materialName), texturePath(texturePath),
-    position(0.0f), rotation(1.0f, 0.0f, 0.0f, 0.0f)
+GameObject::GameObject(ShapeType type, btRigidBody* body, const glm::vec3& scale,
+                       const std::string& materialName, const std::string& texturePath)
+     : transform(glm::vec3(0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), scale),
+      render(type, texturePath)
      {
+    // Create physics component if body is provided
+    if (body) {
+        physics = std::make_unique<PhysicsComponent>(body, materialName);
+        physics->setOwner(this);
+    }
+
+    transform.setOwner(this);
+    render.setOwner(this);
 }
 
+/**
+ * @brief Creates a GameObject WITHOUT physics (render-only).
+ */
+GameObject::GameObject(ShapeType type, const glm::vec3& position,
+    const glm::vec3& scale, const std::string& texturePath)
+    : transform(position, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), scale),
+    render(type, texturePath),
+    physics(nullptr)
+{
+    transform.setOwner(this);
+    render.setOwner(this);
+}
 
 /**
  * @brief Destroys the GameObject.
  *
- * The GameObject does not own its rigid body - physics cleanup is handled
- * by the Physics system when it removes the body from the dynamics world.
+ * Components are automatically cleaned up via unique_ptr.
+ * 
  */
 GameObject::~GameObject() {
     // Physics cleanup handled by Physics system
@@ -54,20 +73,9 @@ GameObject::~GameObject() {
  * @note Uses the motion state to get interpolated transforms for smooth rendering
  */
 void GameObject::updateFromPhysics() {
-	// Ensure the rigid body and its motion state are valid
-    if (!rigidBody) return;
-	// Get the world transform from the rigid body's motion state
-    btTransform trans;
-    rigidBody->getMotionState()->getWorldTransform(trans);
-
-	// Update position and rotation from the transform
-    // Extract position
-    btVector3 origin = trans.getOrigin();
-    position = glm::vec3(origin.x(), origin.y(), origin.z());
-
-    // Extract rotation
-    btQuaternion rot = trans.getRotation();
-    rotation = glm::quat(rot.w(), rot.x(), rot.y(), rot.z());
+    if (physics) {
+        physics->syncToTransform(transform);
+    }
 }
 
 /**
@@ -90,22 +98,12 @@ void GameObject::updateFromPhysics() {
  */
 void GameObject::setPosition(const glm::vec3& newPos)
 {
-    position = newPos;
+    transform.setPosition(newPos);
 
-    if (!rigidBody) return;
-    
-        btTransform trans;
-        rigidBody->getMotionState()->getWorldTransform(trans);
-
-        // Keep current rotation
-        trans.setOrigin(btVector3(newPos.x, newPos.y, newPos.z));
-        rigidBody->getMotionState()->setWorldTransform(trans);
-        rigidBody->setWorldTransform(trans);
-
-        rigidBody->setWorldTransform(trans);
-
-        // Wake up so the change takes effect immediately
-        rigidBody->activate(true);
+    // Sync to physics if present
+    if (physics) {
+        physics->syncFromTransform(transform);
+    }
     
 }
 
@@ -130,23 +128,14 @@ void GameObject::setPosition(const glm::vec3& newPos)
  */
 void GameObject::setScale(const glm::vec3& newScale)
 {
-    scale = newScale;
+    transform.setScale(newScale);
 }
 
 void GameObject::setRotation(const glm::quat& newRot)
 {
-    rotation = newRot;
-
-    if (!rigidBody) return;
-
-    btTransform t;
-    rigidBody->getMotionState()->getWorldTransform(t);
-
-    btQuaternion bq(newRot.x, newRot.y, newRot.z, newRot.w);
-    t.setRotation(bq);
-
-    rigidBody->getMotionState()->setWorldTransform(t);
-    rigidBody->setWorldTransform(t);
-
-    rigidBody->activate(true);
+    transform.setRotation(newRot);
+    // Sync to physics if present
+    if (physics) {
+        physics->syncFromTransform(transform);
+    }
 }

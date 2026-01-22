@@ -134,6 +134,7 @@
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
+    <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
     <ClCompile Include="src\UI\DebugUI.cpp" />
     <ClCompile Include="src\Scene\GameObject.cpp" />
     <ClCompile Include="src\Core\GameTime.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="external\imgui\core\imgui.h" />
     <ClInclude Include="external\imgui\core\imgui_internal.h" />
     <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\Debug\DebugUI.h" />
     <ClInclude Include="include\Debug\DebugUIContext.h" />
     <ClInclude Include="include\Debug\PhysicsDebugView.h" />
@@ -179,12 +181,15 @@
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Physics.h" />
+    <ClInclude Include="include\PhysicsComponent.h" />
     <ClInclude Include="include\PhysicsMaterial.h" />
     <ClInclude Include="include\Raycast.h" />
+    <ClInclude Include="include\RenderComponent.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Transform.h" />
+    <ClInclude Include="include\TransformComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -91,6 +91,11 @@ GameObject* Scene::spawnObject(ShapeType type,
     return ptr;
 }
 
+
+// add spawnObject method without physics - for render only objects
+
+
+
 /**
  * @brief Updates all game objects in the scene.
  *

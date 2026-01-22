@@ -1,57 +1,40 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <btBulletDynamicsCommon.h>
+
 #include <memory>
-
-class Mesh;
-
-/**
- * @brief Defines the collision shape types available for game objects.
- *
- * These map to Bullet Physics primitive shapes and determine both
- * physics collision behavior and rendering appearance.
- */
-enum class ShapeType {
-    CUBE,
-    SPHERE,
-    CAPSULE,
-};
+#include <string>
+#include "../include/TransformComponent.h"
+#include "../include/PhysicsComponent.h"
+#include "../include/RenderComponent.h"
 
 /**
- * @brief Represents a game object with physics, transform, and rendering data.
+ * @brief  A component-based game object.
  *
- * GameObject is a lightweight wrapper that connects three systems:
- * 1. Physics: Wraps a Bullet rigid body for simulation
- * 2. Transform: Caches position/rotation/scale for rendering
- * 3. Rendering: Stores material name and texture path
+ * GameObject is now a lightweight container for components:
+ *  TransformComponent (always present) - position, rotation, scale
+ * - RenderComponent (always present) - shape, texture
+ * - PhysicsComponent (optional) - rigid body, physics simulation
+ * Usage examples:
  *
- * Design principles:
- * - GameObject does NOT own the rigid body (Physics system owns it)
- * - Transform is cached and synced from physics each frame
- * - Minimal data - just enough to render and identify the object
+ * // Physics-enabled object (typical game object)
+ * auto crate = GameObject(ShapeType::CUBE, body, glm::vec3(1.0f), "Wood", "crate.jpg");
  *
- * Lifecycle:
- * 1. Created by Scene::spawnObject()
- * 2. Updated every frame via updateFromPhysics()
- * 3. Destroyed when Scene is cleared or object is removed
+ * // Render-only object (particle, decoration)
+ * auto particle = GameObject(ShapeType::SPHERE, glm::vec3(0,5,0), glm::vec3(0.1f), "particle.png");
  */
 class GameObject {
 private:
-	std::string name; //create a unique name for each object - this needs to be implemented 
-    ShapeType shapeType;
-	btRigidBody* rigidBody; 
+    std::string name; //create a unique name for each object - this needs to be implemented 
+    // Core components (always present)
+    TransformComponent transform;
+    RenderComponent render;
 
-    glm::vec3 position;
-    glm::quat rotation;
-
-    glm::vec3 scale;
-    std::string texturePath;
-    std::string materialName;
+    // Optional components
+    std::unique_ptr<PhysicsComponent> physics;
 
 public:
+
     /**
      * @brief Constructs a GameObject with physics and rendering properties.
      * @param type Collision shape type
@@ -63,6 +46,19 @@ public:
     GameObject(ShapeType type, btRigidBody* body, const glm::vec3& scale,
         const std::string& materialName = "Default",
         const std::string& texturePath = "");
+
+    /**
+     * @brief Creates a GameObject WITHOUT physics (render-only).
+     * Use this for visual effects, decorations, UI elements, particles.
+     *
+     * @param type Shape type for rendering
+     * @param position Initial world position
+     * @param scale Object dimensions
+     * @param texturePath Texture file path (empty = default orange)
+     */
+    GameObject(ShapeType type, const glm::vec3& position,
+        const glm::vec3& scale, const std::string& texturePath = "");
+
     ~GameObject();
 
 
@@ -75,71 +71,43 @@ public:
      */
     void updateFromPhysics();
 
-	// Getters
+    // Component accessors - allows direct access to components
+    TransformComponent& getTransform() { return transform; }
+    const TransformComponent& getTransform() const { return transform; }
 
-    /** @brief Gets the collision shape type. */
-    ShapeType getShapeType() const { return shapeType; }
+    RenderComponent& getRender() { return render; }
+    const RenderComponent& getRender() const { return render; }
 
-    /** @brief Gets the current world position. */
-    glm::vec3 getPosition() const { return position; }
+    PhysicsComponent* getPhysics() { return physics.get(); }
+    const PhysicsComponent* getPhysics() const { return physics.get(); }
 
-    /** @brief Gets the current world rotation as a quaternion. */
-    glm::quat getRotation() const { return rotation; }
+    bool hasPhysics() const { return physics != nullptr; }
 
-    /** @brief Gets the object scale (render size).*/
-    glm::vec3 getScale() const { return scale; }
 
-    /** @brief Gets the physics material name. */
-    std::string getMaterialName() const { return materialName; }
+    // Transform shortcuts
+    glm::vec3 getPosition() const { return transform.getPosition(); }
+    glm::quat getRotation() const { return transform.getRotation(); }
+    glm::vec3 getScale() const { return transform.getScale(); }
 
-    /** @brief Gets the Bullet rigid body pointer (can be nullptr). */
-    btRigidBody* getRigidBody() const { return rigidBody; }
+    void setPosition(const glm::vec3& pos);
+    void setRotation(const glm::quat& rot);
+    void setScale(const glm::vec3& scale);
 
-    /** @brief Gets the texture file path (empty string = default color). */
-    const std::string& getTexturePath() const { return texturePath; }
+    // Render shortcuts
+    ShapeType getShapeType() const { return render.getShapeType(); }
+    const std::string& getTexturePath() const { return render.getTexturePath(); }
+    void setTexturePath(const std::string& path) { render.setTexturePath(path); }
 
-    /**
-    * @brief Sets the texture path for rendering.
-    * @param path Path to texture file (e.g. "textures/wood.jpg")
-    * @note Does not reload texture - renderer handles that
-    */
-    void setTexturePath(const std::string& path) { texturePath = path; }
+    // Name
+    const std::string& getName() const { return name; }
+    void setName(const std::string& newName) { name = newName; }
 
-    /**
-     * @brief Sets the physics material name.
-     * @param name Material name from MaterialRegistry
-     * @warning Currently does not update the rigid body's friction/restitution.
-     *          Material is only used during object creation. To change physics
-     *          properties at runtime, you'd need to modify the rigid body directly.
-     * @todo Add method to apply material changes to existing rigid body
-     */
-    void setMaterialName(const std::string& name) { materialName = name; }
-
-    /**
-     * @brief Sets the object's world position.
-     *
-     * Updates both cached position AND physics rigid body (if present).
-     * Wakes up the rigid body to ensure collision detection works.
-     *
-     * @param newPos New world position
-     */
-    void setPosition(const glm::vec3& newPos);
-
-     /**
-     * @brief Sets the object's render scale.
-     * 
-     * @param newScale New scale vector
-     * @warning Currently only affects rendering/picking, NOT physics collision shape.
-     * @todo Implement physics shape resizing
-     */
-    void setScale(const glm::vec3& newScale);
-
-    /**
-	 * @brief Sets the object's world rotation.
-	 * @param newRot New rotation as a quaternion
-	 * @note Updates both cached rotation AND physics rigid body (if present).
-	 * @todo implement this function
-     */
-    void setRotation(const glm::quat& newRot);
+    // Physics shortcuts
+    btRigidBody* getRigidBody() const {
+        return physics ? physics->getRigidBody() : nullptr;
+    }
+    std::string getMaterialName() const {
+        return physics ? physics->getMaterialName() : "";
+    }
 };
 #endif // GAMEOBJECT_H
