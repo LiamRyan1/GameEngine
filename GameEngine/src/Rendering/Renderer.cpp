@@ -20,8 +20,10 @@ Renderer::~Renderer() {
 void Renderer::initialize() {
     setupShaders();
 
-    // Create cube mesh using factory method
+    // Create mesh using factory method
     cubeMesh = Mesh::createCube();
+    sphereMesh = Mesh::createSphere();
+    cylinderMesh = Mesh::createCylinder();
 }
 
 // Load shader source from file
@@ -128,7 +130,20 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     );
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
-    Mesh* mesh = &cubeMesh;
+    Mesh* mesh = &cubeMesh;  // Default
+    switch (obj.getShapeType()) {
+    case ShapeType::SPHERE:
+        mesh = &sphereMesh;
+        break;
+    case ShapeType::CAPSULE:
+        mesh = &cylinderMesh;  // Use cylinder mesh for capsule
+        break;
+    case ShapeType::CUBE:
+    default:
+        mesh = &cubeMesh;
+        break;
+    }
+
     glm::vec3 color(1.0f, 0.5f, 0.2f);
 
     bool hasTexture = !obj.getTexturePath().empty();

@@ -17,6 +17,8 @@ class Renderer {
 private:
     unsigned int shaderProgram;
     Mesh cubeMesh;
+    Mesh sphereMesh;
+    Mesh cylinderMesh;
 
     std::unordered_map<std::string, Texture> textureCache;  //texture cache
 

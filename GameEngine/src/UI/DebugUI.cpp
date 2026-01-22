@@ -79,8 +79,8 @@ void DebugUI::draw(const DebugUIContext& context)
     // Shape-specific parameters
 	static float cubeSize[3] = { 1.0f, 1.0f, 1.0f }; // cubes use half-extents
     static float sphereRadius = 1.0f; 
-	static float capsuleRadius = 0.5f; // capsules use radius + height
-    static float capsuleHeight = 2.0f;
+    static float capsuleRadius = 0.5f;
+    static float capsuleHeight = 2.0f; 
 
     // Material selection
     static int selectedMaterialIndex = 0;
@@ -199,9 +199,9 @@ void DebugUI::draw(const DebugUIContext& context)
                     shapeType = ShapeType::SPHERE;
 					size = glm::vec3(sphereRadius);
                     break;
-				case 2://capsule
-					shapeType = ShapeType::CAPSULE;
-					size = glm::vec3(capsuleRadius, capsuleHeight, 0.0f);
+                case 2://capsule
+                    shapeType = ShapeType::CAPSULE;
+                    size = glm::vec3(capsuleRadius, capsuleHeight, capsuleRadius);
                     break;
                 default:
 					shapeType = ShapeType::CUBE;

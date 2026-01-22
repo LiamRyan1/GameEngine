@@ -2,7 +2,9 @@
 #include <GL/glew.h>
 #include <cmath>
 #include <iostream>
-
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 // Default constructor: Initialize all GPU buffer IDs to 0 (null/invalid)
 // and all counts to 0. This represents an "empty" mesh with no GPU resources.
@@ -373,3 +375,192 @@ Mesh Mesh::createCube() {
     return mesh;
 }
 
+Mesh Mesh::createSphere(float radius, int sectors, int stacks) {
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<float> texCoords;
+
+    // Generate vertices with positions and normals
+    for (int i = 0; i <= stacks; ++i) {
+        float stackAngle = M_PI / 2 - i * M_PI / stacks;  // From π/2 to -π/2
+        float xy = radius * cosf(stackAngle);
+        float z = radius * sinf(stackAngle);
+
+        for (int j = 0; j <= sectors; ++j) {
+            float sectorAngle = j * 2 * M_PI / sectors;  // From 0 to 2π
+
+            // Position (x, y, z)
+            float x = xy * cosf(sectorAngle);
+            float y = xy * sinf(sectorAngle);
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+
+            // Normal (for sphere, normalized position IS the normal)
+            float nx = x / radius;
+            float ny = y / radius;
+            float nz = z / radius;
+            vertices.push_back(nx);
+            vertices.push_back(ny);
+            vertices.push_back(nz);
+
+            // Texture coordinates
+            texCoords.push_back((float)j / sectors);
+            texCoords.push_back((float)i / stacks);
+        }
+    }
+
+    // Generate indices (two triangles per quad)
+    for (int i = 0; i < stacks; ++i) {
+        int k1 = i * (sectors + 1);
+        int k2 = k1 + sectors + 1;
+
+        for (int j = 0; j < sectors; ++j, ++k1, ++k2) {
+            // Skip top triangles at poles
+            if (i != 0) {
+                indices.push_back(k1);
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+            }
+            // Skip bottom triangles at poles
+            if (i != (stacks - 1)) {
+                indices.push_back(k1 + 1);
+                indices.push_back(k2);
+                indices.push_back(k2 + 1);
+            }
+        }
+    }
+
+    Mesh mesh;
+    mesh.setDataWithEdges(vertices, indices, {}, texCoords);  // Empty edges for sphere
+    return mesh;
+}
+
+Mesh Mesh::createCylinder(float radius, float height, int sectors) {
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<float> texCoords;
+
+    float halfHeight = height / 2.0f;
+    int baseVertexCount = 0;
+
+    // ============ SIDE WALLS ============
+    for (int i = 0; i <= 1; ++i) {
+        float y = (i == 0) ? -halfHeight : halfHeight;
+
+        for (int j = 0; j <= sectors; ++j) {
+            float angle = j * 2 * M_PI / sectors;
+            float x = radius * cosf(angle);
+            float z = radius * sinf(angle);
+
+            // Position
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+
+            // Normal (points outward horizontally)
+            vertices.push_back(x / radius);
+            vertices.push_back(0.0f);
+            vertices.push_back(z / radius);
+
+            texCoords.push_back((float)j / sectors);
+            texCoords.push_back((float)i);
+        }
+    }
+
+    // Side indices
+    for (int i = 0; i < sectors; ++i) {
+        int current = i;
+        int next = i + 1;
+        int currentTop = current + sectors + 1;
+        int nextTop = next + sectors + 1;
+
+        indices.push_back(current);
+        indices.push_back(next);
+        indices.push_back(nextTop);
+
+        indices.push_back(current);
+        indices.push_back(nextTop);
+        indices.push_back(currentTop);
+    }
+
+    baseVertexCount = (sectors + 1) * 2;
+
+    // ============ BOTTOM CAP ============
+    // Center vertex
+    vertices.push_back(0.0f);
+    vertices.push_back(-halfHeight);
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);  // Normal down
+    vertices.push_back(-1.0f);
+    vertices.push_back(0.0f);
+    texCoords.push_back(0.5f);
+    texCoords.push_back(0.5f);
+
+    int bottomCenterIndex = baseVertexCount;
+
+    // Bottom rim vertices
+    for (int j = 0; j <= sectors; ++j) {
+        float angle = j * 2 * M_PI / sectors;
+        float x = radius * cosf(angle);
+        float z = radius * sinf(angle);
+
+        vertices.push_back(x);
+        vertices.push_back(-halfHeight);
+        vertices.push_back(z);
+        vertices.push_back(0.0f);  // Normal down
+        vertices.push_back(-1.0f);
+        vertices.push_back(0.0f);
+
+        texCoords.push_back(0.5f + 0.5f * cosf(angle));
+        texCoords.push_back(0.5f + 0.5f * sinf(angle));
+    }
+
+    // Bottom cap indices (reverse winding for downward face)
+    for (int j = 0; j < sectors; ++j) {
+        indices.push_back(bottomCenterIndex);
+        indices.push_back(bottomCenterIndex + j + 2);
+        indices.push_back(bottomCenterIndex + j + 1);
+    }
+
+    // ============ TOP CAP ============
+    int topCenterIndex = bottomCenterIndex + sectors + 2;
+
+    // Center vertex
+    vertices.push_back(0.0f);
+    vertices.push_back(halfHeight);
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);  // Normal up
+    vertices.push_back(1.0f);
+    vertices.push_back(0.0f);
+    texCoords.push_back(0.5f);
+    texCoords.push_back(0.5f);
+
+    // Top rim vertices
+    for (int j = 0; j <= sectors; ++j) {
+        float angle = j * 2 * M_PI / sectors;
+        float x = radius * cosf(angle);
+        float z = radius * sinf(angle);
+
+        vertices.push_back(x);
+        vertices.push_back(halfHeight);
+        vertices.push_back(z);
+        vertices.push_back(0.0f);  // Normal up
+        vertices.push_back(1.0f);
+        vertices.push_back(0.0f);
+
+        texCoords.push_back(0.5f + 0.5f * cosf(angle));
+        texCoords.push_back(0.5f + 0.5f * sinf(angle));
+    }
+
+    // Top cap indices
+    for (int j = 0; j < sectors; ++j) {
+        indices.push_back(topCenterIndex);
+        indices.push_back(topCenterIndex + j + 1);
+        indices.push_back(topCenterIndex + j + 2);
+    }
+
+    Mesh mesh;
+    mesh.setDataWithEdges(vertices, indices, {}, texCoords);
+    return mesh;
+}

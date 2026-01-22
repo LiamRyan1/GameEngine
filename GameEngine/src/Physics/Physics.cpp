@@ -80,12 +80,18 @@ btRigidBody* Physics::createRigidBody(
         shape = new btSphereShape(size.x);
         std::cout << "Created sphere collider: radius=" << size.x << std::endl;
         break;
-    case ShapeType::CAPSULE:
-        // size.x = radius, size.y = height
-		shape = new btCapsuleShape(size.x, size.y);
-        std::cout << "Created capsule collider: radius= " << size.x << ", height=" << size.y << std::endl;
-        break;
+    case ShapeType::CAPSULE:{
+        // Total = cylinderHeight + 2*radius, so: cylinderHeight = total - 2*radius
+        float totalHeight = size.y;
+        float cylinderHeight = totalHeight - 2.0f * size.x;
 
+        // Clamp to prevent negative/zero cylinder height
+        if (cylinderHeight < 0.1f) cylinderHeight = 0.1f;
+
+        shape = new btCapsuleShape(size.x, cylinderHeight);
+        std::cout << "Created capsule collider: radius=" << size.x << std::endl;
+        break;
+    }
     default:
         std:: cerr << "Unknown ShapeType for rigid body creation! defaulting to cube" << std::endl;
         shape = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));

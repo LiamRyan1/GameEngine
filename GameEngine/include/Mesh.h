@@ -68,7 +68,8 @@ public:
 
     // create pre-defined geometric shapes with proper vertex/index data
     static Mesh createCube();                 // Creates a 1x1x1 cube centered at origin
-
+    static Mesh createSphere(float radius = 1.0f, int sectors = 36, int stacks = 18);
+    static Mesh createCylinder(float radius = 1.0f, float height = 1.0f, int sectors = 36);
 };
 
 #endif
