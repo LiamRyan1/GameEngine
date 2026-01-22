@@ -46,6 +46,7 @@ target_sources(GameEngine PRIVATE
     src/Scene/Scene.cpp
     src/Scene/GameObject.cpp
     src/Scene/Transform.cpp
+    src/Scene/PhysicsComponent.cpp
     
     # Input
     src/Input/Input.cpp
