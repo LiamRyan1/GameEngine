@@ -157,6 +157,11 @@ void CameraController::setMode(Mode mode) {
     }
 }
 
+void CameraController::resetMouseTracking()
+{
+    firstMouse = true;
+}
+
 void CameraController::setPitchConstraints(float min, float max) {
     minPitch = min;
     maxPitch = max;

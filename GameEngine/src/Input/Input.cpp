@@ -1,6 +1,7 @@
 ﻿#include "../include/Input.h"
 #include "../include/CameraController.h"
 #include "imgui_impl_glfw.h"
+#include "imgui.h"
 
 
 // keysDown[key]     → true while key is being held
@@ -61,10 +62,22 @@ static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     // Forward event to ImGui
     ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
 
-    if (s_CameraController)
-    {
-        s_CameraController->processMouse(xpos, ypos);
+    if (!s_CameraController)
+        return;
+
+    // If UI wants the mouse, don't rotate camera
+    if (ImGui::GetIO().WantCaptureMouse) {
+        s_CameraController->resetMouseTracking();
+        return;
     }
+
+    // Only rotate camera while holding RMB
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS) {
+        s_CameraController->resetMouseTracking();
+        return;
+    }
+
+    s_CameraController->processMouse(xpos, ypos);
 }
 
 static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)

@@ -69,7 +69,7 @@ public:
     void setOrbitalRadius(float radius) { orbitalRadius = radius; }
     void setOrbitalSpeed(float speed) { orbitalSpeed = speed; }
 
-
+    void resetMouseTracking();
 };
 
 #endif // CAMERA_CONTROLLER_H
