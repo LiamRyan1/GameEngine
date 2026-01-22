@@ -183,7 +183,7 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     }
 }
 
-void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects) {
+void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects, const GameObject* selectedObject) {
     if (windowHeight == 0)
         return;
 
@@ -220,11 +220,57 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     glUniform3fv(lightColorLoc, 1, &lightColor[0]);
 
 
-    // Draw each GameObject
-    for (const auto& obj : objects) {
-        drawGameObject(*obj, modelLoc, colorLoc);
+    for (const auto& obj : objects)
+    {
+        bool isSelected = (selectedObject && obj.get() == selectedObject);
+
+        glUniform1i(glGetUniformLocation(shaderProgram, "uIsSelected"), isSelected ? 1 : 0);
+        glUniform3f(glGetUniformLocation(shaderProgram, "uHighlightColor"), 0.0f, 1.0f, 1.0f); // TURQUOISE
+        glUniform1f(glGetUniformLocation(shaderProgram, "uHighlightStrength"), 0.6f);
+
+
+        drawGameObject(*obj, modelLoc, colorLoc); // your friend's code unchanged
+
+        if (selectedObject && obj.get() == selectedObject)
+        {
+            drawOutlineOnly(*obj, modelLoc, colorLoc);
+        }
     }
+
 }
+
+// Draws a black wire overlay on top of the object (if mesh has edge indices).
+// Does NOT change your friend's base draw code.
+void Renderer::drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc)
+{
+    // Build model matrix
+    glm::mat4 model = Transform::model(obj.getPosition(), obj.getRotation(), obj.getScale());
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+    // Pick correct mesh (same selection logic as drawGameObject)
+    Mesh* mesh = &cubeMesh;
+    switch (obj.getShapeType()) {
+    case ShapeType::SPHERE:  mesh = &sphereMesh;   break;
+    case ShapeType::CAPSULE: mesh = &cylinderMesh; break;
+    case ShapeType::CUBE:
+    default:                 mesh = &cubeMesh;     break;
+    }
+
+    // Force "edge shader path" to black using your existing fragment test
+    int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
+    glUniform1i(useTexLoc, 0);
+    glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
+
+    // Render only edges, offset so it draws on top
+    glEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(-0.5f, -0.5f);
+    glLineWidth(2.0f);
+
+    mesh->drawEdges();
+
+    glDisable(GL_POLYGON_OFFSET_LINE);
+}
+
 
 void Renderer::cleanup() {
     std::cout << "Cleaning up renderer..." << std::endl;

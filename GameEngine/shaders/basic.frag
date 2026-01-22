@@ -13,6 +13,11 @@ uniform vec3 lightColor;    // Light color
 uniform sampler2D textureSampler;  // Texture sampler
 uniform bool useTexture;           // Flag to enable/disable texture
 
+uniform bool uIsSelected;
+uniform vec3 uHighlightColor;
+uniform float uHighlightStrength;
+
+
 void main()
 {
     // Check if drawing edges (black)
@@ -48,5 +53,13 @@ void main()
     
     // Combine all lighting components
     vec3 result = (ambient + diffuse + specular) * baseColor;
+
+    // Apply selection tint
+    if (uIsSelected) {
+    result = mix(result, uHighlightColor, uHighlightStrength);
+    }
     FragColor = vec4(result, 1.0);
+
+
+
 }

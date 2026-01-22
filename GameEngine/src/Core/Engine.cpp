@@ -446,7 +446,7 @@ int Start(void)
         ImGui::Render();
 
         // --- Render ---
-        renderer.draw(fbW, fbH,camera, scene.getObjects());
+        renderer.draw(fbW, fbH,camera, scene.getObjects(), selectedObject);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
 

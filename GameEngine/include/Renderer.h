@@ -33,6 +33,8 @@ private:
     void setupShaders();
     unsigned int compileShader(unsigned int type, const char* source);
     void drawGameObject(const GameObject& obj, int modelLoc, int colorLoc);// draw a single game object
+    void drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc);
+
 
 public:
     Renderer();
@@ -41,7 +43,7 @@ public:
     void initialize();
     void draw(int windowWidth, int windowHeight, 
         const Camera& camera, 
-        const std::vector<std::unique_ptr<GameObject>>& objects);
+        const std::vector<std::unique_ptr<GameObject>>& objects, const GameObject* selectedObject);
     void cleanup();
 
     // Lighting control
