@@ -176,6 +176,20 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
         glUniform3f(colorLoc, color.r, color.g, color.b);
     }
 
+    if (texture) {
+        texture->bind(0);
+        glUniform1i(texLoc, 0);
+        glUniform1i(useTexLoc, 1);
+
+        // IMPORTANT: prevent shader’s "edge black" early-return from triggering
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+    }
+    else {
+        glUniform1i(useTexLoc, 0);
+        glUniform3f(colorLoc, color.r, color.g, color.b);
+    }
+
+
     mesh->draw();
 
     if (texture) {
