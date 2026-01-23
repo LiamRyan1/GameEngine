@@ -18,6 +18,7 @@
 #include "imgui_impl_opengl3.h"
 #include "../include/Raycast.h"
 #include <PhysicsMaterial.h>
+#include "../include/Editor/Gizmo.h"
 
 
 
@@ -156,6 +157,9 @@ int Start(void)
     // Create Debug UI
     DebugUI debugUI;
 
+    // Create gizmo
+    EditorGizmo gizmo;
+
     // --- Window tracking ---
     bool isFocused = glfwGetWindowAttrib(window, GLFW_FOCUSED) == GLFW_TRUE;
     bool isMinimized = glfwGetWindowAttrib(window, GLFW_ICONIFIED) == GLFW_TRUE;
@@ -288,11 +292,26 @@ int Start(void)
         // (hovering, dragging sliders, clicking windows, etc.)
         bool uiWantsMouse = ImGui::GetIO().WantCaptureMouse;
 
+        bool gizmoCapturingMouse = gizmo.update(
+            window, fbW, fbH,
+            camera,
+            selectedObject,
+            engineMode == EngineMode::Editor,
+            uiWantsMouse
+        );
+
+        // Gizmo visuals
+        if (engineMode == EngineMode::Editor && selectedObject)
+        {
+            gizmo.draw(fbW, fbH, camera, selectedObject);
+        }
+
         // ===============================
         // Editor Ray -> AABB Picking
         // ===============================
         if (engineMode == EngineMode::Editor && 
             !uiWantsMouse &&
+            !gizmoCapturingMouse &&
             Input::GetMousePressed(GLFW_MOUSE_BUTTON_LEFT))
         {
             // Mouse position

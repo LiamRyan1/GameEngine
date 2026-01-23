@@ -132,6 +132,7 @@
     <ClCompile Include="external\imgui\core\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
+    <ClCompile Include="src\Editor\Gizmo.cpp" />
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="include\Debug\PhysicsDebugView.h" />
     <ClInclude Include="include\Debug\SceneDebugCommands.h" />
     <ClInclude Include="include\Debug\TimeDebugView.h" />
+    <ClInclude Include="include\Editor\Gizmo.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\CameraController.h" />
     <ClInclude Include="include\FileUtils.h" />

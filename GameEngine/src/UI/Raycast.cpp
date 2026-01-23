@@ -14,7 +14,7 @@
 //
 // Returns true if the ray hits the box, false otherwise.
 //
-// This uses the "slab method", which checks intersection
+// This uses the slab method, which checks intersection
 // against X, Y, and Z axis-aligned planes.
 bool RayIntersectsAABB(
     const glm::vec3& rayOrigin,

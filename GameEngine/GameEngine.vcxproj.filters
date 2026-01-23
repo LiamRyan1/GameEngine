@@ -25,6 +25,7 @@
     <ClCompile Include="src\UI\Raycast.cpp" />
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
+    <ClCompile Include="src\Editor\Gizmo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="include\TransformComponent.h" />
     <ClInclude Include="include\PhysicsComponent.h" />
     <ClInclude Include="include\RenderComponent.h" />
+    <ClInclude Include="include\Editor\Gizmo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
