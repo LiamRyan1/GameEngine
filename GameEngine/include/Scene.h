@@ -31,6 +31,14 @@ public:
         const std::string& materialName = "Default",
 		const std::string& texturePath = "");
 
+    // Spawn render-only object (no physics)
+    GameObject* spawnRenderObject(
+        ShapeType type,
+        const glm::vec3& position,
+        const glm::vec3& size,
+        const std::string& texturePath = ""
+    );
+
     // Update all objects from physics simulation
     void update(EngineMode mode);
 

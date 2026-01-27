@@ -94,6 +94,24 @@ GameObject* Scene::spawnObject(ShapeType type,
 
 
 // add spawnObject method without physics - for render only objects
+GameObject* Scene::spawnRenderObject(
+    ShapeType type,
+    const glm::vec3& position,
+    const glm::vec3& size,
+    const std::string& texturePath)
+{
+    // Render-only constructor (no rigid body)
+    auto obj = std::make_unique<GameObject>(type, position, size, texturePath);
+
+    GameObject* ptr = obj.get();
+    gameObjects.push_back(std::move(obj));
+
+    std::cout << "Spawned Render-Only Object at ("
+        << position.x << ", " << position.y << ", " << position.z << ")\n";
+
+    return ptr;
+}
+
 
 
 

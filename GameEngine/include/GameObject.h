@@ -82,6 +82,8 @@ public:
     const PhysicsComponent* getPhysics() const { return physics.get(); }
 
     bool hasPhysics() const { return physics != nullptr; }
+    bool isRenderOnly() const { return !hasPhysics(); }
+
 
 
     // Transform shortcuts

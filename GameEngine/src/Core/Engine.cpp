@@ -133,6 +133,14 @@ int Start(void)
     // Create a sphere (currently rendered as cube with sphere collider)
     auto sphere1 = scene.spawnObject(ShapeType::SPHERE, glm::vec3(2.0f, 15.0f, 3.0f), glm::vec3(1.0f), 1.0f, "Rubber");
 
+    scene.spawnRenderObject(
+        ShapeType::CUBE,
+        glm::vec3(0, 3, 0),
+        glm::vec3(1.0f),
+        "textures/wood1.jpg"
+    );
+
+
     // TODO: Replace hardcoded scene with file loading
     // scene.loadFromFile("scenes/test_level.json");
 
