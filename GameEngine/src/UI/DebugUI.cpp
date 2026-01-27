@@ -76,6 +76,10 @@ void DebugUI::draw(const DebugUIContext& context)
     static float spawnPos[3] = { 0.0f, 5.0f, 0.0f };
     static float mass = 1.0f;
 
+    // Physics spawn
+    static bool spawnWithPhysics = true;
+    ImGui::Checkbox("Enable Physics", &spawnWithPhysics);
+
     // Shape-specific parameters
 	static float cubeSize[3] = { 1.0f, 1.0f, 1.0f }; // cubes use half-extents
     static float sphereRadius = 1.0f; 
@@ -237,14 +241,27 @@ void DebugUI::draw(const DebugUIContext& context)
             }
 
             // Spawn the object
-            context.scene.spawnObject(
-                shapeType,
-                glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]),
-                size,
-                mass,
-                materialName,
-                texturePath
-            );
+            if (spawnWithPhysics)
+            {
+                context.scene.spawnObject(
+                    shapeType,
+                    glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]),
+                    size,
+                    mass,
+                    materialName,
+                    texturePath
+                );
+            }
+            else
+            {
+                context.scene.spawnRenderObject(
+                    shapeType,
+                    glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]),
+                    size,
+                    texturePath
+                );
+            }
+
         }
 
     }
@@ -259,7 +276,7 @@ void DebugUI::draw(const DebugUIContext& context)
     // click in scene -> inspect -> edit -> see changes live.
     ImGui::Begin("Inspector");
 
-    // Nothing selected → show hint and exit early.
+    // Nothing selected -> show hint and exit early.
     // Prevents null pointer access and keeps UI clear.
     if (!context.selectedObject)
     {
@@ -279,6 +296,16 @@ void DebugUI::draw(const DebugUIContext& context)
 
     ImGui::Text("Selected Object");
     ImGui::Separator();
+
+    // Physics status display
+    if (context.selectedObject->isRenderOnly())
+    {
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Physics: Disabled (Render Only)");
+    }
+    else
+    {
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics: Enabled");
+    }
 
     // ----------------------------
     // Position

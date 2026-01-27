@@ -4,7 +4,10 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
-#include "../GameObject.h" 
+
+class GameObject;
+enum class ShapeType;
+
 struct SceneDebugCommands
 {
     // Command interface exposed to Debug UI.
@@ -14,6 +17,9 @@ struct SceneDebugCommands
     
     // New generic spawn function
     std::function<void(ShapeType, const glm::vec3&, const glm::vec3&, float, const std::string&, const std::string&)> spawnObject;
+
+    // Render-only spawn
+    std::function<GameObject* (ShapeType, const glm::vec3&, const glm::vec3&, const std::string&)> spawnRenderObject;
 
     // Register a custom material
     std::function<void(const std::string&, float, float)> registerMaterial;

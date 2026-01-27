@@ -14,4 +14,5 @@ struct DebugUIContext
     // Currently selected object (set by Engine picking).
     // DebugUI may display/edit it, but does not own it.
     GameObject* selectedObject = nullptr;
+
 };

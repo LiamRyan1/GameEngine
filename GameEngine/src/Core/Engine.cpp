@@ -459,6 +459,14 @@ int Start(void)
                     obj->setTexturePath(texturePath);
                 }
             };
+
+        // Spawn for objects without physics
+        uiContext.scene.spawnRenderObject =
+            [&scene](ShapeType type, const glm::vec3& pos, const glm::vec3& size, const std::string& tex)
+            {
+                return scene.spawnRenderObject(type, pos, size, tex);
+            };
+
         // Register custom material command
         uiContext.scene.registerMaterial =
             [](const std::string& name, float friction, float restitution)
