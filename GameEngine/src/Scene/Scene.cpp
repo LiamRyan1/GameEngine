@@ -1,4 +1,5 @@
 #include "../include/Scene.h"
+#include "../include/Engine.h"
 #include <iostream>
 
 
@@ -108,11 +109,31 @@ GameObject* Scene::spawnObject(ShapeType type,
  * 2. Scene::update() syncs GameObject transforms from physics
  * 3. Renderer draws objects at their updated positions
  */
-void Scene::update() {
-    // Sync all game objects with their physics simulation
-    for (auto& obj : gameObjects) {
-		// Update each object's transform from its physics body
-        obj->updateFromPhysics();
+void Scene::update(EngineMode mode) {
+    // Only sync transforms from physics in GAME mode
+    if (mode == EngineMode::Game)
+    {
+        // Sync all game objects with their physics simulation
+        for (auto& obj : gameObjects) {
+            if (obj->hasPhysics())
+                // Update each object's transform from its physics body
+                obj->updateFromPhysics();
+        }
+    }
+    else
+    {
+        // Editor mode: do NOT constantly overwrite gizmo transforms
+        // But we still want one initial sync so objects appear
+        static bool syncedOnce = false;
+        if (!syncedOnce)
+        {
+            for (auto& obj : gameObjects)
+            {
+                if (obj->hasPhysics())
+                    obj->updateFromPhysics();
+            }
+            syncedOnce = true;
+        }
     }
 }
 

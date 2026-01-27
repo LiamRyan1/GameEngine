@@ -239,13 +239,21 @@ int Start(void)
         // --- Fixed timestep updates ---
         // ====================
         // Run physics updates in fixed 1/60s steps until caught up with real time
-        while (accumulator >= fixedDt)
+        if (engineMode == EngineMode::Game)
         {
-            physics.update(fixedDt); // advance simulation by one fixed step
-            accumulator -= fixedDt; // remove one step’s worth of time from the bucket
-            physicsSteps++; // count how many physics updates ran this second
+            while (accumulator >= fixedDt)
+            {
+                physics.update(fixedDt); // advance simulation by one fixed step
+                accumulator -= fixedDt; // remove one step’s worth of time from the bucket
+                physicsSteps++; // count how many physics updates ran this second
+            }
         }
-        scene.update();
+        else
+        {
+            // In editor mode, discard accumulator so physics doesn't "catch up"
+            accumulator = 0.0;
+        }
+        scene.update(engineMode);
         // ========================
         // Print how many physics steps occurred every second
         physicsTime += deltaTime;

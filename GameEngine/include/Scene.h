@@ -6,6 +6,8 @@
 #include "../include/GameObject.h"
 #include "../include/Physics.h"
 
+enum class EngineMode;
+
 class Scene {
 
 private:
@@ -30,7 +32,7 @@ public:
 		const std::string& texturePath = "");
 
     // Update all objects from physics simulation
-    void update();
+    void update(EngineMode mode);
 
     // Get all objects for rendering
     const std::vector<std::unique_ptr<GameObject>>& getObjects() const { return gameObjects; }
