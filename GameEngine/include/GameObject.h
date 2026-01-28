@@ -25,6 +25,10 @@
  */
 class GameObject {
 private:
+
+    static uint64_t nextID;
+    uint64_t id;
+
     std::string name; //create a unique name for each object - this needs to be implemented 
     // Core components (always present)
     TransformComponent transform;
@@ -34,6 +38,9 @@ private:
     std::unique_ptr<PhysicsComponent> physics;
 
 public:
+
+    // Getter for ID
+    uint64_t getID() const { return id; }
 
     /**
      * @brief Constructs a GameObject with physics and rendering properties.

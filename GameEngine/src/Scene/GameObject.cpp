@@ -17,15 +17,22 @@
  * @note Position and rotation are initialized to origin and identity - they get updated from
  *       physics on the first updateFromPhysics() call.
  */
+
+uint64_t GameObject::nextID = 1;
+
+
 GameObject::GameObject(ShapeType type, btRigidBody* body, const glm::vec3& scale,
                        const std::string& materialName, const std::string& texturePath)
      : transform(glm::vec3(0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), scale),
       render(type, texturePath)
      {
+
+        id = nextID++;
     // Create physics component if body is provided
     if (body) {
         physics = std::make_unique<PhysicsComponent>(body, materialName);
         physics->setOwner(this);
+        
     }
 
     transform.setOwner(this);
@@ -41,6 +48,8 @@ GameObject::GameObject(ShapeType type, const glm::vec3& position,
     render(type, texturePath),
     physics(nullptr)
 {
+    id = nextID++;
+
     transform.setOwner(this);
     render.setOwner(this);
 }
