@@ -1,4 +1,5 @@
 ﻿#include "../include/Debug/DebugUI.h"
+#include "../include/DirectionalLight.h"
 #include "imgui.h"
 #include <vector>
 #include <string>
@@ -282,66 +283,118 @@ void DebugUI::draw(const DebugUIContext& context)
     {
         ImGui::Text("No object selected.");
         ImGui::Text("Click an object in the scene to inspect it.");
-        ImGui::End();
-        return;
     }
 
-    // Pull current transform from the selected object.
-    // We copy into local values because ImGui works with plain floats.
-    glm::vec3 pos = context.selectedObject->getPosition();
-    glm::vec3 scale = context.selectedObject->getScale();
-    glm::quat rot = context.selectedObject->getRotation();
+    else {
+        // Pull current transform from the selected object.
+        // We copy into local values because ImGui works with plain floats.
+        glm::vec3 pos = context.selectedObject->getPosition();
+        glm::vec3 scale = context.selectedObject->getScale();
+        glm::quat rot = context.selectedObject->getRotation();
 
 
 
-    ImGui::Text("Selected Object");
-    ImGui::Separator();
+        ImGui::Text("Selected Object");
+        ImGui::Separator();
 
-    // Physics status display
-    if (context.selectedObject->isRenderOnly())
-    {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Physics: Disabled (Render Only)");
+        // Physics status display
+        if (context.selectedObject->isRenderOnly())
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Physics: Disabled (Render Only)");
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics: Enabled");
+        }
+
+        // ----------------------------
+        // Position
+        // ----------------------------
+        // Convert glm::vec3 -> float[3] for ImGui controls.
+        float posArr[3] = { pos.x, pos.y, pos.z };
+
+        // If user edits the values, write them back into the GameObject.
+        if (ImGui::DragFloat3("Position", posArr, 0.05f))
+        {
+            context.selectedObject->setPosition(glm::vec3(posArr[0], posArr[1], posArr[2]));
+        }
+
+        // ----------------------------
+        // Rotation
+        // ----------------------------
+        // Convert quaternion -> Euler (degrees) for UI editing.
+        glm::vec3 eulerRad = QuatToEulerRad(rot);
+        glm::vec3 eulerDeg = glm::degrees(eulerRad);
+
+        float rotArr[3] = { eulerDeg.x, eulerDeg.y, eulerDeg.z };
+        if (ImGui::DragFloat3("Rotation (deg)", rotArr, 0.5f))
+        {
+            glm::vec3 newEulerRad = glm::radians(glm::vec3(rotArr[0], rotArr[1], rotArr[2]));
+            context.selectedObject->setRotation(EulerRadToQuat(newEulerRad));
+        }
+
+        // ----------------------------
+        // Scale
+        // ----------------------------
+        // Same approach as position, but clamp scale to avoid negatives/zero.
+        float scaleArr[3] = { scale.x, scale.y, scale.z };
+
+        if (ImGui::DragFloat3("Scale", scaleArr, 0.05f, 0.01f, 1000.0f))
+        {
+            context.selectedObject->setScale(glm::vec3(scaleArr[0], scaleArr[1], scaleArr[2]));
+        }
     }
-    else
-    {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics: Enabled");
-    }
+    ImGui::End();
 
-    // ----------------------------
-    // Position
-    // ----------------------------
-    // Convert glm::vec3 -> float[3] for ImGui controls.
-    float posArr[3] = { pos.x, pos.y, pos.z };
 
-    // If user edits the values, write them back into the GameObject.
-    if (ImGui::DragFloat3("Position", posArr, 0.05f))
-    {
-        context.selectedObject->setPosition(glm::vec3(posArr[0], posArr[1], posArr[2]));
-    }
+    // Lighting Controls
+    ImGui::Begin("Lighting");
 
-    // ----------------------------
-    // Rotation
-    // ----------------------------
-    // Convert quaternion -> Euler (degrees) for UI editing.
-    glm::vec3 eulerRad = QuatToEulerRad(rot);
-    glm::vec3 eulerDeg = glm::degrees(eulerRad);
+    if (context.lighting.getLight) {
+        DirectionalLight& light = context.lighting.getLight();
 
-    float rotArr[3] = { eulerDeg.x, eulerDeg.y, eulerDeg.z };
-    if (ImGui::DragFloat3("Rotation (deg)", rotArr, 0.5f))
-    {
-        glm::vec3 newEulerRad = glm::radians(glm::vec3(rotArr[0], rotArr[1], rotArr[2]));
-        context.selectedObject->setRotation(EulerRadToQuat(newEulerRad));
-    }
+        // Direction control
+        glm::vec3 dir = light.getDirection();
+        float dirArr[3] = { dir.x, dir.y, dir.z };
 
-    // ----------------------------
-    // Scale
-    // ----------------------------
-    // Same approach as position, but clamp scale to avoid negatives/zero.
-    float scaleArr[3] = { scale.x, scale.y, scale.z };
+        if (ImGui::DragFloat3("Direction", dirArr, 0.01f, -1.0f, 1.0f)) {
+            light.setDirection(glm::vec3(dirArr[0], dirArr[1], dirArr[2]));
+        }
 
-    if (ImGui::DragFloat3("Scale", scaleArr, 0.05f, 0.01f, 1000.0f))
-    {
-        context.selectedObject->setScale(glm::vec3(scaleArr[0], scaleArr[1], scaleArr[2]));
+        // Color control
+        glm::vec3 col = light.getColor();
+        float colArr[3] = { col.r, col.g, col.b };
+
+        if (ImGui::ColorEdit3("Color", colArr)) {
+            light.setColor(glm::vec3(colArr[0], colArr[1], colArr[2]));
+        }
+
+        // Intensity control
+        float intensity = light.getIntensity();
+        if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 5.0f)) {
+            light.setIntensity(intensity);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Presets:");
+
+        if (ImGui::Button("Noon Sun")) {
+            light.setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+            light.setColor(glm::vec3(1.0f, 1.0f, 0.9f));
+            light.setIntensity(1.0f);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Sunset")) {
+            light.setDirection(glm::vec3(1.0f, -0.3f, 0.0f));
+            light.setColor(glm::vec3(1.0f, 0.6f, 0.3f));
+            light.setIntensity(0.8f);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Night")) {
+            light.setDirection(glm::vec3(0.2f, -1.0f, 0.3f));
+            light.setColor(glm::vec3(0.3f, 0.3f, 0.5f));
+            light.setIntensity(0.3f);
+        }
     }
 
     ImGui::End();
