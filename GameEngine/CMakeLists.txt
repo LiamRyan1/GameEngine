@@ -37,6 +37,7 @@ target_sources(GameEngine PRIVATE
     src/Rendering/Texture.cpp
     src/Rendering/Camera.cpp
     src/Rendering/DirectionalLight.cpp
+    src/Rendering/Cubemap.cpp
     
     # Physics
     src/Physics/Physics.cpp
