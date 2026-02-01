@@ -3,6 +3,7 @@
 #include "TimeDebugView.h"
 #include "PhysicsDebugView.h"
 #include "SceneDebugCommands.h"
+#include "LightingDebugCommands.h"
 #include "GameObject.h"
 
 struct DebugUIContext
@@ -10,6 +11,7 @@ struct DebugUIContext
     TimeDebugView time;
     PhysicsDebugView physics;
     SceneDebugCommands scene;
+    LightingDebugCommands lighting;
 
     // Currently selected object (set by Engine picking).
     // DebugUI may display/edit it, but does not own it.

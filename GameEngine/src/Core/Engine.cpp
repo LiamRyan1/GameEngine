@@ -482,6 +482,11 @@ int Start(void)
                 return FileUtils::getTextureFiles("textures");
             };
 
+		// Lighting commands
+        uiContext.lighting.getLight = [&renderer]() -> DirectionalLight& {
+            return renderer.getLight();
+            };
+
         // Draw Debug UI (logic only)
         debugUI.draw(uiContext);
 
