@@ -12,6 +12,9 @@
 #include <GLFW/glfw3.h>
 
 Renderer::Renderer() : shaderProgram(0) {
+    // Set a better default light direction
+    mainLight.setDirection(glm::vec3(0.3f, -1.0f, 0.5f));
+    mainLight.setIntensity(0.8f);  // Tone it down a bit
 }
 
 Renderer::~Renderer() {
@@ -214,7 +217,7 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     int viewLoc = glGetUniformLocation(shaderProgram, "view");
     int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
     int colorLoc = glGetUniformLocation(shaderProgram, "objectColor");
-    int lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");  
+    int lightDirLoc = glGetUniformLocation(shaderProgram, "lightDir");
     int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");         
     int lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
 
@@ -224,14 +227,12 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
-    // Set lighting uniforms
-    glm::vec3 lightPos(10.0f, 10.0f, 10.0f);     // Light position
-    glm::vec3 lightColor(1.0f, 1.0f, 1.0f);       // White light
-    glm::vec3 cameraPos = camera.getPosition();    // Camera position
+    // Set lighting uniforms from DirectionalLight
+    glm::vec3 cameraPos = camera.getPosition();
 
-    glUniform3fv(lightPosLoc, 1, &lightPos[0]);
+    glUniform3fv(lightDirLoc, 1, &mainLight.getDirection()[0]);
     glUniform3fv(viewPosLoc, 1, &cameraPos[0]);
-    glUniform3fv(lightColorLoc, 1, &lightColor[0]);
+    glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
 
 
     for (const auto& obj : objects)

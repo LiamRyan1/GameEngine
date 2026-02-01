@@ -7,9 +7,10 @@ in vec3 Normal;     // From vertex shader
 in vec2 TexCoord;   // Texture coordinates
 
 uniform vec3 objectColor;
-uniform vec3 lightPos;      // Light position in world space
+uniform vec3 lightDir;      // Light direction
 uniform vec3 viewPos;       // Camera position
 uniform vec3 lightColor;    // Light color
+
 uniform sampler2D textureSampler;  // Texture sampler
 uniform bool useTexture;           // Flag to enable/disable texture
 
@@ -35,13 +36,13 @@ void main()
     }
     
     // Ambient lighting (base light level)
-    float ambientStrength = 0.3;
+    float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;
     
     // Diffuse lighting (angle between normal and light)
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 lightDirection = normalize(-lightDir);
+    float diff = max(dot(norm, lightDirection), 0.0);
     vec3 diffuse = diff * lightColor;
     
     // Specular lighting (shiny highlights)

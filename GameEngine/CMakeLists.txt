@@ -36,6 +36,7 @@ target_sources(GameEngine PRIVATE
     src/Rendering/Mesh.cpp
     src/Rendering/Texture.cpp
     src/Rendering/Camera.cpp
+    src/Rendering/DirectionalLight.cpp
     
     # Physics
     src/Physics/Physics.cpp
@@ -58,6 +59,9 @@ target_sources(GameEngine PRIVATE
 
     # External
     src/External/stb_image.cpp
+
+    # Editor
+    src/Editor/Gizmo.cpp
 
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
