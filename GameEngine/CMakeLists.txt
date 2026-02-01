@@ -41,7 +41,7 @@ target_sources(GameEngine PRIVATE
     # Physics
     src/Physics/Physics.cpp
     src/Physics/PhysicsMaterial.cpp
-
+    src/Physics/SpatialGrid.cpp
 
     # Scene
     src/Scene/Scene.cpp

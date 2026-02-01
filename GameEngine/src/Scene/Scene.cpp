@@ -11,7 +11,9 @@
  *
  * @param physics Reference to the game's Physics system
  */
-Scene::Scene(Physics& physics) : physicsWorld(physics) {
+Scene::Scene(Physics& physics) : physicsWorld(physics)
+, spatialGrid(std::make_unique<SpatialGrid>(10.0f))//enable by defualt
+{
     std::cout << "Scene created" << std::endl;
 }
 
@@ -76,7 +78,10 @@ GameObject* Scene::spawnObject(ShapeType type,
 
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
-
+    // Add to spatial grid
+    if (spatialGrid) {
+        spatialGrid->insertObject(ptr);
+    }
     // Log creation
     const char* shapeName = "Unknown";
     switch (type) {
@@ -105,6 +110,7 @@ GameObject* Scene::spawnRenderObject(
 
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
+ 
 
     std::cout << "Spawned Render-Only Object at ("
         << position.x << ", " << position.y << ", " << position.z << ")\n";
@@ -153,9 +159,108 @@ void Scene::update(EngineMode mode) {
             syncedOnce = true;
         }
     }
+    // Update spatial grid positions
+    if (spatialGrid) {
+        for (auto& obj : gameObjects) {
+            spatialGrid->updateObject(obj.get());
+        }
+    }
 }
 
+// Spatial Queries
 
+std::vector<GameObject*> Scene::findObjectsInRadius(
+    const glm::vec3& center,
+    float radius,
+    std::function<bool(GameObject*)> filter) const
+{
+    // Use spatial grid if enabled - queries only nearby cells (O(k) where k = objects in range)
+    if (spatialGrid) {
+        return spatialGrid->queryRadius(center, radius, filter);
+    }
+
+    // Fallback: Check every object in scene (O(n) - slower but works for small scenes)
+    std::vector<GameObject*> results;
+    float radiusSquared = radius * radius;  // Compare squared distances 
+
+    for (const auto& obj : gameObjects) {
+        // Apply filter first if provided (e.g., only enemies, only pickups)
+        if (filter && !filter(obj.get())) continue;
+
+        // Calculate distance from center
+        glm::vec3 diff = obj->getPosition() - center;
+        float distSquared = glm::dot(diff, diff);  // ||v||² = v·v (cheaper than length())
+
+        // Within radius?
+        if (distSquared <= radiusSquared) {
+            results.push_back(obj.get());
+        }
+    }
+
+    return results;
+}
+
+GameObject* Scene::findNearestObject(
+    const glm::vec3& position,
+    float maxRadius,
+    std::function<bool(GameObject*)> filter) const
+{
+    // Use spatial grid if enabled
+    if (spatialGrid) {
+        return spatialGrid->queryNearest(position, maxRadius, filter);
+    }
+
+    // Fallback: Check all objects and track closest
+    GameObject* nearest = nullptr;
+    float minDistSquared = maxRadius * maxRadius;  // Start with max search radius
+
+    for (const auto& obj : gameObjects) {
+        // Apply filter if provided
+        if (filter && !filter(obj.get())) continue;
+
+        // Calculate squared distance
+        glm::vec3 diff = obj->getPosition() - position;
+        float distSquared = glm::dot(diff, diff);
+
+        // Is this closer than current best?
+        if (distSquared < minDistSquared) {
+            minDistSquared = distSquared;
+            nearest = obj.get();
+        }
+    }
+
+    return nearest;  // Returns nullptr if nothing found
+}
+
+// controls
+
+void Scene::setSpatialGridEnabled(bool enabled) {
+    // Enabling grid when it doesn't exist
+    if (enabled && !spatialGrid) {
+        spatialGrid = std::make_unique<SpatialGrid>(10.0f);
+
+        // Populate grid with all existing objects
+        for (const auto& obj : gameObjects) {
+            spatialGrid->insertObject(obj.get());
+        }
+        std::cout << "Spatial grid enabled" << std::endl;
+    }
+    // Disabling grid when it exists
+    else if (!enabled && spatialGrid) {
+        spatialGrid.reset();  // Destroys grid and frees memory
+        std::cout << "Spatial grid disabled" << std::endl;
+    }
+    // else: Already in requested state, do nothing
+}
+
+void Scene::printSpatialStats() const {
+    if (spatialGrid) {
+        spatialGrid->printStats();  // Show cell count, objects per cell, memory usage
+    }
+    else {
+        std::cout << "Spatial grid is disabled" << std::endl;
+    }
+}
 /**
  * @brief Removes all objects from the scene.
  *
@@ -167,8 +272,12 @@ void Scene::update(EngineMode mode) {
  */
 void Scene::clear() {
     std::cout << "Clearing scene (" << gameObjects.size() << " objects)" << std::endl;
+    if (spatialGrid) {
+        spatialGrid->clear();
+    }
     gameObjects.clear();
 }
+
 
 // TODO: Implement scene loading/saving
 // void Scene::loadFromFile(const std::string& filepath) {

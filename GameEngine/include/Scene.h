@@ -5,7 +5,7 @@
 #include <memory>
 #include "../include/GameObject.h"
 #include "../include/Physics.h"
-
+#include "../include/SpatialGrid.h" 
 enum class EngineMode;
 
 class Scene {
@@ -13,6 +13,8 @@ class Scene {
 private:
     Physics& physicsWorld;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
+    // Spatial grid for fast proximity queries
+    std::unique_ptr<SpatialGrid> spatialGrid;
 
 public:
     Scene(Physics& physics);
@@ -44,6 +46,33 @@ public:
 
     // Get all objects for rendering
     const std::vector<std::unique_ptr<GameObject>>& getObjects() const { return gameObjects; }
+
+	// Spatial Queries
+
+    /**
+     * Find all objects within radius.
+     * @param filter Optional lambda to filter results
+     */
+    std::vector<GameObject*> findObjectsInRadius(
+        const glm::vec3& center,
+        float radius,
+        std::function<bool(GameObject*)> filter = nullptr
+    ) const;
+
+    /**
+     * Find nearest object within max radius.
+     */
+    GameObject* findNearestObject(
+        const glm::vec3& position,
+        float maxRadius,
+        std::function<bool(GameObject*)> filter = nullptr
+    ) const;
+
+    // === Spatial Grid Control ===
+
+    void setSpatialGridEnabled(bool enabled);
+    bool isSpatialGridEnabled() const { return spatialGrid != nullptr; }
+    void printSpatialStats() const;
 
     // Clear all objects
     void clear();

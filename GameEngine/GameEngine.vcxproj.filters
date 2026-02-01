@@ -26,6 +26,8 @@
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
     <ClCompile Include="src\Editor\Gizmo.cpp" />
+    <ClCompile Include="src\Rendering\DirectionalLight.cpp" />
+    <ClCompile Include="src\Physics\SpatialGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -58,6 +60,8 @@
     <ClInclude Include="include\PhysicsComponent.h" />
     <ClInclude Include="include\RenderComponent.h" />
     <ClInclude Include="include\Editor\Gizmo.h" />
+    <ClInclude Include="include\DirectionalLight.h" />
+    <ClInclude Include="include\SpatialGrid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

@@ -262,6 +262,28 @@ int Start(void)
             accumulator = 0.0;
         }
         scene.update(engineMode);
+
+        if (Input::GetKeyPressed(GLFW_KEY_G)) {  // Press G to test grid
+            std::cout << "\n=== SPATIAL GRID TEST ===" << std::endl;
+
+            // 1. Show grid stats
+            scene.printSpatialStats();
+
+            // 2. Test query around camera
+            glm::vec3 testPos = camera.getPosition();
+            auto nearby = scene.findObjectsInRadius(testPos, 20.0f);
+
+            std::cout << "\nObjects within 20 units of camera:" << std::endl;
+            std::cout << "Found: " << nearby.size() << " objects" << std::endl;
+
+            for (GameObject* obj : nearby) {
+                glm::vec3 pos = obj->getPosition();
+                float dist = glm::distance(pos, testPos);
+                std::cout << "  - Distance: " << dist << " units" << std::endl;
+            }
+
+            std::cout << "===================\n" << std::endl;
+        }
         // ========================
         // Print how many physics steps occurred every second
         physicsTime += deltaTime;

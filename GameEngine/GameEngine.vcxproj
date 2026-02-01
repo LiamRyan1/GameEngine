@@ -134,7 +134,9 @@
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
     <ClCompile Include="src\Editor\Gizmo.cpp" />
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
+    <ClCompile Include="src\Physics\SpatialGrid.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
+    <ClCompile Include="src\Rendering\DirectionalLight.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
     <ClCompile Include="src\UI\DebugUI.cpp" />
     <ClCompile Include="src\Scene\GameObject.cpp" />
@@ -174,6 +176,7 @@
     <ClInclude Include="include\Debug\PhysicsDebugView.h" />
     <ClInclude Include="include\Debug\SceneDebugCommands.h" />
     <ClInclude Include="include\Debug\TimeDebugView.h" />
+    <ClInclude Include="include\DirectionalLight.h" />
     <ClInclude Include="include\Editor\Gizmo.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\CameraController.h" />
@@ -189,6 +192,7 @@
     <ClInclude Include="include\RenderComponent.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\SpatialGrid.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\TransformComponent.h" />
