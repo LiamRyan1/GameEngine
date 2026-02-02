@@ -1,6 +1,7 @@
 ﻿#include "../include/Mesh.h"
 #include <GL/glew.h>
 #include <cmath>
+#include "../../external/tinyobjloader/tiny_obj_loader.h"
 #include <iostream>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -32,7 +33,100 @@ When you create a class, C++ can automatically generate these 5 functions :
 	This prevents double-deletion bugs and ensures proper resource management
 */ 
 
+Mesh Mesh::loadFromFile(const std::string& filepath) {
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
 
+    // Load .obj file
+    bool success = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str());
+
+    if (!warn.empty()) {
+        std::cout << "WARN: " << warn << std::endl;
+    }
+
+    if (!err.empty()) {
+        std::cerr << "ERROR: " << err << std::endl;
+    }
+
+    if (!success) {
+        std::cerr << "Failed to load model: " << filepath << std::endl;
+        return Mesh(); // Return empty mesh
+    }
+
+    std::cout << "Loaded model: " << filepath << std::endl;
+    std::cout << "  Shapes: " << shapes.size() << std::endl;
+    std::cout << "  Vertices: " << attrib.vertices.size() / 3 << std::endl;
+
+    // Convert to our mesh format
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<float> texCoords;
+
+    // Loop through all shapes (usually just 1 for simple models)
+    for (const auto& shape : shapes) {
+        // Loop through all faces/triangles
+        size_t index_offset = 0;
+        for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++) {
+            size_t fv = shape.mesh.num_face_vertices[f];
+
+            // Only support triangles
+            if (fv != 3) {
+                std::cerr << "Warning: Non-triangle face detected, skipping" << std::endl;
+                index_offset += fv;
+                continue;
+            }
+
+            // Get the 3 vertices of this triangle
+            for (size_t v = 0; v < fv; v++) {
+                tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
+
+                // Position (required)
+                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
+                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
+                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+
+                // Normal (optional - if not present, calculate later or use default)
+                if (idx.normal_index >= 0 && attrib.normals.size() > 0) {
+                    vertices.push_back(attrib.normals[3 * idx.normal_index + 0]);
+                    vertices.push_back(attrib.normals[3 * idx.normal_index + 1]);
+                    vertices.push_back(attrib.normals[3 * idx.normal_index + 2]);
+                }
+                else {
+                    // Default normal pointing up if not provided
+                    vertices.push_back(0.0f);
+                    vertices.push_back(1.0f);
+                    vertices.push_back(0.0f);
+                }
+
+                // Texture coordinates (optional)
+                if (idx.texcoord_index >= 0 && attrib.texcoords.size() > 0) {
+                    texCoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
+                    texCoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
+                }
+                else {
+                    // Default UV if not provided
+                    texCoords.push_back(0.0f);
+                    texCoords.push_back(0.0f);
+                }
+
+                // Add index
+                indices.push_back(static_cast<unsigned int>(indices.size()));
+            }
+
+            index_offset += fv;
+        }
+    }
+
+    std::cout << "  Processed vertices: " << vertices.size() / 6 << std::endl;
+    std::cout << "  Triangles: " << indices.size() / 3 << std::endl;
+
+    // Create mesh
+    Mesh mesh;
+    mesh.setDataWithEdges(vertices, indices, {}, texCoords);
+    return mesh;
+}
 
 // Move Constructor: Transfer ownership of GPU resources from 'other' to 'this'
 // This is called when returning a Mesh from a function (e.g., createCube())
