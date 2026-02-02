@@ -11,7 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
 
-Renderer::Renderer() : shaderProgram(0) {
+Renderer::Renderer() : shaderProgram(0), skyboxEnabled(false) {
     // Set a better default light direction
     mainLight.setDirection(glm::vec3(0.3f, -1.0f, 0.5f));
     mainLight.setIntensity(0.8f);  // Tone it down a bit
@@ -44,6 +44,14 @@ std::string Renderer::loadShaderSource(const std::string& filepath) {
 
     std::cout << "Loaded shader: " << filepath << std::endl;
     return buffer.str();
+}
+
+bool Renderer::loadSkybox(const std::vector<std::string>& faces) {
+    if (skybox.loadCubemap(faces)) {
+        skyboxEnabled = true;
+        return true;
+    }
+    return false;
 }
 
 // Updated setupShaders method
@@ -207,11 +215,18 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
     glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-    glUseProgram(shaderProgram);
 
+	// Draw skybox first
     float aspectRatio = (float)windowWidth / (float)windowHeight;
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
+
+    if (skyboxEnabled) {
+        skybox.draw(view, projection);
+    }
+
+	// Draw scene objects
+    glUseProgram(shaderProgram);
 
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
     int viewLoc = glGetUniformLocation(shaderProgram, "view");
@@ -290,6 +305,7 @@ void Renderer::drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc
 void Renderer::cleanup() {
     std::cout << "Cleaning up renderer..." << std::endl;
     cubeMesh.cleanup();
+    skybox.cleanup();
 
     for (auto& pair : textureCache) {
         pair.second.cleanup();

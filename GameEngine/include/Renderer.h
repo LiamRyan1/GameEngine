@@ -9,6 +9,7 @@
 #include "../include/GameObject.h"
 #include "../include/Texture.h"
 #include "../include/DirectionalLight.h"
+#include "../include/Skybox.h"
 #include <string>
 #include <memory>  // for std::unique_ptr
 #include <unordered_map>
@@ -27,6 +28,8 @@ private:
 
 	Texture* loadTexture(const std::string& filepath); // load texture with caching
 
+    Skybox skybox;
+    bool skyboxEnabled;
 
     std::string loadShaderSource(const std::string& filepath);
     void setupShaders();
@@ -48,6 +51,9 @@ public:
     // Light control
     DirectionalLight& getLight() { return mainLight; }
 
+    // Skybox control
+    bool loadSkybox(const std::vector<std::string>& faces);
+    void toggleSkybox() { skyboxEnabled = !skyboxEnabled; }
 };
 
 #endif
