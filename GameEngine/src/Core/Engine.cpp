@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 #include "../include/Renderer.h"
 #include "../include/Input.h"
 #include "../include/Camera.h"
@@ -111,6 +112,23 @@ int Start(void)
     // Create and initialize renderer
     Renderer renderer;
     renderer.initialize();
+
+    // Load skybox
+    std::vector<std::string> skyboxFaces = {
+        "textures/skybox/right.jpg",
+        "textures/skybox/left.jpg",
+        "textures/skybox/top.jpg",
+        "textures/skybox/bottom.jpg",
+        "textures/skybox/front.jpg",
+        "textures/skybox/back.jpg"
+    };
+
+    if (renderer.loadSkybox(skyboxFaces)) {
+        std::cout << "Skybox loaded successfully!" << std::endl;
+    }
+    else {
+        std::cout << "Failed to load skybox" << std::endl;
+    }
 
 	// Create and initialize physics system
     Physics physics;
