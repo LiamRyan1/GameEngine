@@ -136,7 +136,7 @@ int Start(void)
     std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
 
     // Create scene manager
-    Scene scene(physics);
+    Scene scene(physics, renderer);
 
     // x Remove this hardcoded scene setup when loading from files
     // Create ground plane as a visible GameObject

@@ -1,3 +1,4 @@
+#include <GL/glew.h> 
 #include "../include/Scene.h"
 #include "../include/Engine.h"
 #include <iostream>
@@ -11,7 +12,7 @@
  *
  * @param physics Reference to the game's Physics system
  */
-Scene::Scene(Physics& physics) : physicsWorld(physics)
+Scene::Scene(Physics& physics, Renderer& renderer) : physicsWorld(physics), renderer(renderer)
 , spatialGrid(std::make_unique<SpatialGrid>(10.0f))//enable by defualt
 {
     std::cout << "Scene created" << std::endl;
@@ -76,6 +77,19 @@ GameObject* Scene::spawnObject(ShapeType type,
     // Create game object 
     auto obj = std::make_unique<GameObject>(type, body, size, materialName, texturePath);
 
+    // Set render mesh based on shape type
+    switch (type) {
+    case ShapeType::CUBE:
+        obj->getRender().setRenderMesh(renderer.getCubeMesh());
+        break;
+    case ShapeType::SPHERE:
+        obj->getRender().setRenderMesh(renderer.getSphereMesh());
+        break;
+    case ShapeType::CAPSULE:
+        obj->getRender().setRenderMesh(renderer.getCylinderMesh());
+        break;
+    }
+
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
     // Add to spatial grid
@@ -107,6 +121,19 @@ GameObject* Scene::spawnRenderObject(
 {
     // Render-only constructor (no rigid body)
     auto obj = std::make_unique<GameObject>(type, position, size, texturePath);
+
+    switch (type) {
+    case ShapeType::CUBE:
+        obj->getRender().setRenderMesh(renderer.getCubeMesh());
+        break;
+    case ShapeType::SPHERE:
+        obj->getRender().setRenderMesh(renderer.getSphereMesh());
+        break;
+    case ShapeType::CAPSULE:
+        obj->getRender().setRenderMesh(renderer.getCylinderMesh());
+        break;
+    }
+
 
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));

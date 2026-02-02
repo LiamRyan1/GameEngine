@@ -6,18 +6,20 @@
 #include "../include/GameObject.h"
 #include "../include/Physics.h"
 #include "../include/SpatialGrid.h" 
+#include <Renderer.h>
 enum class EngineMode;
 
 class Scene {
 
 private:
     Physics& physicsWorld;
+    Renderer& renderer;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
     // Spatial grid for fast proximity queries
     std::unique_ptr<SpatialGrid> spatialGrid;
 
 public:
-    Scene(Physics& physics);
+    Scene(Physics& physics, Renderer& renderer);
     ~Scene();
 
     // Factory methods for creating objects

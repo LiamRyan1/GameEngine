@@ -141,19 +141,9 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     );
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
-    Mesh* mesh = &cubeMesh;  // Default
-    switch (obj.getShapeType()) {
-    case ShapeType::SPHERE:
-        mesh = &sphereMesh;
-        break;
-    case ShapeType::CAPSULE:
-        mesh = &cylinderMesh;  // Use cylinder mesh for capsule
-        break;
-    case ShapeType::CUBE:
-    default:
-        mesh = &cubeMesh;
-        break;
-    }
+    // Use render component's mesh
+    Mesh* mesh = obj.getRender().getRenderMesh();
+    if (!mesh) mesh = &cubeMesh;  // Fallback safety
 
     glm::vec3 color(1.0f, 0.5f, 0.2f);
 
@@ -277,14 +267,8 @@ void Renderer::drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc
     glm::mat4 model = Transform::model(obj.getPosition(), obj.getRotation(), obj.getScale());
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
-    // Pick correct mesh (same selection logic as drawGameObject)
-    Mesh* mesh = &cubeMesh;
-    switch (obj.getShapeType()) {
-    case ShapeType::SPHERE:  mesh = &sphereMesh;   break;
-    case ShapeType::CAPSULE: mesh = &cylinderMesh; break;
-    case ShapeType::CUBE:
-    default:                 mesh = &cubeMesh;     break;
-    }
+    Mesh* mesh = obj.getRender().getRenderMesh();
+    if (!mesh) mesh = &cubeMesh;
 
     // Force "edge shader path" to black using your existing fragment test
     int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");

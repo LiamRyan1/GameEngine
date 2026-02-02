@@ -1,5 +1,5 @@
-﻿#include "../include/Mesh.h"
-#include <GL/glew.h>
+﻿#include <GL/glew.h>
+#include "../include/Mesh.h"
 #include <cmath>
 #include "../../external/tinyobjloader/tiny_obj_loader.h"
 #include <iostream>
@@ -87,7 +87,7 @@ Mesh Mesh::loadFromFile(const std::string& filepath) {
                 vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
                 vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
 
-                // Normal (optional - if not present, calculate later or use default)
+                // Normal
                 if (idx.normal_index >= 0 && attrib.normals.size() > 0) {
                     vertices.push_back(attrib.normals[3 * idx.normal_index + 0]);
                     vertices.push_back(attrib.normals[3 * idx.normal_index + 1]);
@@ -100,7 +100,7 @@ Mesh Mesh::loadFromFile(const std::string& filepath) {
                     vertices.push_back(0.0f);
                 }
 
-                // Texture coordinates (optional)
+                // Texture coordinates
                 if (idx.texcoord_index >= 0 && attrib.texcoords.size() > 0) {
                     texCoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
                     texCoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);

@@ -54,6 +54,10 @@ public:
     // Skybox control
     bool loadSkybox(const std::vector<std::string>& faces);
     void toggleSkybox() { skyboxEnabled = !skyboxEnabled; }
+
+    Mesh* getCubeMesh() { return &cubeMesh; } 
+    Mesh* getSphereMesh() { return &sphereMesh; }
+    Mesh* getCylinderMesh() { return &cylinderMesh; }
 };
 
 #endif

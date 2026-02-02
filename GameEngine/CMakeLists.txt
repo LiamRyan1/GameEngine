@@ -61,6 +61,7 @@ target_sources(GameEngine PRIVATE
 
     # External
     src/External/stb_image.cpp
+    external/tinyobjloader/tiny_obj_loader.cc
 
     # Editor
     src/Editor/Gizmo.cpp
@@ -97,6 +98,7 @@ target_include_directories(GameEngine PRIVATE
     include
     ${BULLET_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/external/imgui
+    ${CMAKE_SOURCE_DIR}/external/tinyobjloader
 )
 
 

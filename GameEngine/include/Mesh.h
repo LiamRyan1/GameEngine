@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <string>
 #include <vector>
 #include <glm/glm.hpp>
 
@@ -71,7 +72,7 @@ public:
     static Mesh createSphere(float radius = 1.0f, int sectors = 36, int stacks = 18);
     static Mesh createCylinder(float radius = 1.0f, float height = 1.0f, int sectors = 36);
 
-          /**
+     /**
      * @brief Load mesh from .obj file
      * @param filepath Path to .obj file (e.g., "models/dragon.obj")
      * @return true if loaded successfully

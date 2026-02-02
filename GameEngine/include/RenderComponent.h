@@ -2,6 +2,7 @@
 #define RENDERCOMPONENT_H
 
 #include "Component.h"
+#include "Mesh.h"
 #include <string>
 
 /**
@@ -27,6 +28,7 @@ class RenderComponent : public Component {
 private:
     ShapeType shapeType;
     std::string texturePath;
+	Mesh* renderMesh; // Pointer to the mesh used for rendering
 
 public:
     RenderComponent(ShapeType type, const std::string& texture = "")
@@ -38,6 +40,10 @@ public:
 
     void setShapeType(ShapeType type) { shapeType = type; }
     void setTexturePath(const std::string& path) { texturePath = path; }
+    
+    void setRenderMesh(Mesh* mesh) { renderMesh = mesh; }
+    Mesh* getRenderMesh() const { return renderMesh; }
+
 };
 
 #endif // RENDERCOMPONENT_H
