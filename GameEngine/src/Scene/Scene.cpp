@@ -1,6 +1,7 @@
 #include <GL/glew.h> 
 #include "../include/Scene.h"
 #include "../include/Engine.h"
+#include <unordered_map> 
 #include <iostream>
 
 
@@ -306,14 +307,37 @@ void Scene::clear() {
 }
 
 
-// TODO: Implement scene loading/saving
-// void Scene::loadFromFile(const std::string& filepath) {
-//     // Parse JSON/XML file
-//     // Create objects based on file data
-//     // Example: scene.loadFromFile("scenes/level1.json");
-// }
-//
-// void Scene::saveToFile(const std::string& filepath) {
-//     // Serialize current scene to file
-//     // Save object types, positions, properties
-// }
+GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
+    const glm::vec3& position,
+    const glm::vec3& scale)
+{
+    // Load mesh from file
+    Mesh loadedMesh = Mesh::loadFromFile(filepath);
+
+    // Check if load was successful (mesh has vertices)
+    if (loadedMesh.getVertexCount() == 0) {
+        std::cerr << "Failed to load model from: " << filepath << std::endl;
+        return nullptr;
+    }
+
+    std::cout << "Successfully loaded model: " << filepath << std::endl;
+
+    // Create render-only object (no physics for now)
+    auto obj = std::make_unique<GameObject>(ShapeType::CUBE, position, scale, "");
+
+    // Store the loaded mesh in the renderer's cache so it persists
+    // For now, we'll use a static map to keep loaded meshes alive
+    static std::unordered_map<std::string, Mesh> loadedMeshes;
+    loadedMeshes[filepath] = std::move(loadedMesh);
+
+    // Set the custom mesh
+    obj->getRender().setRenderMesh(&loadedMeshes[filepath]);
+
+    GameObject* ptr = obj.get();
+    gameObjects.push_back(std::move(obj));
+
+    std::cout << "Spawned model at (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+
+    return ptr;
+}
+

@@ -26,4 +26,9 @@ struct SceneDebugCommands
 
     // Get available textures
     std::function<std::vector<std::string>()> getAvailableTextures;
+
+    // Load model from file and spawn it in the scene
+    std::function<GameObject* (const std::string& filepath,
+        const glm::vec3& position,
+        const glm::vec3& scale)> loadAndSpawnModel;
 };

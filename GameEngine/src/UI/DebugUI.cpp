@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include <vector>
 #include <string>
+#include <iostream>
 #include <cmath> // std::atan2, std::asin
 
 static glm::vec3 QuatToEulerRad(const glm::quat& q)
@@ -396,6 +397,44 @@ void DebugUI::draw(const DebugUIContext& context)
             light.setIntensity(0.3f);
         }
     }
+
+    ImGui::End();
+
+    // Model Importer
+    ImGui::Begin("Model Importer");
+
+    static char modelPath[256] = "models/";
+    static float modelPos[3] = { 0.0f, 2.0f, 0.0f };
+    static float modelScale[3] = { 1.0f, 1.0f, 1.0f };
+
+    ImGui::Text("Load .obj Model");
+    ImGui::Separator();
+
+    ImGui::InputText("File Path", modelPath, 256);
+    ImGui::InputFloat3("Position", modelPos);
+    ImGui::InputFloat3("Scale", modelScale);
+
+    ImGui::Separator();
+
+    if (ImGui::Button("Load & Spawn Model", ImVec2(-1, 0))) {
+        if (context.scene.loadAndSpawnModel) {
+            GameObject* obj = context.scene.loadAndSpawnModel(
+                std::string(modelPath),
+                glm::vec3(modelPos[0], modelPos[1], modelPos[2]),
+                glm::vec3(modelScale[0], modelScale[1], modelScale[2])
+            );
+
+            if (obj) {
+                std::cout << "Model loaded successfully!" << std::endl;
+            }
+            else {
+                std::cout << "Failed to load model." << std::endl;
+            }
+        }
+    }
+
+    ImGui::Separator();
+    ImGui::TextWrapped("Tip: Use models from Sketchfab or Free3D.com. Place .obj files in the models/ folder.");
 
     ImGui::End();
 }

@@ -527,6 +527,12 @@ int Start(void)
             return renderer.getLight();
             };
 
+        // Model loading command
+        uiContext.scene.loadAndSpawnModel =
+            [&scene](const std::string& filepath, const glm::vec3& pos, const glm::vec3& scale) -> GameObject* {
+            return scene.loadAndSpawnModel(filepath, pos, scale);
+            };
+
         // Draw Debug UI (logic only)
         debugUI.draw(uiContext);
 

@@ -27,6 +27,9 @@ private:
     unsigned int indexCount;      // Number of face indices (used in draw())
     unsigned int edgeIndexCount;  // Number of edge indices (used in drawEdges())
 
+    // Constants 
+    static constexpr size_t FLOATS_PER_VERTEX = 6;
+
 public:
     // Constructors & Destructor 
     Mesh();   // Default constructor - initializes all IDs to 0
@@ -78,6 +81,8 @@ public:
      * @return true if loaded successfully
      */
       static Mesh loadFromFile(const std::string& filepath);
+
+      size_t getVertexCount() const { return vertices.size() / FLOATS_PER_VERTEX; }
 };
 
 #endif

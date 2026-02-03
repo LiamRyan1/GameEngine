@@ -79,9 +79,16 @@ public:
     // Clear all objects
     void clear();
 
-    // TODO: Add scene loading from files
-    // void loadFromFile(const std::string& filepath);
-    // void saveToFile(const std::string& filepath);
+    /**
+     * @brief Load .obj model and spawn it in the scene
+     * @param filepath Path to .obj file
+     * @param position Spawn position
+     * @param scale Object scale
+     * @return Pointer to spawned GameObject
+     */
+    GameObject* loadAndSpawnModel(const std::string& filepath,
+        const glm::vec3& position,
+        const glm::vec3& scale);
 
 
 };
