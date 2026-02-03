@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <algorithm>
 #include <iostream>
 /**
  * @namespace FileUtils
@@ -137,4 +138,24 @@ namespace FileUtils {
             { ".jpg", ".jpeg", ".png", ".bmp", ".tga" }
         );
     }
+
+    static std::vector<std::string> getModelFiles(const std::string& directory) {
+        std::vector<std::string> modelFiles;
+
+        for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+            if (entry.is_regular_file()) {
+                std::string ext = entry.path().extension().string();
+                // Convert to lowercase for comparison
+                std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+                if (ext == ".obj") {
+                    modelFiles.push_back(entry.path().string());
+                }
+            }
+        }
+
+        std::sort(modelFiles.begin(), modelFiles.end());
+        return modelFiles;
+    }
+
 }

@@ -93,6 +93,15 @@ add_custom_command(TARGET GameEngine POST_BUILD
     COMMENT "Copying textures to build directory"
 )
 
+# Copy models to build directory
+add_custom_command(TARGET GameEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/models
+    $<TARGET_FILE_DIR:GameEngine>/models
+    COMMENT "Copying models to build directory"
+)
+
+
 # --- ImGui include dirs ---
 target_include_directories(GameEngine PRIVATE
     include

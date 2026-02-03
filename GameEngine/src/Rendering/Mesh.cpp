@@ -3,6 +3,8 @@
 #include <cmath>
 #include "../../external/tinyobjloader/tiny_obj_loader.h"
 #include <iostream>
+#include <cfloat>
+#include <algorithm> 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -121,6 +123,39 @@ Mesh Mesh::loadFromFile(const std::string& filepath) {
 
     std::cout << "  Processed vertices: " << vertices.size() / 6 << std::endl;
     std::cout << "  Triangles: " << indices.size() / 3 << std::endl;
+
+
+    // added normalization step to scale model to fit in unit box
+    if (vertices.size() > 0) {
+        glm::vec3 minBounds(FLT_MAX);
+        glm::vec3 maxBounds(-FLT_MAX);
+
+        // Find bounding box
+        for (size_t i = 0; i < vertices.size(); i += 6) {  // Step by 6 (pos + normal)
+            minBounds.x = std::min(minBounds.x, vertices[i + 0]);
+            minBounds.y = std::min(minBounds.y, vertices[i + 1]);
+            minBounds.z = std::min(minBounds.z, vertices[i + 2]);
+            maxBounds.x = std::max(maxBounds.x, vertices[i + 0]);
+            maxBounds.y = std::max(maxBounds.y, vertices[i + 1]);
+            maxBounds.z = std::max(maxBounds.z, vertices[i + 2]);
+        }
+
+        // Normalize to fit in a 2-unit box (so scale 1.0 = 2 units tall)
+        glm::vec3 size = maxBounds - minBounds;
+        float maxDim = std::max(size.x, std::max(size.y, size.z));
+        float normalizeScale = 2.0f / maxDim;
+
+        // Apply normalization
+        for (size_t i = 0; i < vertices.size(); i += 6) {
+            vertices[i + 0] *= normalizeScale;
+            vertices[i + 1] *= normalizeScale;
+            vertices[i + 2] *= normalizeScale;
+        }
+
+        std::cout << "  Original size: " << size.x << " x " << size.y << " x " << size.z << std::endl;
+        std::cout << "  Normalized to unit scale (2.0 = model fits in 2x2x2 box)" << std::endl;
+        // ============================================
+    }
 
     // Create mesh
     Mesh mesh;

@@ -403,23 +403,44 @@ void DebugUI::draw(const DebugUIContext& context)
     // Model Importer
     ImGui::Begin("Model Importer");
 
-    static char modelPath[256] = "models/";
+    static int selectedModelIndex = 0;
+    static std::vector<std::string> availableModels;
+
+    // Load available models
+    static bool modelsLoaded = false;
+    if (!modelsLoaded && context.scene.getAvailableModels) {
+        availableModels = context.scene.getAvailableModels();
+        modelsLoaded = true;
+    }
+
     static float modelPos[3] = { 0.0f, 2.0f, 0.0f };
     static float modelScale[3] = { 1.0f, 1.0f, 1.0f };
 
     ImGui::Text("Load .obj Model");
     ImGui::Separator();
 
-    ImGui::InputText("File Path", modelPath, 256);
+    // Dropdown for model selection
+    if (!availableModels.empty()) {
+        std::vector<const char*> modelNames;
+        for (const auto& model : availableModels) {
+            modelNames.push_back(model.c_str());
+        }
+
+        ImGui::Combo("Model File", &selectedModelIndex, modelNames.data(), static_cast<int>(modelNames.size()));
+    }
+    else {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No .obj files found in models/");
+    }
+
     ImGui::InputFloat3("Position", modelPos);
     ImGui::InputFloat3("Scale", modelScale);
 
     ImGui::Separator();
 
     if (ImGui::Button("Load & Spawn Model", ImVec2(-1, 0))) {
-        if (context.scene.loadAndSpawnModel) {
+        if (context.scene.loadAndSpawnModel && selectedModelIndex >= 0 && selectedModelIndex < availableModels.size()) {
             GameObject* obj = context.scene.loadAndSpawnModel(
-                std::string(modelPath),
+                availableModels[selectedModelIndex],
                 glm::vec3(modelPos[0], modelPos[1], modelPos[2]),
                 glm::vec3(modelScale[0], modelScale[1], modelScale[2])
             );
@@ -434,7 +455,7 @@ void DebugUI::draw(const DebugUIContext& context)
     }
 
     ImGui::Separator();
-    ImGui::TextWrapped("Tip: Use models from Sketchfab or Free3D.com. Place .obj files in the models/ folder.");
+    ImGui::TextWrapped("Place .obj files in the models/ folder. Restart to refresh list.");
 
     ImGui::End();
 }

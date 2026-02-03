@@ -136,7 +136,9 @@
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Physics\SpatialGrid.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
+    <ClCompile Include="src\Rendering\Cubemap.cpp" />
     <ClCompile Include="src\Rendering\DirectionalLight.cpp" />
+    <ClCompile Include="src\Rendering\Skybox.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
     <ClCompile Include="src\UI\DebugUI.cpp" />
     <ClCompile Include="src\Scene\GameObject.cpp" />
@@ -162,6 +164,8 @@
     <None Include="imgui.ini" />
     <None Include="shaders\basic.frag" />
     <None Include="shaders\basic.vert" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -171,8 +175,10 @@
     <ClInclude Include="external\imgui\core\imgui_internal.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Component.h" />
+    <ClInclude Include="include\Cubemap.h" />
     <ClInclude Include="include\Debug\DebugUI.h" />
     <ClInclude Include="include\Debug\DebugUIContext.h" />
+    <ClInclude Include="include\Debug\LightingDebugCommands.h" />
     <ClInclude Include="include\Debug\PhysicsDebugView.h" />
     <ClInclude Include="include\Debug\SceneDebugCommands.h" />
     <ClInclude Include="include\Debug\TimeDebugView.h" />
@@ -192,10 +198,14 @@
     <ClInclude Include="include\RenderComponent.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="include\SpatialGrid.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\TransformComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\spyro.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

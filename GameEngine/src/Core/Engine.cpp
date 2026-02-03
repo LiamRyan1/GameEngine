@@ -527,6 +527,12 @@ int Start(void)
             return renderer.getLight();
             };
 
+        // Get available models command
+        uiContext.scene.getAvailableModels =
+            []() -> std::vector<std::string> {
+            return FileUtils::getModelFiles("models");
+            };
+
         // Model loading command
         uiContext.scene.loadAndSpawnModel =
             [&scene](const std::string& filepath, const glm::vec3& pos, const glm::vec3& scale) -> GameObject* {

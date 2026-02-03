@@ -28,6 +28,8 @@
     <ClCompile Include="src\Editor\Gizmo.cpp" />
     <ClCompile Include="src\Rendering\DirectionalLight.cpp" />
     <ClCompile Include="src\Physics\SpatialGrid.cpp" />
+    <ClCompile Include="src\Rendering\Cubemap.cpp" />
+    <ClCompile Include="src\Rendering\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -62,14 +64,22 @@
     <ClInclude Include="include\Editor\Gizmo.h" />
     <ClInclude Include="include\DirectionalLight.h" />
     <ClInclude Include="include\SpatialGrid.h" />
+    <ClInclude Include="include\Cubemap.h" />
+    <ClInclude Include="include\Skybox.h" />
+    <ClInclude Include="include\Debug\LightingDebugCommands.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="imgui.ini" />
     <None Include="shaders\basic.frag" />
     <None Include="shaders\basic.vert" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\spyro.obj" />
   </ItemGroup>
 </Project>
