@@ -30,6 +30,9 @@
     <ClCompile Include="src\Physics\SpatialGrid.cpp" />
     <ClCompile Include="src\Rendering\Cubemap.cpp" />
     <ClCompile Include="src\Rendering\Skybox.cpp" />
+    <ClCompile Include="src\Physics\Constraint.cpp" />
+    <ClCompile Include="src\Physics\Constraintpreset.cpp" />
+    <ClCompile Include="src\Physics\Constraintregistry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -67,6 +70,12 @@
     <ClInclude Include="include\Cubemap.h" />
     <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="include\Debug\LightingDebugCommands.h" />
+    <ClInclude Include="include\Constraintparams.h" />
+    <ClInclude Include="include\Constraint.h" />
+    <ClInclude Include="include\ConstraintPreset.h" />
+    <ClInclude Include="include\Constraintregistry.h" />
+    <ClInclude Include="include\Debug\ConstraintDebugView.h" />
+    <ClInclude Include="include\Debug\ConstraintDebugCommands.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

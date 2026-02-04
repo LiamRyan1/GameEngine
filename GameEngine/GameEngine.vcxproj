@@ -133,6 +133,9 @@
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
     <ClCompile Include="src\Editor\Gizmo.cpp" />
+    <ClCompile Include="src\Physics\Constraint.cpp" />
+    <ClCompile Include="src\Physics\Constraintpreset.cpp" />
+    <ClCompile Include="src\Physics\Constraintregistry.cpp" />
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Physics\SpatialGrid.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
@@ -175,7 +178,13 @@
     <ClInclude Include="external\imgui\core\imgui_internal.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Component.h" />
+    <ClInclude Include="include\ConstraintPreset.h" />
+    <ClInclude Include="include\Constraint.h" />
+    <ClInclude Include="include\Constraintparams.h" />
+    <ClInclude Include="include\Constraintregistry.h" />
     <ClInclude Include="include\Cubemap.h" />
+    <ClInclude Include="include\Debug\ConstraintDebugCommands.h" />
+    <ClInclude Include="include\Debug\ConstraintDebugView.h" />
     <ClInclude Include="include\Debug\DebugUI.h" />
     <ClInclude Include="include\Debug\DebugUIContext.h" />
     <ClInclude Include="include\Debug\LightingDebugCommands.h" />

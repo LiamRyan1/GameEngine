@@ -1,6 +1,7 @@
 #include "../include/Physics.h"
 #include "../include/GameObject.h"
 #include "../include/PhysicsMaterial.h"
+#include "../include/ConstraintRegistry.h"
 #include <iostream>
 
 
@@ -49,6 +50,10 @@ void Physics::initialize() {
     dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
 
     std::cout << "Physics world created with gravity: (0, -1.8, 0)" << std::endl;
+
+    // Initialize constraint registry with our dynamics world
+    ConstraintRegistry::getInstance().initialize(dynamicsWorld);
+
     std::cout << "Physics initialized successfully" << std::endl;
 }
 // create a rigid body without a material
@@ -151,6 +156,8 @@ void Physics::update(float fixedDeltaTime) {
     //maxSubSteps = 1 because Engine.cpp already handles the fixed timestep loop
     //This just advances physics by one fixed step
     dynamicsWorld->stepSimulation(fixedDeltaTime, 1, fixedDeltaTime);
+    // Update constraints (check for broken constraints)
+    ConstraintRegistry::getInstance().update();
 }
 
 int Physics::getRigidBodyCount() const {
@@ -162,6 +169,9 @@ void Physics::cleanup() {
     if (!dynamicsWorld) return ;
 
     std::cout << "Cleaning up physics..." << std::endl;
+    
+    // Clear all constraints first (via registry)
+    ConstraintRegistry::getInstance().clearAll();
 
     // delete all rigid bodies (including ground)
     for (btRigidBody* body : rigidBodies) {

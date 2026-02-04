@@ -44,7 +44,9 @@ target_sources(GameEngine PRIVATE
     src/Physics/Physics.cpp
     src/Physics/PhysicsMaterial.cpp
     src/Physics/SpatialGrid.cpp
-
+    src/Physics/Constraint.cpp 
+    src/Physics/Constraintregistry.cpp 
+    src/Physics/Constraintpreset.cpp
     # Scene
     src/Scene/Scene.cpp
     src/Scene/GameObject.cpp

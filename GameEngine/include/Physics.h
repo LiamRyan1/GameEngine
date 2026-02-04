@@ -58,6 +58,7 @@ public:
 
     // Get number of active rigid bodies
     int getRigidBodyCount() const;
+
 };
 
 

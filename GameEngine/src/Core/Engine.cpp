@@ -20,7 +20,8 @@
 #include "../include/Raycast.h"
 #include <PhysicsMaterial.h>
 #include "../include/Editor/Gizmo.h"
-
+#include "../include/ConstraintRegistry.h"
+#include "../include/ConstraintPreset.h"
 
 
 void simulate(double dt)
@@ -133,6 +134,7 @@ int Start(void)
 	// Create and initialize physics system
     Physics physics;
     physics.initialize();
+    ConstraintRegistry::getInstance().initialize(physics.getWorld());
     std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
 
     // Create scene manager
@@ -544,6 +546,147 @@ int Start(void)
         uiContext.scene.loadAndSpawnModel =
             [&scene](const std::string& filepath, const glm::vec3& pos, const glm::vec3& scale) -> GameObject* {
             return scene.loadAndSpawnModel(filepath, pos, scale);
+            };
+        // ===== Constraint System Commands =====
+        auto& registry = ConstraintRegistry::getInstance();
+
+        // Update constraint view state
+        uiContext.constraints.totalConstraints = registry.getConstraintCount();
+        uiContext.constraints.allConstraints = registry.getAllConstraints();
+
+        // Count active/broken
+        uiContext.constraints.activeConstraints = 0;
+        uiContext.constraints.brokenConstraints = 0;
+        for (Constraint* c : uiContext.constraints.allConstraints) {
+            if (c->isBroken()) {
+                uiContext.constraints.brokenConstraints++;
+            }
+            else {
+                uiContext.constraints.activeConstraints++;
+            }
+        }
+
+        // Count by type
+        uiContext.constraints.fixedCount = registry.findConstraintsByType(ConstraintType::FIXED).size();
+        uiContext.constraints.hingeCount = registry.findConstraintsByType(ConstraintType::HINGE).size();
+        uiContext.constraints.sliderCount = registry.findConstraintsByType(ConstraintType::SLIDER).size();
+        uiContext.constraints.springCount = registry.findConstraintsByType(ConstraintType::SPRING).size();
+        uiContext.constraints.dof6Count = registry.findConstraintsByType(ConstraintType::GENERIC_6DOF).size();
+
+        // === Creation Commands ===
+
+        uiContext.constraintCommands.createFixed =
+            [&registry](GameObject* objA, GameObject* objB) -> Constraint* {
+            auto constraint = ConstraintPreset::createFixed(objA, objB);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createHinge =
+            [&registry](GameObject* objA, GameObject* objB,
+                const glm::vec3& worldPivot, const glm::vec3& worldAxis) -> Constraint* {
+                    auto constraint = ConstraintPreset::createHinge(objA, objB, worldPivot, worldAxis);
+                    return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createHingeAdvanced =
+            [&registry](GameObject* objA, GameObject* objB, const HingeParams& params) -> Constraint* {
+            auto constraint = ConstraintPreset::createHinge(objA, objB, params);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createSlider =
+            [&registry](GameObject* objA, GameObject* objB, const SliderParams& params) -> Constraint* {
+            auto constraint = ConstraintPreset::createSlider(objA, objB, params);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createSpring =
+            [&registry](GameObject* objA, GameObject* objB, float stiffness, float damping) -> Constraint* {
+            auto constraint = ConstraintPreset::createSpring(objA, objB, stiffness, damping);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createSpringAdvanced =
+            [&registry](GameObject* objA, GameObject* objB, const SpringParams& params) -> Constraint* {
+            auto constraint = ConstraintPreset::createSpring(objA, objB, params);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createGeneric6Dof =
+            [&registry](GameObject* objA, GameObject* objB, const Generic6DofParams& params) -> Constraint* {
+            auto constraint = ConstraintPreset::createGeneric6Dof(objA, objB, params);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        // === Preset Commands ===
+
+        uiContext.constraintCommands.createDoorHinge =
+            [&registry](GameObject* door, GameObject* frame, const glm::vec3& hingeWorldPos) -> Constraint* {
+            auto constraint = ConstraintPreset::createDoorHinge(door, frame, hingeWorldPos);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createDrawer =
+            [&registry](GameObject* drawer, GameObject* cabinet, float slideDistance) -> Constraint* {
+            auto constraint = ConstraintPreset::createDrawer(drawer, cabinet, slideDistance);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createSuspension =
+            [&registry](GameObject* wheel, GameObject* chassis, float stiffness, float damping) -> Constraint* {
+            auto constraint = ConstraintPreset::createSuspension(wheel, chassis, stiffness, damping);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createRopeSegment =
+            [&registry](GameObject* segmentA, GameObject* segmentB, float stiffness) -> Constraint* {
+            auto constraint = ConstraintPreset::createRopeSegment(segmentA, segmentB, stiffness);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        uiContext.constraintCommands.createPendulum =
+            [&registry](GameObject* bob, GameObject* pivot, const glm::vec3& pivotWorldPos) -> Constraint* {
+            auto constraint = ConstraintPreset::createPendulum(bob, pivot, pivotWorldPos);
+            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
+            };
+
+        // === Management Commands ===
+
+        uiContext.constraintCommands.removeConstraint =
+            [&registry](Constraint* constraint) {
+            registry.removeConstraint(constraint);
+            };
+
+        uiContext.constraintCommands.removeConstraintByName =
+            [&registry](const std::string& name) -> bool {
+            return registry.removeConstraint(name);
+            };
+
+        uiContext.constraintCommands.removeConstraintsForObject =
+            [&registry](GameObject* obj) {
+            registry.removeConstraintsForObject(obj);
+            };
+
+        uiContext.constraintCommands.clearAllConstraints =
+            [&registry]() {
+            registry.clearAll();
+            };
+
+        // === Query Commands ===
+
+        uiContext.constraintCommands.findConstraintByName =
+            [&registry](const std::string& name) -> Constraint* {
+            return registry.findConstraintByName(name);
+            };
+
+        uiContext.constraintCommands.findConstraintsForObject =
+            [&registry](GameObject* obj) -> std::vector<Constraint*> {
+            return registry.findConstraintsByObject(obj);
+            };
+
+        uiContext.constraintCommands.findConstraintsByType =
+            [&registry](ConstraintType type) -> std::vector<Constraint*> {
+            return registry.findConstraintsByType(type);
             };
 
         // Draw Debug UI (logic only)
