@@ -257,6 +257,13 @@ int Start(void)
 
                 std::cout << "Mode: EDITOR" << std::endl;
             }
+
+        }
+
+        if (Input::GetKeyPressed(GLFW_KEY_V))  // 'V' for Visualize
+        {
+            renderer.toggleDebugPhysics();
+            std::cout << "Debug Physics Wireframes: " << (renderer.isDebugPhysicsEnabled() ? "ON" : "OFF") << std::endl;
         }
 
 

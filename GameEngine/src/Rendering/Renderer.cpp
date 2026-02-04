@@ -11,7 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
 
-Renderer::Renderer() : shaderProgram(0), skyboxEnabled(false) {
+Renderer::Renderer() : shaderProgram(0), skyboxEnabled(false), debugPhysicsEnabled(false) {
     // Set a better default light direction
     mainLight.setDirection(glm::vec3(0.3f, -1.0f, 0.5f));
     mainLight.setIntensity(0.8f);  // Tone it down a bit
@@ -255,6 +255,12 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
         {
             drawOutlineOnly(*obj, modelLoc, colorLoc);
         }
+
+        // Debug physics collision shapes
+        if (debugPhysicsEnabled)
+        {
+            drawDebugCollisionShape(*obj, modelLoc, colorLoc);
+        }
     }
 
 }
@@ -283,6 +289,57 @@ void Renderer::drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc
     mesh->drawEdges();
 
     glDisable(GL_POLYGON_OFFSET_LINE);
+}
+
+void Renderer::drawDebugCollisionShape(const GameObject& obj, int modelLoc, int colorLoc) {
+    // Build model matrix
+    glm::mat4 model = Transform::model(
+        obj.getPosition(),
+        obj.getRotation(),
+        obj.getScale()
+    );
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+    // Pick mesh
+    Mesh* mesh = nullptr;
+    switch (obj.getShapeType()) {
+    case ShapeType::CUBE:
+        mesh = &cubeMesh;
+        break;
+    case ShapeType::SPHERE:
+        mesh = &sphereMesh;
+        break;
+    case ShapeType::CAPSULE:
+        mesh = &cylinderMesh;
+        break;
+    }
+
+    if (!mesh) return;
+
+    // Disable depth test so wireframe is always visible
+    glDisable(GL_DEPTH_TEST);
+
+    // Set light to super bright
+    int lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+    glUniform3f(lightColorLoc, 10.0f, 10.0f, 10.0f);  // Super bright light
+
+    // Draw as bright cyan wireframe
+    int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
+    glUniform1i(useTexLoc, 0);
+    glUniform3f(colorLoc, 0.0f, 1.0f, 1.0f);  // Cyan
+
+    glLineWidth(1.5f);
+
+    // Draw using polygon mode instead of edge indices
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // Wireframe mode
+    mesh->draw();  // Use regular draw (faces), but in LINE mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  // Back to normal
+
+    // Restore light color
+    glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
+
+    // Re-enable depth test
+    glEnable(GL_DEPTH_TEST);
 }
 
 

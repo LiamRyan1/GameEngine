@@ -21,6 +21,7 @@ private:
     Mesh cubeMesh;
     Mesh sphereMesh;
     Mesh cylinderMesh;
+    bool debugPhysicsEnabled;
 
     std::unordered_map<std::string, Texture> textureCache;  //texture cache
 
@@ -36,6 +37,8 @@ private:
     unsigned int compileShader(unsigned int type, const char* source);
     void drawGameObject(const GameObject& obj, int modelLoc, int colorLoc);// draw a single game object
     void drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc);
+    void drawDebugCollisionShape(const GameObject& obj, int modelLoc, int colorLoc);
+
 
 
 public:
@@ -58,6 +61,10 @@ public:
     Mesh* getCubeMesh() { return &cubeMesh; } 
     Mesh* getSphereMesh() { return &sphereMesh; }
     Mesh* getCylinderMesh() { return &cylinderMesh; }
+
+    // Debug physics toggle
+    void toggleDebugPhysics() { debugPhysicsEnabled = !debugPhysicsEnabled; }
+    bool isDebugPhysicsEnabled() const { return debugPhysicsEnabled; }
 };
 
 #endif
