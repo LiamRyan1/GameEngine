@@ -384,7 +384,7 @@ static void DrawConstraintPresets(const DebugUIContext& context) {
 
     // Pendulum
     if (ImGui::Button("Pendulum", ImVec2(-1, 0))) {
-        if (context.constraintCommands.createPendulum) {
+        if (context.constraintCommands.createPendulum && presetObjB) {
             glm::vec3 pivotPos = presetObjB->getPosition();
             context.constraintCommands.createPendulum(presetObjA, presetObjB, pivotPos);
         }
@@ -405,6 +405,7 @@ static void DrawConstraintPresets(const DebugUIContext& context) {
 static void DrawConstraintList(const DebugUIContext& context) {
     ImGui::Begin("Constraints");
 
+   
     // Stats at top
     ImGui::Text("Total: %d", context.constraints.totalConstraints);
     ImGui::SameLine();
@@ -413,7 +414,7 @@ static void DrawConstraintList(const DebugUIContext& context) {
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Broken: %d", context.constraints.brokenConstraints);
 
     ImGui::Separator();
-
+    static int selectedConstraintIndex = -1;
     // Type breakdown
     if (ImGui::TreeNode("By Type")) {
         ImGui::BulletText("Fixed: %d", context.constraints.fixedCount);
@@ -433,37 +434,46 @@ static void DrawConstraintList(const DebugUIContext& context) {
 
     static bool showBrokenOnly = false;
     ImGui::Checkbox("Broken Only", &showBrokenOnly);
-
+   
     ImGui::Separator();
 
     // Clear all button
     if (ImGui::Button("Clear All Constraints", ImVec2(-1, 0))) {
         if (context.constraintCommands.clearAllConstraints) {
             context.constraintCommands.clearAllConstraints();
+            selectedConstraintIndex = -1;  // Reset index
+            ImGui::End();
+            return;
         }
     }
 
     ImGui::Separator();
 
-    // Constraint list
-    static Constraint* selectedConstraint = nullptr;
-
     ImGui::BeginChild("ConstraintList", ImVec2(0, 250), true);
-
+    int currentIndex = 0;
     for (Constraint* constraint : context.constraints.allConstraints) {
-        if (!constraint) continue;
+        if (!constraint) {
+            currentIndex++;
+            continue;
+        }
 
         // Apply filters
-        if (showBrokenOnly && !constraint->isBroken()) continue;
+        if (showBrokenOnly && !constraint->isBroken()) {
+            currentIndex++;
+            continue;
+        }
         if (filterType > 0) {
             ConstraintType expectedType = static_cast<ConstraintType>(filterType - 1);
-            if (constraint->getType() != expectedType) continue;
+            if (constraint->getType() != expectedType) {
+                currentIndex++;
+                continue;
+            }
         }
 
         // Display constraint
-        ImGui::PushID(constraint);
+        ImGui::PushID(currentIndex);
 
-        bool isSelected = (selectedConstraint == constraint);
+        bool isSelected = (selectedConstraintIndex == currentIndex);
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
         if (isSelected) flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -478,15 +488,21 @@ static void DrawConstraintList(const DebugUIContext& context) {
         ImGui::TreeNodeEx(label.c_str(), flags);
 
         if (ImGui::IsItemClicked()) {
-            selectedConstraint = constraint;
+            selectedConstraintIndex = currentIndex;
         }
 
         ImGui::PopID();
+        currentIndex++;
     }
 
     ImGui::EndChild();
 
     // Selected constraint details
+    Constraint* selectedConstraint = nullptr;
+    if (selectedConstraintIndex >= 0 &&
+        selectedConstraintIndex < context.constraints.allConstraints.size()) {
+        selectedConstraint = context.constraints.allConstraints[selectedConstraintIndex];
+    }
     if (selectedConstraint) {
         ImGui::Separator();
         ImGui::Text("Selected: %s", selectedConstraint->getName().empty() ?
@@ -496,7 +512,7 @@ static void DrawConstraintList(const DebugUIContext& context) {
         if (ImGui::Button("Remove This Constraint")) {
             if (context.constraintCommands.removeConstraint) {
                 context.constraintCommands.removeConstraint(selectedConstraint);
-                selectedConstraint = nullptr;
+                selectedConstraintIndex = -1;
             }
         }
     }
@@ -505,8 +521,8 @@ static void DrawConstraintList(const DebugUIContext& context) {
 }
 
 // ========== Constraint Inspector Panel ==========
-
 static void DrawConstraintInspector(const DebugUIContext& context) {
+
     ImGui::Begin("Constraint Inspector");
 
     // Show constraints for selected object
@@ -526,6 +542,7 @@ static void DrawConstraintInspector(const DebugUIContext& context) {
         objectConstraints = context.constraintCommands.findConstraintsForObject(context.selectedObject);
     }
 
+   
     ImGui::Text("Constraints: %d", (int)objectConstraints.size());
 
     if (objectConstraints.empty()) {
@@ -543,6 +560,9 @@ static void DrawConstraintInspector(const DebugUIContext& context) {
         // List each constraint with controls
         static int selectedConstraintIndex = -1;
 
+        if (selectedConstraintIndex >= objectConstraints.size()) {
+            selectedConstraintIndex = -1;
+        }
         for (int i = 0; i < objectConstraints.size(); i++) {
             Constraint* constraint = objectConstraints[i];
             ImGui::PushID(i);

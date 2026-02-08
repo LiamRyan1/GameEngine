@@ -1,41 +1,11 @@
-﻿  Constraint.cpp
-  Constraintpreset.cpp
-  Constraintregistry.cpp
+﻿  Constraintregistry.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Physics/Constraintregistry.cpp')
   
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Constraintregistry.cpp(236,30): error C2838: 'CONE_TWIST': illegal qualified name in member declaration
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Constraintregistry.cpp(236,30): error C2065: 'CONE_TWIST': undeclared identifier
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Constraintregistry.cpp(236,30): error C2131: expression did not evaluate to a constant
-      C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Constraintregistry.cpp(236,30):
-      a non-constant (sub-)expression was encountered
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Constraintregistry.cpp(236,30): error C2051: case expression not constant
   DebugUI.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/UI/DebugUI.cpp')
   
-  Engine.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Core/Engine.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Core/Engine.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Core/Engine.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(281,32): warning C4305: 'argument': truncation from 'const double' to 'float'
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(570,102): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(571,102): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(572,104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(573,104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(574,108): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Physics.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Physics/Physics.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Physics.cpp(50,44): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
   Scene.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')
@@ -44,3 +14,4 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\SpatialGrid.h(80,55): warni
   (compiling source file 'src/Scene/Scene.cpp')
   
   Generating Code...
+models\spyro.obj : fatal error LNK1107: invalid or corrupt file: cannot read at 0x86F14
