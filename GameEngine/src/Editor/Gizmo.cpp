@@ -245,17 +245,34 @@ bool EditorGizmo::update(GLFWwindow* window,
             // That produces a plane that contains the axis and faces the camera.
             glm::vec3 axis = axisDir(activeAxis);
             glm::vec3 camF = camera.getFront();
+            glm::vec3 camR = camera.getRight();
+            glm::vec3 camU = camera.getUp();
 
-            glm::vec3 planeN = glm::cross(axis, camF);
-            float len = glm::length(planeN);
+            // Choose the most perpendicular camera vector to the axis
+            // This prevents the plane from being edge-on to the camera
+            float dotF = std::abs(glm::dot(axis, camF));
+            float dotR = std::abs(glm::dot(axis, camR));
+            float dotU = std::abs(glm::dot(axis, camU));
 
-            // If camera forward is almost parallel to the axis,
-            // cross product becomes near zero (bad plane).
-            // Fallback: use camera up.
-            if (len < 0.001f)
-                planeN = camera.getUp();
-            else
-                planeN /= len;
+            glm::vec3 perpVec;
+            if (dotF < dotR && dotF < dotU) {
+                perpVec = camF;  // Forward is most perpendicular
+            }
+            else if (dotR < dotU) {
+                perpVec = camR;  // Right is most perpendicular
+            }
+            else {
+                perpVec = camU;  // Up is most perpendicular
+            }
+
+            // Create plane normal from axis × perpendicular vector
+            glm::vec3 planeN = glm::normalize(glm::cross(axis, perpVec));
+
+            // Ensure plane faces camera (dot product with camera forward should be positive)
+            if (glm::dot(planeN, -camF) < 0.0f) {
+                planeN = -planeN;
+            }
+
 
             // Ray from mouse
             glm::vec3 ro, rd, hit;
@@ -298,13 +315,30 @@ bool EditorGizmo::update(GLFWwindow* window,
     {
         glm::vec3 axis = axisDir(activeAxis);
         glm::vec3 camF = camera.getFront();
+        glm::vec3 camR = camera.getRight();
+        glm::vec3 camU = camera.getUp();
 
-        glm::vec3 planeN = glm::cross(axis, camF);
-        float len = glm::length(planeN);
-        if (len < 0.001f)
-            planeN = camera.getUp();
-        else
-            planeN /= len;
+        // Choose most perpendicular camera vector
+        float dotF = std::abs(glm::dot(axis, camF));
+        float dotR = std::abs(glm::dot(axis, camR));
+        float dotU = std::abs(glm::dot(axis, camU));
+
+        glm::vec3 perpVec;
+        if (dotF < dotR && dotF < dotU) {
+            perpVec = camF;
+        }
+        else if (dotR < dotU) {
+            perpVec = camR;
+        }
+        else {
+            perpVec = camU;
+        }
+
+        glm::vec3 planeN = glm::normalize(glm::cross(axis, perpVec));
+
+        if (glm::dot(planeN, -camF) < 0.0f) {
+            planeN = -planeN;
+        }
 
         // Build ray from current mouse position
         glm::vec3 ro, rd, hit;
