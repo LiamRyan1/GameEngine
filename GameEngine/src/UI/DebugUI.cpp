@@ -989,7 +989,12 @@ void DebugUI::draw(const DebugUIContext& context)
 
         if (ImGui::DragFloat3("Scale", scaleArr, 0.05f, 0.01f, 1000.0f))
         {
-            context.selectedObject->setScale(glm::vec3(scaleArr[0], scaleArr[1], scaleArr[2]));
+            if (context.scene.setObjectScale) {
+                context.scene.setObjectScale(
+                    context.selectedObject,
+                    glm::vec3(scaleArr[0], scaleArr[1], scaleArr[2])
+                );
+            }
         }
     }
     ImGui::End();

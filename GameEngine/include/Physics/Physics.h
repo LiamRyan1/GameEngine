@@ -4,9 +4,14 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <memory>  
+#include <string>
+#include "../include/Physics/PhysicsQuery.h"
+
 enum class ShapeType;
 
 class PhysicsMaterial;
+
 
 class Physics {
 private:
@@ -17,6 +22,7 @@ private:
     btSequentialImpulseConstraintSolver* solver;
     btDiscreteDynamicsWorld* dynamicsWorld;
 
+    std::unique_ptr<PhysicsQuery> querySystem;
     // store created rigid bodies and shapes in collections for cleanup
     std::vector<btRigidBody*> rigidBodies;
     std::vector<btCollisionShape*> collisionShapes;
@@ -48,6 +54,21 @@ public:
         float mass
     );
 
+    // Rigid body management
+    btRigidBody* resizeRigidBody(
+        btRigidBody* oldBody,
+        ShapeType type,
+        const glm::vec3& newScale,
+        float mass,
+        const std::string& materialName
+    );
+
+    //delete old rigid bodies
+    void removeRigidBody(btRigidBody* body);
+
+    //querys
+    PhysicsQuery& getQuerySystem() { return *querySystem; }
+    const PhysicsQuery& getQuerySystem() const { return *querySystem; }
 
     // Getters for physics world (useful when adding objects later)
     btDiscreteDynamicsWorld* getWorld() { return dynamicsWorld; }

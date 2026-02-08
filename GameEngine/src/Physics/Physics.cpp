@@ -2,6 +2,7 @@
 #include "../include/Scene/GameObject.h"
 #include "../include/Physics/PhysicsMaterial.h"
 #include "../include/Physics/ConstraintRegistry.h"
+#include "../include/Physics/PhysicsQuery.h"
 #include <iostream>
 
 
@@ -51,6 +52,7 @@ void Physics::initialize() {
 
     std::cout << "Physics world created with gravity: (0, -1.8, 0)" << std::endl;
 
+    querySystem = std::make_unique<PhysicsQuery>(dynamicsWorld);  
     // Initialize constraint registry with our dynamics world
     ConstraintRegistry::getInstance().initialize(dynamicsWorld);
 
@@ -133,6 +135,92 @@ btRigidBody* Physics::createRigidBody(
 
     return body;
 }
+
+btRigidBody* Physics::resizeRigidBody(
+    btRigidBody* oldBody,
+    ShapeType type,
+    const glm::vec3& newScale,
+    float mass,
+    const std::string& materialName)
+{
+    if (!oldBody) {
+        std::cerr << "Error: Cannot resize null rigid body" << std::endl;
+        return nullptr;
+    }
+
+    // Save current state
+    btTransform transform;
+    oldBody->getMotionState()->getWorldTransform(transform);
+
+    btVector3 linearVel = oldBody->getLinearVelocity();
+    btVector3 angularVel = oldBody->getAngularVelocity();
+
+    bool isActive = oldBody->isActive();
+    float linearDamping = oldBody->getLinearDamping();
+    float angularDamping = oldBody->getAngularDamping();
+
+    std::cout << "Resizing rigid body at ("
+        << transform.getOrigin().x() << ", "
+        << transform.getOrigin().y() << ", "
+        << transform.getOrigin().z() << ")" << std::endl;
+
+    //  Remove old body
+    removeRigidBody(oldBody);
+    
+
+    //Create new body with new scale
+    btRigidBody* newBody = createRigidBody(
+        type,
+        glm::vec3(transform.getOrigin().x(),
+            transform.getOrigin().y(),
+            transform.getOrigin().z()),
+        newScale,  // NEW SCALE
+        mass,
+        materialName
+    );
+
+    if (!newBody) {
+        std::cerr << "Error: Failed to create new rigid body during resize" << std::endl;
+        return nullptr;
+    }
+
+    //Restore saved state
+    newBody->setWorldTransform(transform);
+    newBody->getMotionState()->setWorldTransform(transform);
+    newBody->setLinearVelocity(linearVel);
+    newBody->setAngularVelocity(angularVel);
+    newBody->setDamping(linearDamping, angularDamping);
+
+    if (isActive) {
+        newBody->activate(true);
+    }
+
+    std::cout << "Rigid body resized successfully" << std::endl;
+
+    return newBody;
+}
+
+void Physics::removeRigidBody(btRigidBody* body) {
+    if (!body || !dynamicsWorld) return;
+
+    // Remove from world
+    dynamicsWorld->removeRigidBody(body);
+
+    // Remove from tracking vector
+    auto it = std::find(rigidBodies.begin(), rigidBodies.end(), body);
+    if (it != rigidBodies.end()) {
+        rigidBodies.erase(it);
+    }
+
+    // Delete motion state
+    delete body->getMotionState();
+
+    // Delete the body itself
+    delete body;
+
+    std::cout << "Removed rigid body from physics world" << std::endl;
+}
+
 void Physics::applyMaterial(btRigidBody* body, const PhysicsMaterial& material) {
     if (!body) return;
 

@@ -43,6 +43,10 @@ public:
      * Call this when manually moving/rotating the object.
      */
     void syncFromTransform(const TransformComponent& transform);
+
+    void setRigidBody(btRigidBody* newBody) {
+        rigidBody = newBody;
+    }
 };
 
 #endif // PHYSICSCOMPONENT_H

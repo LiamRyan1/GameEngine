@@ -137,6 +137,7 @@
     <ClCompile Include="src\Physics\Constraintpreset.cpp" />
     <ClCompile Include="src\Physics\Constraintregistry.cpp" />
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
+    <ClCompile Include="src\Physics\PhysicsQuery.cpp" />
     <ClCompile Include="src\Physics\SpatialGrid.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
     <ClCompile Include="src\Rendering\Cubemap.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="external\imgui\core\imconfig.h" />
     <ClInclude Include="external\imgui\core\imgui.h" />
     <ClInclude Include="external\imgui\core\imgui_internal.h" />
+    <ClInclude Include="include\Physics\PhysicsQuery.h" />
     <ClInclude Include="include\Rendering\Camera.h" />
     <ClInclude Include="include\Scene\Component.h" />
     <ClInclude Include="include\Physics\ConstraintPreset.h" />

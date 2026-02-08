@@ -1,17 +1,78 @@
-﻿  Constraintregistry.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+﻿  Gizmo.cpp
+  Constraint.cpp
+  Constraintpreset.cpp
+  Constraintregistry.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Physics/Constraintregistry.cpp')
   
+  PhysicsMaterial.cpp
+  PhysicsQuery.cpp
+  SpatialGrid.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/SpatialGrid.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/SpatialGrid.cpp')
+  
+  Camera.cpp
+  Cubemap.cpp
+  DirectionalLight.cpp
+  Skybox.cpp
+  PhysicsComponent.cpp
   DebugUI.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/UI/DebugUI.cpp')
   
+  GameObject.cpp
+  GameTime.cpp
+  Input.cpp
+  Main.cpp
+  Engine.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Core/Engine.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Core/Engine.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Core/Engine.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(281,32): warning C4305: 'argument': truncation from 'const double' to 'float'
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(594,102): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(595,102): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(596,104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(597,104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(598,108): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Mesh.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(232,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(286,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(287,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(514,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(519,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(581,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(633,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(670,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Physics.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/Physics.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Physics.cpp(51,44): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
+  Generating Code...
+  Compiling...
+  Renderer.cpp
+  CameraController.cpp
   Scene.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')
   
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')
   
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Scene/Scene.cpp')
+  
+  Texture.cpp
+  Transform.cpp
+  Raycast.cpp
   Generating Code...
 models\spyro.obj : fatal error LNK1107: invalid or corrupt file: cannot read at 0x86F14

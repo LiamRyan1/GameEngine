@@ -1,6 +1,7 @@
 #include <GL/glew.h> 
 #include "../include/Scene/Scene.h"
 #include "../include/Core/Engine.h"
+#include "../include/Physics/ConstraintRegistry.h"
 #include <unordered_map> 
 #include <iostream>
 
@@ -77,7 +78,9 @@ GameObject* Scene::spawnObject(ShapeType type,
 
     // Create game object 
     auto obj = std::make_unique<GameObject>(type, body, size, materialName, texturePath);
-
+    // Store GameObject pointer in rigid body's user pointer
+    // This allows raycasts to return the GameObject instead of just the raw physics body
+    body->setUserPointer(obj.get());
     // Set render mesh based on shape type
     switch (type) {
     case ShapeType::CUBE:
@@ -147,7 +150,67 @@ GameObject* Scene::spawnRenderObject(
 }
 
 
+void Scene::setObjectScale(GameObject* obj, const glm::vec3& newScale) {
+    if (!obj) {
+        std::cerr << "Error: Cannot set scale on null object" << std::endl;
+        return;
+    }
 
+    // Update visual scale
+    obj->getTransform().setScale(newScale);
+
+	// If no physics, exit early - just update render scale
+    if (!obj->hasPhysics()) {
+        std::cout << "Updated scale for render-only object" << std::endl;
+        return;
+    }
+
+    // Handle physics resize
+    std::cout << "Resizing physics body for object..." << std::endl;
+
+    btRigidBody* oldBody = obj->getRigidBody();
+    if (!oldBody) {
+        std::cerr << "Error: Object has physics component but no rigid body!" << std::endl;
+        return;
+    }
+
+    // Get current mass
+    float mass = 1.0f / oldBody->getInvMass();
+    if (oldBody->getInvMass() == 0.0f) {
+        mass = 0.0f;  // Static object
+    }
+
+    // Warn about constraint breakage
+    auto attachedConstraints = ConstraintRegistry::getInstance().findConstraintsByObject(obj);
+    if (!attachedConstraints.empty()) {
+        std::cout << "WARNING: Object has " << attachedConstraints.size()
+            << " attached constraint(s) which will break during resize!" << std::endl;
+    }
+
+    // Resize the rigid body
+    btRigidBody* newBody = physicsWorld.resizeRigidBody(
+        oldBody,
+        obj->getShapeType(),
+        newScale,
+        mass,
+        obj->getMaterialName()
+    );
+
+    // Update GameObject's physics component
+    if (newBody) {
+        newBody->setUserPointer(obj);
+        obj->getPhysics()->setRigidBody(newBody);
+
+        if (spatialGrid) {
+            spatialGrid->updateObject(obj);
+        }
+
+        std::cout << "Object scale updated successfully" << std::endl;
+    }
+    else {
+        std::cerr << "Error: Failed to resize rigid body!" << std::endl;
+    }
+}
 
 /**
  * @brief Updates all game objects in the scene.

@@ -371,6 +371,26 @@ int Start(void)
             gizmo.draw(fbW, fbH, camera, selectedObject);
         }
 
+        // In your main loop, around where you handle input:
+        if (engineMode == EngineMode::Game) {
+            // Test raycast when you press R key
+            if (Input::GetKeyPressed(GLFW_KEY_R)) {
+                PhysicsQuery& query = physics.getQuerySystem();
+
+                // Raycast from camera forward
+                glm::vec3 from = camera.getPosition();
+                glm::vec3 to = from + camera.getFront() * 100.0f;
+
+                RaycastHit hit;
+                if (query.raycast(from, to, hit)) {
+                    std::cout << "HIT: " << hit.object->getName()
+                        << " at distance " << hit.distance << "m" << std::endl;
+                }
+                else {
+                    std::cout << "MISS" << std::endl;
+                }
+            }
+        }
         // ===============================
         // Editor Ray -> AABB Picking
         // ===============================
@@ -523,7 +543,11 @@ int Start(void)
                 PhysicsMaterial customMat(name, friction, restitution);
                 MaterialRegistry::getInstance().registerMaterial(customMat);
             };
-
+		// Set object scale command (handles both render and physics resizing)
+        uiContext.scene.setObjectScale =
+            [&scene](GameObject* obj, const glm::vec3& scale) {
+            scene.setObjectScale(obj, scale);
+            };
         // Get available textures command
         uiContext.scene.getAvailableTextures =
             []() -> std::vector<std::string>

@@ -43,6 +43,7 @@ public:
         const std::string& texturePath = ""
     );
 
+    void setObjectScale(GameObject* obj, const glm::vec3& newScale);
     // Update all objects from physics simulation
     void update(EngineMode mode);
 

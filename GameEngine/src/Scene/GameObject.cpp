@@ -116,25 +116,9 @@ void GameObject::setPosition(const glm::vec3& newPos)
     
 }
 
-/**
- * @brief Sets the object's scale for rendering and editor picking.
- *
- * Updates the visual size of the object. Currently this only affects rendering
- * and ray-casting picking in the editor - it does NOT resize the physics
- * collision shape.
- *
- * @param newScale The new scale (typically uniform, e.g. glm::vec3(2.0f) for 2x size)
- *
- * @warning This does NOT update the Bullet collision shape yet. The physics collider
- *          will remain at its original size. This will be fixed in a future update
- *          by recreating the collision shape with new dimensions.
- *
- * @todo Implement collision shape resizing by:
- *       1. Getting the current shape type and properties
- *       2. Creating a new shape with scaled dimensions
- *       3. Replacing the old shape on the rigid body
- *       4. Cleaning up the old shape
- */
+//This only updates visual scale
+// Physics collision shape is not resized.
+// Use Scene::setObjectScale() instead to properly update physics.
 void GameObject::setScale(const glm::vec3& newScale)
 {
     transform.setScale(newScale);
