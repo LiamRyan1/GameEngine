@@ -1,7 +1,7 @@
 #ifndef CAMERA_CONTROLLER_H
 #define CAMERA_CONTROLLER_H
 
-#include "Camera.h"
+#include "../Rendering/Camera.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 

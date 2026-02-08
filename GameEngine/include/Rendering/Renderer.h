@@ -4,12 +4,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include "../include/Camera.h"
-#include "../include/Mesh.h"
-#include "../include/GameObject.h"
-#include "../include/Texture.h"
-#include "../include/DirectionalLight.h"
-#include "../include/Skybox.h"
+#include "../include/Rendering/Camera.h"
+#include "../include/Rendering/Mesh.h"
+#include "../include/Scene/GameObject.h"
+#include "../include/Rendering/Texture.h"
+#include "../include/Rendering/DirectionalLight.h"
+#include "../include/Rendering/Skybox.h"
 #include <string>
 #include <memory>  // for std::unique_ptr
 #include <unordered_map>

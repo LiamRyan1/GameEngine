@@ -4,9 +4,9 @@
 
 #include <memory>
 #include <string>
-#include "../include/TransformComponent.h"
-#include "../include/PhysicsComponent.h"
-#include "../include/RenderComponent.h"
+#include "../include/Scene/TransformComponent.h"
+#include "../include/Scene/PhysicsComponent.h"
+#include "../include/Scene/RenderComponent.h"
 
 /**
  * @brief  A component-based game object.

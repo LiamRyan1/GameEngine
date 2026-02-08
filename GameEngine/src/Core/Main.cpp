@@ -1,6 +1,6 @@
 ﻿#include <iostream>
-#include "../include/Engine.h"
-#include "../include/Camera.h"
+#include "../include/Core/Engine.h"
+#include "../include/Rendering/Camera.h"
 
 
 

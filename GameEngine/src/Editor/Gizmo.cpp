@@ -3,8 +3,8 @@
 #include <GLFW/glfw3.h>
 #include "imgui.h"
 
-#include "../include/Camera.h"
-#include "../include/GameObject.h"
+#include "../include/Rendering/Camera.h"
+#include "../include/Scene/GameObject.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

@@ -1,5 +1,5 @@
-#include "../include/CameraController.h"
-#include "../include/Input.h"
+#include "../include/Input/CameraController.h"
+#include "../include/Input/Input.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 

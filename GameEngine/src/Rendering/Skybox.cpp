@@ -1,4 +1,4 @@
-#include "../include/Skybox.h"
+#include "../include/Rendering/Skybox.h"
 #include <GL/glew.h>
 #include <iostream>
 #include <fstream>

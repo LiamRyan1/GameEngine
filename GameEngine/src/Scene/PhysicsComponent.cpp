@@ -1,5 +1,5 @@
-#include "../include/PhysicsComponent.h"
-#include "../include/TransformComponent.h"
+#include "../include/Scene/PhysicsComponent.h"
+#include "../include/Scene/TransformComponent.h"
 
 void PhysicsComponent::syncToTransform(TransformComponent& transform) {
     if (!rigidBody) return;

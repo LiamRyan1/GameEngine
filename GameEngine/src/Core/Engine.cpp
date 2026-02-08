@@ -1,27 +1,27 @@
-﻿#include "../include/FileUtils.h"
+﻿#include "../include/Misc/FileUtils.h"
 #include <iostream>
-#include "../include/Engine.h"
+#include "../include/Core/Engine.h"
 #include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <vector>
-#include "../include/Renderer.h"
-#include "../include/Input.h"
-#include "../include/Camera.h"
-#include "../include/CameraController.h"
-#include "../include/GameTime.h"
-#include "../include/Physics.h"
-#include "../include/Scene.h"
+#include "../include/Rendering/Renderer.h"
+#include "../include/Input/Input.h"
+#include "../include/Rendering/Camera.h"
+#include "../include/Input/CameraController.h"
+#include "../include/Core/GameTime.h"
+#include "../include/Physics/Physics.h"
+#include "../include/Scene/Scene.h"
 #include "../include/Debug/DebugUI.h"
 #include "../include/Debug/DebugUIContext.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "../include/Raycast.h"
-#include <PhysicsMaterial.h>
+#include "../include/UI/Raycast.h"
+#include "../include/Physics/PhysicsMaterial.h"
 #include "../include/Editor/Gizmo.h"
-#include "../include/ConstraintRegistry.h"
-#include "../include/ConstraintPreset.h"
+#include "../include/Physics/ConstraintRegistry.h"
+#include "../include/Physics/ConstraintPreset.h"
 
 
 void simulate(double dt)

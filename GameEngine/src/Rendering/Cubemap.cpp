@@ -1,4 +1,4 @@
-#include "../include/Cubemap.h"
+#include "../include/Rendering/Cubemap.h"
 #include "../external/stb/stb_image.h"
 #include <iostream>
 

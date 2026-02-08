@@ -1,5 +1,5 @@
 ﻿#include <GL/glew.h>
-#include "../include/Mesh.h"
+#include "../include/Rendering/Mesh.h"
 #include <cmath>
 #include "../../external/tinyobjloader/tiny_obj_loader.h"
 #include <iostream>

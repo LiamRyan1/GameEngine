@@ -3,10 +3,10 @@
 
 #include <vector>
 #include <memory>
-#include "../include/GameObject.h"
-#include "../include/Physics.h"
-#include "../include/SpatialGrid.h" 
-#include <Renderer.h>
+#include "../include/Scene/GameObject.h"
+#include "../include/Physics/Physics.h"
+#include "../include/Physics/SpatialGrid.h" 
+#include "../include/Rendering/Renderer.h"
 enum class EngineMode;
 
 class Scene {

@@ -2,7 +2,7 @@
 #define RENDERCOMPONENT_H
 
 #include "Component.h"
-#include "Mesh.h"
+#include "Rendering/Mesh.h"
 #include <string>
 
 /**

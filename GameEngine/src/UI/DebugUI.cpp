@@ -1,7 +1,7 @@
 ﻿#include "../include/Debug/DebugUI.h"
-#include "../include/DirectionalLight.h"
-#include "../include/Constraint.h"
-#include "../include/ConstraintRegistry.h"
+#include "../include/Rendering/DirectionalLight.h"
+#include "../include/Physics/Constraint.h"
+#include "../include/Physics/ConstraintRegistry.h"
 #include <glm/gtc/constants.hpp>
 #include "imgui.h"
 #include <vector>

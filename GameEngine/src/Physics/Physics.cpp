@@ -1,7 +1,7 @@
-#include "../include/Physics.h"
-#include "../include/GameObject.h"
-#include "../include/PhysicsMaterial.h"
-#include "../include/ConstraintRegistry.h"
+#include "../include/Physics/Physics.h"
+#include "../include/Scene/GameObject.h"
+#include "../include/Physics/PhysicsMaterial.h"
+#include "../include/Physics/ConstraintRegistry.h"
 #include <iostream>
 
 

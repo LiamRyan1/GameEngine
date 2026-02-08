@@ -1,7 +1,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
-#include "../include/GameTime.h"
+#include "../include/Core/GameTime.h"
 
 // GameTime comment test for including in project
 

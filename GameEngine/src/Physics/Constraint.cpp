@@ -1,5 +1,5 @@
-#include "../include/Constraint.h"
-#include "../include/GameObject.h"
+#include "../include/Physics/Constraint.h"
+#include "../include/Scene/GameObject.h"
 #include <iostream>
 #include <cmath>
 

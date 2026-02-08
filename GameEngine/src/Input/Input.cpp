@@ -1,5 +1,5 @@
-﻿#include "../include/Input.h"
-#include "../include/CameraController.h"
+﻿#include "../include/Input/Input.h"
+#include "../include/Input/CameraController.h"
 #include "imgui_impl_glfw.h"
 #include "imgui.h"
 

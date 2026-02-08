@@ -1,5 +1,5 @@
-#include "../include/SpatialGrid.h"
-#include "../include/GameObject.h"
+#include "../include/Physics/SpatialGrid.h"
+#include "../include/Scene/GameObject.h"
 #include <iostream>
 #include <cmath>
 #include <algorithm>

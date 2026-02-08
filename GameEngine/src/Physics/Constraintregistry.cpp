@@ -1,5 +1,5 @@
-#include "../include/ConstraintRegistry.h"
-#include "../include/GameObject.h"
+#include "../include/Physics/ConstraintRegistry.h"
+#include "../include/Scene/GameObject.h"
 #include <iostream>
 #include <algorithm>
 

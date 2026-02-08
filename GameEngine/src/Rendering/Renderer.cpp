@@ -1,12 +1,12 @@
 #include <GL/glew.h>
-#include "../include/Renderer.h"
-#include "../include/Texture.h"
+#include "../include/Rendering/Renderer.h"
+#include "../include./Rendering/Texture.h"
 #include <iostream>
 #include <fstream>   
 #include <sstream> 
-#include "../include/Camera.h"
-#include "../include/Transform.h"
-#include "../include/GameObject.h"
+#include "../include/Rendering/Camera.h"
+#include "../include/Scene/Transform.h"
+#include "../include/Scene/GameObject.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>

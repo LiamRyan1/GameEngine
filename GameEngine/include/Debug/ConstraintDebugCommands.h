@@ -3,7 +3,7 @@
 #include <functional>
 #include <memory>
 #include <glm/glm.hpp>
-#include "ConstraintParams.h"
+#include "../Physics/ConstraintParams.h"
 
 class GameObject;
 class Constraint;

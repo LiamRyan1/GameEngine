@@ -1,6 +1,6 @@
 #include <GL/glew.h> 
-#include "../include/Scene.h"
-#include "../include/Engine.h"
+#include "../include/Scene/Scene.h"
+#include "../include/Core/Engine.h"
 #include <unordered_map> 
 #include <iostream>
 

@@ -1,5 +1,5 @@
-#include "../include/GameObject.h"
-#include "../include/ConstraintPreset.h"
+#include "../include/Scene/GameObject.h"
+#include "../include/Physics/ConstraintPreset.h"
 #include <iostream>
 #include <glm/gtc/constants.hpp>
 

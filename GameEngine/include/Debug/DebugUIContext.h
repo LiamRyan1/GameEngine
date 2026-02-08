@@ -6,7 +6,7 @@
 #include "LightingDebugCommands.h"
 #include "ConstraintDebugView.h"
 #include "ConstraintDebugCommands.h"
-#include "GameObject.h"
+#include "Scene/GameObject.h"
 
 struct DebugUIContext
 {

@@ -1,4 +1,4 @@
-#include "../include/DirectionalLight.h"
+#include "../include/Rendering/DirectionalLight.h"
 
 DirectionalLight::DirectionalLight(const glm::vec3& dir, const glm::vec3& col, float inten)
     : direction(glm::normalize(dir)), color(col), intensity(inten) {

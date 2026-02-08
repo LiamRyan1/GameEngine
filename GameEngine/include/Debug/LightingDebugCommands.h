@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include "../DirectionalLight.h"
+#include "../Rendering/DirectionalLight.h"
 
 // Commands for controlling scene lighting from debug UI
 struct LightingDebugCommands
