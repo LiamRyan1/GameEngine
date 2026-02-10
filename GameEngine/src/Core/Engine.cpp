@@ -47,8 +47,7 @@ int Start(void)
 
     // Currently selected object in editor mode.
     // This is editor-only state and does NOT belong in Renderer or Scene.
-    GameObject* selectedObject = nullptr;
-
+    std::vector<GameObject*> selectedObjects;
 
     if (!glfwInit())
     {
@@ -291,13 +290,16 @@ int Start(void)
         scene.update(engineMode);
 
         if (engineMode == EngineMode::Editor &&
-            selectedObject &&
+            !selectedObjects.empty() &&
             Input::GetKeyPressed(GLFW_KEY_DELETE) &&
             !ImGui::GetIO().WantCaptureKeyboard)
         {
-            scene.requestDestroy(selectedObject);
-            selectedObject = nullptr;
+            for (GameObject* obj : selectedObjects)
+                scene.requestDestroy(obj);
+
+            selectedObjects.clear();
         }
+
 
         if (Input::GetKeyPressed(GLFW_KEY_G)) {  // Press G to test grid
             std::cout << "\n=== SPATIAL GRID TEST ===" << std::endl;
@@ -366,18 +368,23 @@ int Start(void)
         // (hovering, dragging sliders, clicking windows, etc.)
         bool uiWantsMouse = ImGui::GetIO().WantCaptureMouse;
 
+        GameObject* primarySelection =
+            selectedObjects.empty() ? nullptr : selectedObjects.front();
+
+
         bool gizmoCapturingMouse = gizmo.update(
             window, fbW, fbH,
             camera,
-            selectedObject,
+            primarySelection,
             engineMode == EngineMode::Editor,
             uiWantsMouse
         );
 
+
         // Gizmo visuals
-        if (engineMode == EngineMode::Editor && selectedObject)
+        if (engineMode == EngineMode::Editor && primarySelection)
         {
-            gizmo.draw(fbW, fbH, camera, selectedObject);
+            gizmo.draw(fbW, fbH, camera, primarySelection);
         }
 
         // In your main loop, around where you handle input:
@@ -489,19 +496,27 @@ int Start(void)
             // If the ray hit something, update the editor selection
             if (hitObject)
             {
-                selectedObject = hitObject;
+                bool shiftHeld =
+                    Input::GetKeyDown(GLFW_KEY_LEFT_SHIFT) ||
+                    Input::GetKeyDown(GLFW_KEY_RIGHT_SHIFT);
 
-                std::cout << "[Editor Pick] HIT - Selected object at ("
-                    << selectedObject->getPosition().x << ", "
-                    << selectedObject->getPosition().y << ", "
-                    << selectedObject->getPosition().z << ")\n";
+                if (!shiftHeld)
+                    selectedObjects.clear();
+
+                // Avoid duplicates
+                if (std::find(selectedObjects.begin(),
+                    selectedObjects.end(),
+                    hitObject) == selectedObjects.end())
+                {
+                    selectedObjects.push_back(hitObject);
+                }
             }
             else
             {
-                // Clicked empty space -> clear selection
-                selectedObject = nullptr;
-                std::cout << "[Editor Pick] Miss\n";
+                // Click empty space clears selection
+                selectedObjects.clear();
             }
+
 
         }
 
@@ -512,7 +527,7 @@ int Start(void)
 
         // Pass editor selection into the UI so Inspector can display it.
         // DebugUI does not decide selection — it only reacts to it.
-        uiContext.selectedObject = selectedObject;
+        uiContext.selectedObject = primarySelection;
 
         // Timing / performance data
         uiContext.time.deltaTime = Time::GetDeltaTime();
@@ -560,16 +575,19 @@ int Start(void)
 
         // Destroy object (deferred, editor-safe)
         uiContext.scene.destroyObject =
-            [&scene, &selectedObject](GameObject* obj)
+            [&scene, &selectedObjects](GameObject* obj)
             {
                 if (!obj) return;
 
-                // Clear selection immediately to avoid dangling pointer
-                if (selectedObject == obj)
-                    selectedObject = nullptr;
+                // Remove from selection list if present
+                selectedObjects.erase(
+                    std::remove(selectedObjects.begin(), selectedObjects.end(), obj),
+                    selectedObjects.end()
+                );
 
                 scene.requestDestroy(obj);
             };
+
 
         // Get available textures command
         uiContext.scene.getAvailableTextures =
@@ -743,7 +761,7 @@ int Start(void)
         ImGui::Render();
 
         // --- Render ---
-        renderer.draw(fbW, fbH,camera, scene.getObjects(), selectedObject);
+        renderer.draw(fbW, fbH, camera, scene.getObjects(), primarySelection, selectedObjects);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
 

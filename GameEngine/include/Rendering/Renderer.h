@@ -46,9 +46,15 @@ public:
     ~Renderer();
 
     void initialize();
-    void draw(int windowWidth, int windowHeight, 
-        const Camera& camera, 
-        const std::vector<std::unique_ptr<GameObject>>& objects, const GameObject* selectedObject);
+    void draw(
+        int windowWidth,
+        int windowHeight,
+        const Camera& camera,
+        const std::vector<std::unique_ptr<GameObject>>& objects,
+        const GameObject* primarySelection,
+        const std::vector<GameObject*>& selectedObjects
+    );
+
     void cleanup();
 
     // Light control

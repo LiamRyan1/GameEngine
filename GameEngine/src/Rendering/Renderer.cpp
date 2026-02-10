@@ -198,7 +198,12 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     }
 }
 
-void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, const std::vector<std::unique_ptr<GameObject>>& objects, const GameObject* selectedObject) {
+void Renderer::draw(int windowWidth,
+    int windowHeight,
+    const Camera& camera,
+    const std::vector<std::unique_ptr<GameObject>>& objects,
+    const GameObject* primarySelection,
+    const std::vector<GameObject*>& selectedObjects) {
     if (windowHeight == 0)
         return;
 
@@ -242,27 +247,33 @@ void Renderer::draw(int windowWidth, int windowHeight, const Camera& camera, con
 
     for (const auto& obj : objects)
     {
-        bool isSelected = (selectedObject && obj.get() == selectedObject);
+        bool isSelected =
+            std::find(selectedObjects.begin(),
+                selectedObjects.end(),
+                obj.get()) != selectedObjects.end();
 
-        glUniform1i(glGetUniformLocation(shaderProgram, "uIsSelected"), isSelected ? 1 : 0);
-        glUniform3f(glGetUniformLocation(shaderProgram, "uHighlightColor"), 0.0f, 1.0f, 1.0f); // TURQUOISE
-        glUniform1f(glGetUniformLocation(shaderProgram, "uHighlightStrength"), 0.6f);
+        glUniform1i(glGetUniformLocation(shaderProgram, "uIsSelected"),
+            isSelected ? 1 : 0);
 
+        glUniform3f(glGetUniformLocation(shaderProgram, "uHighlightColor"),
+            0.0f, 1.0f, 1.0f); // cyan
 
-        drawGameObject(*obj, modelLoc, colorLoc); // your friend's code unchanged
+        glUniform1f(glGetUniformLocation(shaderProgram, "uHighlightStrength"),
+            0.6f);
 
-        if (selectedObject && obj.get() == selectedObject)
+        drawGameObject(*obj, modelLoc, colorLoc);
+
+        // Outline ONLY for primary selection
+        if (primarySelection && obj.get() == primarySelection)
         {
             drawOutlineOnly(*obj, modelLoc, colorLoc);
         }
 
-        // Debug physics collision shapes
         if (debugPhysicsEnabled)
         {
             drawDebugCollisionShape(*obj, modelLoc, colorLoc);
         }
     }
-
 }
 
 // Draws a black wire overlay on top of the object (if mesh has edge indices).
