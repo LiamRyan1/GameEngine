@@ -290,6 +290,15 @@ int Start(void)
         }
         scene.update(engineMode);
 
+        if (engineMode == EngineMode::Editor &&
+            selectedObject &&
+            Input::GetKeyPressed(GLFW_KEY_DELETE) &&
+            !ImGui::GetIO().WantCaptureKeyboard)
+        {
+            scene.requestDestroy(selectedObject);
+            selectedObject = nullptr;
+        }
+
         if (Input::GetKeyPressed(GLFW_KEY_G)) {  // Press G to test grid
             std::cout << "\n=== SPATIAL GRID TEST ===" << std::endl;
 
