@@ -548,6 +548,20 @@ int Start(void)
             [&scene](GameObject* obj, const glm::vec3& scale) {
             scene.setObjectScale(obj, scale);
             };
+
+        // Destroy object (deferred, editor-safe)
+        uiContext.scene.destroyObject =
+            [&scene, &selectedObject](GameObject* obj)
+            {
+                if (!obj) return;
+
+                // Clear selection immediately to avoid dangling pointer
+                if (selectedObject == obj)
+                    selectedObject = nullptr;
+
+                scene.requestDestroy(obj);
+            };
+
         // Get available textures command
         uiContext.scene.getAvailableTextures =
             []() -> std::vector<std::string>

@@ -37,4 +37,6 @@ struct SceneDebugCommands
 
 	// Set object scale (handles both render and physics resizing)
     std::function<void(GameObject*, const glm::vec3&)> setObjectScale;
+
+    std::function<void(GameObject*)> destroyObject;
 };

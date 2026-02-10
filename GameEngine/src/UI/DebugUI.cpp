@@ -940,7 +940,8 @@ void DebugUI::draw(const DebugUIContext& context)
         glm::vec3 scale = context.selectedObject->getScale();
         glm::quat rot = context.selectedObject->getRotation();
 
-
+        ImGui::Text("Object ID: %llu", context.selectedObject->getID());
+        ImGui::Separator();
 
         ImGui::Text("Selected Object");
         ImGui::Separator();
@@ -996,6 +997,22 @@ void DebugUI::draw(const DebugUIContext& context)
                 );
             }
         }
+
+        ImGui::Separator();
+
+        // Delete Object Button
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+
+        if (ImGui::Button("Delete Object", ImVec2(-1, 0)))
+        {
+            if (context.scene.destroyObject)
+                context.scene.destroyObject(context.selectedObject);
+        }
+
+        ImGui::PopStyleColor(3);
+
     }
     ImGui::End();
 

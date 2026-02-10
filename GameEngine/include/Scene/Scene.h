@@ -18,6 +18,10 @@ private:
     // Spatial grid for fast proximity queries
     std::unique_ptr<SpatialGrid> spatialGrid;
 
+    
+    std::vector<GameObject*> pendingDestroy;
+
+
 public:
     Scene(Physics& physics, Renderer& renderer);
     ~Scene();
@@ -76,6 +80,10 @@ public:
     void setSpatialGridEnabled(bool enabled);
     bool isSpatialGridEnabled() const { return spatialGrid != nullptr; }
     void printSpatialStats() const;
+
+    
+    void requestDestroy(GameObject* obj);
+
 
     // Clear all objects
     void clear();

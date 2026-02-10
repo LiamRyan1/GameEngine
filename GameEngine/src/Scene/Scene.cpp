@@ -256,6 +256,37 @@ void Scene::update(EngineMode mode) {
             spatialGrid->updateObject(obj.get());
         }
     }
+
+    // --- Process deferred destruction ---
+    if (!pendingDestroy.empty())
+    {
+        for (GameObject* obj : pendingDestroy)
+        {
+            // 1. Remove constraints
+            ConstraintRegistry::getInstance().removeConstraintsForObject(obj);
+
+            // 2. Remove from spatial grid
+            if (spatialGrid)
+                spatialGrid->removeObject(obj);
+
+            // 3. Remove physics body
+            if (obj->hasPhysics())
+                physicsWorld.removeRigidBody(obj->getRigidBody());
+
+            // 4. Remove from scene container
+            gameObjects.erase(
+                std::remove_if(gameObjects.begin(), gameObjects.end(),
+                    [obj](const std::unique_ptr<GameObject>& ptr)
+                    {
+                        return ptr.get() == obj;
+                    }),
+                gameObjects.end()
+            );
+        }
+
+        pendingDestroy.clear();
+    }
+
 }
 
 // Spatial Queries
@@ -368,6 +399,18 @@ void Scene::clear() {
     }
     gameObjects.clear();
 }
+
+void Scene::requestDestroy(GameObject* obj)
+{
+    if (!obj) return;
+
+    // Prevent double-queue
+    if (std::find(pendingDestroy.begin(), pendingDestroy.end(), obj) != pendingDestroy.end())
+        return;
+
+    pendingDestroy.push_back(obj);
+}
+
 
 
 GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
