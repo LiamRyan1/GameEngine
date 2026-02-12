@@ -38,6 +38,9 @@ public:
     void setDirection(const glm::vec3& dir);
     void setColor(const glm::vec3& col);
     void setIntensity(float inten);
+
+    // Get light space matrix for shadow mapping
+    glm::mat4 getLightSpaceMatrix(const glm::vec3& sceneCenter, float sceneRadius) const;
 };
 
 #endif

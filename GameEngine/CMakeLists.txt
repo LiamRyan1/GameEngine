@@ -39,6 +39,7 @@ target_sources(GameEngine PRIVATE
     src/Rendering/DirectionalLight.cpp
     src/Rendering/Cubemap.cpp
     src/Rendering/Skybox.cpp
+    src/Rendering/ShadowMap.cpp
     
     # Physics
     src/Physics/Physics.cpp

@@ -10,6 +10,7 @@
 #include "../include/Rendering/Texture.h"
 #include "../include/Rendering/DirectionalLight.h"
 #include "../include/Rendering/Skybox.h"
+#include "ShadowMap.h"
 #include <string>
 #include <memory>  // for std::unique_ptr
 #include <unordered_map>
@@ -18,6 +19,9 @@
 class Renderer {
 private:
     unsigned int shaderProgram;
+    unsigned int shadowShaderProgram; // shader for shadow pass
+    ShadowMap shadowMap;
+
     Mesh cubeMesh;
     Mesh sphereMesh;
     Mesh cylinderMesh;
@@ -34,11 +38,14 @@ private:
 
     std::string loadShaderSource(const std::string& filepath);
     void setupShaders();
+    void setupShadowShaders();
     unsigned int compileShader(unsigned int type, const char* source);
     void drawGameObject(const GameObject& obj, int modelLoc, int colorLoc);// draw a single game object
     void drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc);
     void drawDebugCollisionShape(const GameObject& obj, int modelLoc, int colorLoc);
-
+    void renderShadowPass( 
+        const Camera& camera,
+        const std::vector<std::unique_ptr<GameObject>>& objects);
 
 
 public:

@@ -9,11 +9,13 @@ layout (location = 2) in vec2 aTexCoord; // Texture Coordinate
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightSpaceMatrix; // Matrix to transform to light space for shadow mapping
 
 
 out vec3 FragPos;   // Position in world space
 out vec3 Normal;    // Normal in world space
 out vec2 TexCoord;   // Texture coordinates
+out vec4 FragPosLightSpace; // Position in light space for shadow mapping
 
 void main()
 {
@@ -23,6 +25,8 @@ void main()
     // Transform normal to world space (use normal matrix to preserve perpendicularity)
     Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoord = aTexCoord;
+    FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0); // Calculate position in light space for shadow mapping
+
     // Final position in clip space
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }

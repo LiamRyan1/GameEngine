@@ -11,10 +11,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
 
-Renderer::Renderer() : shaderProgram(0), skyboxEnabled(false), debugPhysicsEnabled(false) {
+Renderer::Renderer() : shaderProgram(0), shadowShaderProgram(0), shadowMap(4096, 4096), skyboxEnabled(false), debugPhysicsEnabled(false) {
     // Set a better default light direction
     mainLight.setDirection(glm::vec3(0.3f, -1.0f, 0.5f));
-    mainLight.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     mainLight.setIntensity(0.8f);  // Tone it down a bit
 }
 
@@ -23,6 +22,8 @@ Renderer::~Renderer() {
 
 void Renderer::initialize() {
     setupShaders();
+    setupShadowShaders();
+    shadowMap.initialize();
 
     // Create mesh using factory method
     cubeMesh = Mesh::createCube();
@@ -95,6 +96,84 @@ void Renderer::setupShaders() {
     // Delete shaders (no longer needed after linking)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+}
+
+void Renderer::setupShadowShaders() {
+    // Load shadow shader source
+    std::string shadowVertexSource = loadShaderSource("shaders/shadow_depth.vert");
+    std::string shadowFragmentSource = loadShaderSource("shaders/shadow_depth.frag");
+
+    if (shadowVertexSource.empty() || shadowFragmentSource.empty()) {
+        std::cerr << "ERROR::SHADOW_SHADER::FAILED_TO_LOAD" << std::endl;
+        return;
+    }
+
+    const char* shadowVertShader = shadowVertexSource.c_str();
+    const char* shadowFragShader = shadowFragmentSource.c_str();
+
+    // Compile shadow shaders
+    unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, shadowVertShader);
+    unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, shadowFragShader);
+
+    // Create shadow shader program
+    shadowShaderProgram = glCreateProgram();
+    glAttachShader(shadowShaderProgram, vertexShader);
+    glAttachShader(shadowShaderProgram, fragmentShader);
+    glLinkProgram(shadowShaderProgram);
+
+    // Check for linking errors
+    int success;
+    char infoLog[512];
+    glGetProgramiv(shadowShaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shadowShaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADOW_SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    std::cout << "Shadow shaders initialized" << std::endl;
+}
+
+void Renderer::renderShadowPass(
+    const Camera& camera,
+    const std::vector<std::unique_ptr<GameObject>>& objects)
+{
+    // Calculate light space matrix
+    glm::vec3 sceneCenter = glm::vec3(0.0f, 0.0f, 0.0f);  // Could be dynamic based on objects
+    float sceneRadius = 50.0f;  // Could be calculated from scene bounds
+    glm::mat4 lightSpaceMatrix = mainLight.getLightSpaceMatrix(sceneCenter, sceneRadius);
+
+    // Bind shadow map for writing
+    shadowMap.bindForWriting();
+
+    // Use shadow shader
+    glUseProgram(shadowShaderProgram);
+
+    int lightSpaceLoc = glGetUniformLocation(shadowShaderProgram, "lightSpaceMatrix");
+    int modelLoc = glGetUniformLocation(shadowShaderProgram, "model");
+
+    glUniformMatrix4fv(lightSpaceLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+    // Render all objects (only their depth)
+    for (const auto& obj : objects) {
+        glm::mat4 model = Transform::model(
+            obj->getPosition(),
+            obj->getRotation(),
+            obj->getScale()
+        );
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+        // Use the object's render mesh
+        Mesh* mesh = obj->getRender().getRenderMesh();
+        if (!mesh) mesh = &cubeMesh;
+
+        mesh->draw();
+    }
+
+    // Unbind shadow map
+    shadowMap.unbind();
 }
 
 unsigned int Renderer::compileShader(unsigned int type, const char* source) {
@@ -208,6 +287,10 @@ void Renderer::draw(int windowWidth,
     if (windowHeight == 0)
         return;
 
+    // SHADOW PASS - Render from light's perspective
+    renderShadowPass(camera, objects);
+
+    // MAIN PASS - Render scene normally
     glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -244,6 +327,19 @@ void Renderer::draw(int windowWidth,
     glUniform3fv(lightDirLoc, 1, &mainLight.getDirection()[0]);
     glUniform3fv(viewPosLoc, 1, &cameraPos[0]);
     glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
+
+    
+    // Calculate and pass light space matrix
+    glm::vec3 sceneCenter = glm::vec3(0.0f, 0.0f, 0.0f);
+    float sceneRadius = 50.0f;
+    glm::mat4 lightSpaceMatrix = mainLight.getLightSpaceMatrix(sceneCenter, sceneRadius);
+    int lightSpaceMatrixLoc = glGetUniformLocation(shaderProgram, "lightSpaceMatrix");
+    glUniformMatrix4fv(lightSpaceMatrixLoc, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+    // Bind shadow map texture to texture unit 1
+    shadowMap.bindForReading(1);
+    int shadowMapLoc = glGetUniformLocation(shaderProgram, "shadowMap");
+    glUniform1i(shadowMapLoc, 1);
 
 
     for (const auto& obj : objects)
@@ -359,6 +455,7 @@ void Renderer::cleanup() {
     std::cout << "Cleaning up renderer..." << std::endl;
     cubeMesh.cleanup();
     skybox.cleanup();
+    shadowMap.cleanup();
 
     for (auto& pair : textureCache) {
         pair.second.cleanup();
@@ -367,5 +464,6 @@ void Renderer::cleanup() {
     std::cout << "Cleaned up " << textureCache.size() << " textures" << std::endl;
 
     glDeleteProgram(shaderProgram);
+    glDeleteProgram(shadowShaderProgram);
     std::cout << "Renderer cleaned up" << std::endl;
 }
