@@ -1,7 +1,7 @@
 ﻿#include "../include/Input/Input.h"
 #include "../include/Input/CameraController.h"
-#include "imgui_impl_glfw.h"
-#include "imgui.h"
+#include "../external/imgui/backends/imgui_impl_glfw.h"
+#include "../external/imgui/core/imgui.h"
 
 
 // keysDown[key]     → true while key is being held

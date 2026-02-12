@@ -3,7 +3,7 @@
 #include "../include/Physics/Constraint.h"
 #include "../include/Physics/ConstraintRegistry.h"
 #include <glm/gtc/constants.hpp>
-#include "imgui.h"
+#include "../External/imgui/core/imgui.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -691,7 +691,34 @@ static void DrawConstraintInspector(const DebugUIContext& context) {
 
 void DebugUI::draw(const DebugUIContext& context)
 {
+    // ============================
+    // CREATE DOCKSPACE FIRST
+    // ============================
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
 
+    ImGuiWindowFlags dockspace_flags = ImGuiWindowFlags_NoDocking;
+    dockspace_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+    dockspace_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    dockspace_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::Begin("DockSpace", nullptr, dockspace_flags);
+    ImGui::PopStyleVar(3);
+    ImGui::PopStyleColor();
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+    ImGui::End();
+
+
+   
     // Stats Panel
 
     // Displays read-only performance and physics information.

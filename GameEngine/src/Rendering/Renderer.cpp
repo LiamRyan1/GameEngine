@@ -14,6 +14,7 @@
 Renderer::Renderer() : shaderProgram(0), skyboxEnabled(false), debugPhysicsEnabled(false) {
     // Set a better default light direction
     mainLight.setDirection(glm::vec3(0.3f, -1.0f, 0.5f));
+    mainLight.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     mainLight.setIntensity(0.8f);  // Tone it down a bit
 }
 

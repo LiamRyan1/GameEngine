@@ -1,7 +1,7 @@
 #include "../include/Editor/Gizmo.h"
 
 #include <GLFW/glfw3.h>
-#include "imgui.h"
+#include "../External/imgui/core/imgui.h"
 
 #include "../include/Rendering/Camera.h"
 #include "../include/Scene/GameObject.h"
@@ -395,7 +395,7 @@ void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, GameObject* selec
     bool okZ = worldToScreen(originW + glm::vec3(0, 0, 1) * axisLenWorld, view, proj, fbW, fbH, zEndS);
 
     // Draw on top of everything
-    ImDrawList* dl = ImGui::GetForegroundDrawList();
+    ImDrawList* dl = ImGui::GetForegroundDrawList(ImGui::GetMainViewport());
 
     // Choose colors per axis:
     // X = red, Y = green, Z = blue

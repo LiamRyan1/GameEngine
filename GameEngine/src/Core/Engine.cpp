@@ -14,9 +14,9 @@
 #include "../include/Scene/Scene.h"
 #include "../include/Debug/DebugUI.h"
 #include "../include/Debug/DebugUIContext.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "../External/imgui/core/imgui.h"
+#include "../External/imgui/backends/imgui_impl_glfw.h"
+#include "../External/imgui/backends/imgui_impl_opengl3.h"
 #include "../include/UI/Raycast.h"
 #include "../include/Physics/PhysicsMaterial.h"
 #include "../include/Editor/Gizmo.h"
@@ -94,6 +94,7 @@ int Start(void)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init("#version 330");
@@ -352,8 +353,7 @@ int Start(void)
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
-		//Update camera controller
-        cameraController.update(deltaTime);
+		
         // --- Window
         glfwGetFramebufferSize(window, &fbW, &fbH);
 
@@ -366,11 +366,17 @@ int Start(void)
 
         // ImGui tells us if the UI wants mouse input this frame
         // (hovering, dragging sliders, clicking windows, etc.)
-        bool uiWantsMouse = ImGui::GetIO().WantCaptureMouse;
+       // Check if mouse is over any ACTUAL panel (not the invisible dockspace)
+        bool uiWantsMouse =
+            ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) ||
+            ImGui::IsAnyItemHovered() ||
+            ImGui::IsAnyItemActive();
 
         GameObject* primarySelection =
             selectedObjects.empty() ? nullptr : selectedObjects.front();
 
+        //Update camera controller
+        cameraController.update(deltaTime);
 
         bool gizmoCapturingMouse = gizmo.update(
             window, fbW, fbH,

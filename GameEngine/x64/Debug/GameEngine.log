@@ -1,17 +1,26 @@
-﻿  Gizmo.cpp
+﻿  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\external\imgui\backends\imgui_impl_glfw.cpp(111,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
+C:\Users\radek\source\repos\GameEngine\GameEngine\external\imgui\backends\imgui_impl_opengl3.cpp(126,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
+  imgui_draw.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  Gizmo.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Editor\Gizmo.cpp(4,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
   Constraint.cpp
   Constraintpreset.cpp
   Constraintregistry.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Physics/Constraintregistry.cpp')
   
   PhysicsMaterial.cpp
   PhysicsQuery.cpp
   SpatialGrid.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Physics/SpatialGrid.cpp')
   
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Physics/SpatialGrid.cpp')
   
   Camera.cpp
@@ -20,59 +29,53 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55
   Skybox.cpp
   PhysicsComponent.cpp
   DebugUI.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/UI/DebugUI.cpp')
   
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\UI\DebugUI.cpp(6,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
   GameObject.cpp
-  GameTime.cpp
-  Input.cpp
-  Main.cpp
-  Engine.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Core/Engine.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Core/Engine.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Core/Engine.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(281,32): warning C4305: 'argument': truncation from 'const double' to 'float'
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(594,102): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(595,102): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(596,104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(597,104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Core\Engine.cpp(598,108): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Mesh.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(232,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(286,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(287,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(514,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(519,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(581,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(633,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(670,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  Physics.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/Physics/Physics.cpp')
-  
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Physics.cpp(51,44): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
   Generating Code...
   Compiling...
+  GameTime.cpp
+  Input.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Input\Input.cpp(3,10): error C1083: Cannot open include file: 'imgui_impl_glfw.h': No such file or directory
+  Main.cpp
+  Engine.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Core/Engine.cpp')
+  
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Core/Engine.cpp')
+  
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Core\Engine.cpp(17,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
+  Mesh.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(232,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(286,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(287,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(514,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(519,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(581,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(633,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Rendering\Mesh.cpp(670,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Physics.cpp
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/Physics.cpp')
+  
+C:\Users\radek\source\repos\GameEngine\GameEngine\src\Physics\Physics.cpp(51,45): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
   Renderer.cpp
   CameraController.cpp
   Scene.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')
   
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')
   
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\radek\source\repos\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')
   
+  Stb_image.cpp
   Texture.cpp
   Transform.cpp
   Raycast.cpp
   Generating Code...
-models\spyro.obj : fatal error LNK1107: invalid or corrupt file: cannot read at 0x86F14

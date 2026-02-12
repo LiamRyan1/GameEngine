@@ -111,6 +111,8 @@ target_include_directories(GameEngine PRIVATE
     ${BULLET_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/external/imgui
     ${CMAKE_SOURCE_DIR}/external/tinyobjloader
+    ${CMAKE_SOURCE_DIR}/external/imgui/core
+    ${CMAKE_SOURCE_DIR}/external/imgui/backends
 )
 
 

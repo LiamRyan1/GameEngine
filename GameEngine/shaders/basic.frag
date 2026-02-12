@@ -36,7 +36,7 @@ void main()
     }
     
     // Ambient lighting (base light level)
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.01;
     vec3 ambient = ambientStrength * lightColor;
     
     // Diffuse lighting (angle between normal and light)

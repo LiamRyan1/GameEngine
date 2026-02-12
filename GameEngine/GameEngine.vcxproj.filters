@@ -78,6 +78,10 @@
     <ClInclude Include="include\Debug\ConstraintDebugView.h" />
     <ClInclude Include="include\Debug\ConstraintDebugCommands.h" />
     <ClInclude Include="include\Physics\PhysicsQuery.h" />
+    <ClInclude Include="external\imgui\core\imstb_truetype.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="external\imgui\core\imstb_rectpack.h" />
+    <ClInclude Include="external\imgui\core\imstb_textedit.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
