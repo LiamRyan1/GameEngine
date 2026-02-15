@@ -657,6 +657,24 @@ static void DrawUnifiedInspector(const DebugUIContext& context) {
                 );
             }
         }
+
+        // Physics hitbox scale control
+        if (context.selectedObject->hasPhysics()) {
+            glm::vec3 physScale = context.selectedObject->getPhysicsScale();
+            float physScaleArr[3] = { physScale.x, physScale.y, physScale.z };
+
+            if (ImGui::DragFloat3("Hit Box Scale", physScaleArr, 0.05f, 0.1f, 2.0f)) {
+                if (context.scene.setObjectPhysicsScale) {
+                    context.scene.setObjectPhysicsScale(
+                        context.selectedObject,
+                        glm::vec3(physScaleArr[0], physScaleArr[1], physScaleArr[2])
+                    );
+                }
+            }
+
+            ImGui::TextDisabled("Collision box scale multiplier");
+        }
+
     }
 
     // constraint section
@@ -1079,7 +1097,11 @@ void DebugUI::draw(const DebugUIContext& context)
 
     static float modelPos[3] = { 0.0f, 2.0f, 0.0f };
     static float modelScale[3] = { 1.0f, 1.0f, 1.0f };
-
+	//physics parameters for spawned model
+    static bool enablePhysicsForModel = false;
+    static float modelMass = 1.0f;
+    static float physicsBoxScale[3] = { 0.9f, 0.9f, 0.9f };  // Slightly smaller than model
+    static int selectedModelMaterialIndex = 0;
     ImGui::Text("Load .obj Model");
     ImGui::Separator();
 
@@ -1100,15 +1122,44 @@ void DebugUI::draw(const DebugUIContext& context)
     ImGui::InputFloat3("Scale", modelScale);
 
     ImGui::Separator();
+    ImGui::SeparatorText("Physics (Optional)");
+    ImGui::Checkbox("Enable Physics", &enablePhysicsForModel);
 
+    if (enablePhysicsForModel) {
+        ImGui::InputFloat("Mass (0 = static)", &modelMass);
+        if (modelMass < 0.0f) modelMass = 0.0f;
+
+        ImGui::TextWrapped("Collision box will be calculated from model bounds");
+        ImGui::SliderFloat3("Box Scale Factor", physicsBoxScale, 0.5f, 1.5f);
+        ImGui::TextDisabled("1.0 = exact fit, <1.0 = smaller, >1.0 = larger");
+
+        // Material selection
+        if (!context.physics.availableMaterials.empty()) {
+            std::vector<const char*> materialNames;
+            for (const auto& mat : context.physics.availableMaterials) {
+                materialNames.push_back(mat.c_str());
+            }
+            ImGui::Combo("Material", &selectedModelMaterialIndex, materialNames.data(), static_cast<int>(materialNames.size()));
+        }
+    }
+
+    ImGui::Separator();
     if (ImGui::Button("Load & Spawn Model", ImVec2(-1, 0))) {
         if (context.scene.loadAndSpawnModel && selectedModelIndex >= 0 && selectedModelIndex < availableModels.size()) {
+            std::string materialName = "Default";
+            if (enablePhysicsForModel && selectedModelMaterialIndex >= 0 &&
+                selectedModelMaterialIndex < context.physics.availableMaterials.size()) {
+                materialName = context.physics.availableMaterials[selectedModelMaterialIndex];
+            }
             GameObject* obj = context.scene.loadAndSpawnModel(
                 availableModels[selectedModelIndex],
                 glm::vec3(modelPos[0], modelPos[1], modelPos[2]),
-                glm::vec3(modelScale[0], modelScale[1], modelScale[2])
+                glm::vec3(modelScale[0], modelScale[1], modelScale[2]),
+                enablePhysicsForModel,
+                modelMass,
+                glm::vec3(physicsBoxScale[0], physicsBoxScale[1], physicsBoxScale[2]),
+                materialName
             );
-
             if (obj) {
                 std::cout << "Model loaded successfully!" << std::endl;
             }

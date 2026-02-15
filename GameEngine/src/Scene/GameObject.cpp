@@ -24,7 +24,8 @@ uint64_t GameObject::nextID = 1;
 GameObject::GameObject(ShapeType type, btRigidBody* body, const glm::vec3& scale,
                        const std::string& materialName, const std::string& texturePath)
      : transform(glm::vec3(0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), scale),
-      render(type, texturePath)
+      render(type, texturePath),
+      physicsScale(glm::vec3(1.0f, 1.0f, 1.0f))
      {
 
         id = nextID++;
@@ -46,7 +47,8 @@ GameObject::GameObject(ShapeType type, const glm::vec3& position,
     const glm::vec3& scale, const std::string& texturePath)
     : transform(position, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), scale),
     render(type, texturePath),
-    physics(nullptr)
+    physics(nullptr),
+    physicsScale(glm::vec3(1.0f, 1.0f, 1.0f))
 {
     id = nextID++;
 
@@ -115,7 +117,11 @@ void GameObject::setPosition(const glm::vec3& newPos)
     }
     
 }
-
+void GameObject::setPhysicsScale(const glm::vec3& scale) {
+    physicsScale = scale;
+    // Actual physics body resizing happens in Scene::setObjectPhysicsScale This just stores the value
+  
+}
 //This only updates visual scale
 // Physics collision shape is not resized.
 // Use Scene::setObjectScale() instead to properly update physics.

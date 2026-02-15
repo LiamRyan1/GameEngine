@@ -4,7 +4,8 @@
 #include "../include/Physics/ConstraintRegistry.h"
 #include <unordered_map> 
 #include <iostream>
-
+#include <algorithm>  // std::min, std::max
+#include <cfloat>  // for FLT_MAX
 
 /**
  * @brief Constructs a new Scene with a reference to the physics world.
@@ -187,11 +188,13 @@ void Scene::setObjectScale(GameObject* obj, const glm::vec3& newScale) {
             << " attached constraint(s) which will break during resize!" << std::endl;
     }
 
+    glm::vec3 physicsScale = obj->getPhysicsScale();
+    glm::vec3 collisionSize = newScale * physicsScale;
     // Resize the rigid body
     btRigidBody* newBody = physicsWorld.resizeRigidBody(
         oldBody,
         obj->getShapeType(),
-        newScale,
+        collisionSize,
         mass,
         obj->getMaterialName()
     );
@@ -415,7 +418,11 @@ void Scene::requestDestroy(GameObject* obj)
 
 GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
     const glm::vec3& position,
-    const glm::vec3& scale)
+    const glm::vec3& meshScale, 
+    bool enablePhysics,
+    float mass,
+    const glm::vec3& physicsBoxScale,
+    const std::string& materialName)
 {
     // Load mesh from file
     Mesh loadedMesh = Mesh::loadFromFile(filepath);
@@ -428,22 +435,149 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
 
     std::cout << "Successfully loaded model: " << filepath << std::endl;
 
-    // Create render-only object (no physics for now)
-    auto obj = std::make_unique<GameObject>(ShapeType::CUBE, position, scale, "");
-
-    // Store the loaded mesh in the renderer's cache so it persists
-    // For now, we'll use a static map to keep loaded meshes alive
+    // Store mesh in static cache
     static std::unordered_map<std::string, Mesh> loadedMeshes;
     loadedMeshes[filepath] = std::move(loadedMesh);
+    Mesh* meshPtr = &loadedMeshes[filepath];
 
-    // Set the custom mesh
-    obj->getRender().setRenderMesh(&loadedMeshes[filepath]);
+    GameObject* obj = nullptr;
+ 
+    if (enablePhysics) {
 
-    GameObject* ptr = obj.get();
-    gameObjects.push_back(std::move(obj));
+        // Calculate bounding box from mesh vertices
+        const std::vector<float>& verts = meshPtr->getVertices();
+        const size_t FLOATS_PER_VERTEX = 6;
+        glm::vec3 minBounds(FLT_MAX);
+        glm::vec3 maxBounds(-FLT_MAX);
 
-    std::cout << "Spawned model at (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+        // Iterate through vertices (skip normals, only read positions)
+        for (size_t i = 0; i < verts.size(); i += FLOATS_PER_VERTEX) {
+            glm::vec3 pos(verts[i], verts[i + 1], verts[i + 2]);
 
-    return ptr;
+            minBounds.x = std::min(minBounds.x, pos.x);
+            minBounds.y = std::min(minBounds.y, pos.y);
+            minBounds.z = std::min(minBounds.z, pos.z);
+
+            maxBounds.x = std::max(maxBounds.x, pos.x);
+            maxBounds.y = std::max(maxBounds.y, pos.y);
+            maxBounds.z = std::max(maxBounds.z, pos.z);
+        }
+
+        std::cout << "Model bounds: min(" << minBounds.x << "," << minBounds.y << "," << minBounds.z
+            << ") max(" << maxBounds.x << "," << maxBounds.y << "," << maxBounds.z << ")" << std::endl;
+
+        // Calculate collision box size and center offset
+        glm::vec3 boundingBoxSize = (maxBounds - minBounds) * physicsBoxScale;
+        glm::vec3 halfExtents = boundingBoxSize * 0.5f;
+
+        // Calculate where the center of the bounding box is relative to model origin
+        glm::vec3 boundingBoxCenter = (minBounds + maxBounds) * 0.5f * meshScale;
+
+        // Adjust spawn position to account for model's offset
+        glm::vec3 adjustedPosition = position + boundingBoxCenter;
+
+        std::cout << "Creating physics box: " << halfExtents.x << ", "
+            << halfExtents.y << ", " << halfExtents.z << std::endl;
+        std::cout << "Bounding box center offset: " << boundingBoxCenter.x << ", "
+            << boundingBoxCenter.y << ", " << boundingBoxCenter.z << std::endl;
+
+        // Create rigid body at adjusted position
+        btRigidBody* body = physicsWorld.createRigidBody(
+            ShapeType::CUBE,
+            adjustedPosition,  // Use adjusted position
+            halfExtents,
+            mass,
+            materialName
+        );
+
+        // Create GameObject with physics
+        auto objUnique = std::make_unique<GameObject>(
+            ShapeType::CUBE, body, halfExtents, materialName, ""
+        );
+
+        // Store physicsBoxScale
+        objUnique->setPhysicsScale(physicsBoxScale);
+
+        body->setUserPointer(objUnique.get());
+        objUnique->getRender().setRenderMesh(meshPtr);
+        objUnique->setPosition(adjustedPosition);  // Use adjusted position
+        objUnique->setScale(meshScale);
+
+        obj = objUnique.get();
+        gameObjects.push_back(std::move(objUnique));
+
+        if (spatialGrid) {
+            spatialGrid->insertObject(obj);
+        }
+
+        std::cout << "Spawned model with physics at (" << adjustedPosition.x << ", "
+            << adjustedPosition.y << ", " << adjustedPosition.z << ")" << std::endl;
+    }
+    else {
+        // Create render-only object
+        auto objUnique = std::make_unique<GameObject>(
+            ShapeType::CUBE, position, meshScale, ""
+        );
+
+        objUnique->getRender().setRenderMesh(meshPtr);
+
+        obj = objUnique.get();
+        gameObjects.push_back(std::move(objUnique));
+
+        std::cout << "Spawned render-only model at (" << position.x << ", "
+            << position.y << ", " << position.z << ")" << std::endl;
+    }
+    return obj;
+}
+
+void Scene::setObjectPhysicsScale(GameObject* obj, const glm::vec3& newPhysicsScale) {
+    if (!obj || !obj->hasPhysics()) {
+        std::cerr << "Error: Cannot set physics scale on object without physics" << std::endl;
+        return;
+    }
+
+    std::cout << "Resizing physics collision shape..." << std::endl;
+
+    btRigidBody* oldBody = obj->getRigidBody();
+    if (!oldBody) {
+        std::cerr << "Error: No rigid body found!" << std::endl;
+        return;
+    }
+
+    // Get current properties
+    float mass = 1.0f / oldBody->getInvMass();
+    if (oldBody->getInvMass() == 0.0f) {
+        mass = 0.0f;  // Static object
+    }
+
+    // Get base collision shape size (from original scale, not current physics scale)
+    glm::vec3 baseScale = obj->getScale();
+
+    // Calculate new collision shape size
+    glm::vec3 newCollisionSize = baseScale * newPhysicsScale;
+
+    // Resize the rigid body
+    btRigidBody* newBody = physicsWorld.resizeRigidBody(
+        oldBody,
+        obj->getShapeType(),
+        newCollisionSize,
+        mass,
+        obj->getMaterialName()
+    );
+
+    if (newBody) {
+        newBody->setUserPointer(obj);
+        obj->getPhysics()->setRigidBody(newBody);
+        obj->setPhysicsScale(newPhysicsScale);
+
+        if (spatialGrid) {
+            spatialGrid->updateObject(obj);
+        }
+
+        std::cout << "Physics scale updated successfully" << std::endl;
+    }
+    else {
+        std::cerr << "Error: Failed to resize rigid body!" << std::endl;
+    }
 }
 

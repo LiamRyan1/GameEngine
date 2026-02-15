@@ -25,7 +25,8 @@
  */
 class GameObject {
 private:
-
+	// scale for physics collision shape - separate from visual scale to allow for non-uniform scaling without affecting physics
+    glm::vec3 physicsScale;
     static uint64_t nextID;
     uint64_t id;
 
@@ -91,7 +92,8 @@ public:
     bool hasPhysics() const { return physics != nullptr; }
     bool isRenderOnly() const { return !hasPhysics(); }
 
-
+    glm::vec3 getPhysicsScale() const { return physicsScale; }
+    void setPhysicsScale(const glm::vec3& scale);
 
     // Transform shortcuts
     glm::vec3 getPosition() const { return transform.getPosition(); }

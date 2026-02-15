@@ -33,8 +33,14 @@ struct SceneDebugCommands
     // Load model from file and spawn it in the scene
     std::function<GameObject* (const std::string& filepath,
         const glm::vec3& position,
-        const glm::vec3& scale)> loadAndSpawnModel;
-
+        const glm::vec3& meshScale,
+        bool enablePhysics,
+        float mass,
+        const glm::vec3& physicsBoxScale,
+        const std::string& materialName
+    )> loadAndSpawnModel;
+    //
+    std::function<void(GameObject*, const glm::vec3&)> setObjectPhysicsScale;
 	// Set object scale (handles both render and physics resizing)
     std::function<void(GameObject*, const glm::vec3&)> setObjectScale;
 

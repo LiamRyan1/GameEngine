@@ -620,8 +620,16 @@ int Start(void)
 
         // Model loading command
         uiContext.scene.loadAndSpawnModel =
-            [&scene](const std::string& filepath, const glm::vec3& pos, const glm::vec3& scale) -> GameObject* {
-            return scene.loadAndSpawnModel(filepath, pos, scale);
+            [&scene](const std::string& filepath, const glm::vec3& pos, const glm::vec3& meshScale,
+                bool enablePhysics,
+                float mass,
+                const glm::vec3& physicsBoxScale,
+                const std::string& materialName) -> GameObject* {
+            return scene.loadAndSpawnModel(filepath, pos, meshScale, enablePhysics, mass, physicsBoxScale, materialName);
+            };
+
+        uiContext.scene.setObjectPhysicsScale = [&scene](GameObject* obj, const glm::vec3& scale) {
+            scene.setObjectPhysicsScale(obj, scale);
             };
         // ===== Constraint System Commands =====
         auto& registry = ConstraintRegistry::getInstance();

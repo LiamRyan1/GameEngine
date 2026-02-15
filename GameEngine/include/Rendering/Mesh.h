@@ -81,7 +81,7 @@ public:
      * @return true if loaded successfully
      */
       static Mesh loadFromFile(const std::string& filepath);
-
+      const std::vector<float>& getVertices() const { return vertices; }
       size_t getVertexCount() const { return vertices.size() / FLOATS_PER_VERTEX; }
 };
 

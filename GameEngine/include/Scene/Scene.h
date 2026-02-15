@@ -48,6 +48,7 @@ public:
     );
 
     void setObjectScale(GameObject* obj, const glm::vec3& newScale);
+    void setObjectPhysicsScale(GameObject* obj, const glm::vec3& newPhysicsScale);
     // Update all objects from physics simulation
     void update(EngineMode mode);
 
@@ -92,13 +93,23 @@ public:
      * @brief Load .obj model and spawn it in the scene
      * @param filepath Path to .obj file
      * @param position Spawn position
-     * @param scale Object scale
+     * @param meshSscale  Visual mesh  scale
+     * @param enablePhysics Whether to add physics
+     * @param mass Mass for rigid body (0 = static)
+     * @param physicsBoxScale Scale factor for collision box (0.9 = 90% of model size)
+     * @param materialName Physics material name
      * @return Pointer to spawned GameObject
      */
     GameObject* loadAndSpawnModel(const std::string& filepath,
         const glm::vec3& position,
-        const glm::vec3& scale);
+        const glm::vec3& meshScale,
+        bool enablePhysics,
+        float mass,
+        const glm::vec3& physicsBoxScale,
+        const std::string& materialName
+    );
 
+   
 
 };
 
