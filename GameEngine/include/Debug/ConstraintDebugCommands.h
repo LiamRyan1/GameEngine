@@ -34,23 +34,6 @@ struct ConstraintDebugCommands
     std::function<Constraint* (GameObject* objA, GameObject* objB,
         const Generic6DofParams& params)> createGeneric6Dof;
 
-    // ===== Preset Commands =====
-
-    std::function<Constraint* (GameObject* door, GameObject* frame,
-        const glm::vec3& hingeWorldPos)> createDoorHinge;
-
-    std::function<Constraint* (GameObject* drawer, GameObject* cabinet,
-        float slideDistance)> createDrawer;
-
-    std::function<Constraint* (GameObject* wheel, GameObject* chassis,
-        float stiffness, float damping)> createSuspension;
-
-    std::function<Constraint* (GameObject* segmentA, GameObject* segmentB,
-        float stiffness)> createRopeSegment;
-
-    std::function<Constraint* (GameObject* bob, GameObject* pivot,
-        const glm::vec3& pivotWorldPos)> createPendulum;
-
     // ===== Management Commands =====
 
     std::function<void(Constraint* constraint)> removeConstraint;

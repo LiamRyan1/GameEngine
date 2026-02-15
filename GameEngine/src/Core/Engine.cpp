@@ -22,7 +22,7 @@
 #include "../include/Editor/Gizmo.h"
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Physics/ConstraintPreset.h"
-
+#include "../include/Physics/ConstraintTemplate.h"
 
 void simulate(double dt)
 {
@@ -136,6 +136,11 @@ int Start(void)
     physics.initialize();
     ConstraintRegistry::getInstance().initialize(physics.getWorld());
     std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
+    // Initialize constraint templates
+    ConstraintTemplateRegistry::getInstance().load();
+    ConstraintTemplateRegistry::getInstance().initializeDefaults();
+    std::cout << "Loaded " << ConstraintTemplateRegistry::getInstance().getTemplateCount()
+        << " constraint templates" << std::endl;
 
     // Create scene manager
     Scene scene(physics, renderer);
@@ -689,38 +694,6 @@ int Start(void)
             return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
             };
 
-        // === Preset Commands ===
-
-        uiContext.constraintCommands.createDoorHinge =
-            [&registry](GameObject* door, GameObject* frame, const glm::vec3& hingeWorldPos) -> Constraint* {
-            auto constraint = ConstraintPreset::createDoorHinge(door, frame, hingeWorldPos);
-            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
-            };
-
-        uiContext.constraintCommands.createDrawer =
-            [&registry](GameObject* drawer, GameObject* cabinet, float slideDistance) -> Constraint* {
-            auto constraint = ConstraintPreset::createDrawer(drawer, cabinet, slideDistance);
-            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
-            };
-
-        uiContext.constraintCommands.createSuspension =
-            [&registry](GameObject* wheel, GameObject* chassis, float stiffness, float damping) -> Constraint* {
-            auto constraint = ConstraintPreset::createSuspension(wheel, chassis, stiffness, damping);
-            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
-            };
-
-        uiContext.constraintCommands.createRopeSegment =
-            [&registry](GameObject* segmentA, GameObject* segmentB, float stiffness) -> Constraint* {
-            auto constraint = ConstraintPreset::createRopeSegment(segmentA, segmentB, stiffness);
-            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
-            };
-
-        uiContext.constraintCommands.createPendulum =
-            [&registry](GameObject* bob, GameObject* pivot, const glm::vec3& pivotWorldPos) -> Constraint* {
-            auto constraint = ConstraintPreset::createPendulum(bob, pivot, pivotWorldPos);
-            return constraint ? registry.addConstraint(std::move(constraint)) : nullptr;
-            };
-
         // === Management Commands ===
 
         uiContext.constraintCommands.removeConstraint =
@@ -778,6 +751,7 @@ int Start(void)
     std::cout << "Exiting..." << std::endl;
 
     // ImGui shutdown
+    ConstraintTemplateRegistry::getInstance().save();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

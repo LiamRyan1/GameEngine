@@ -2,6 +2,7 @@
 #include "../include/Rendering/DirectionalLight.h"
 #include "../include/Physics/Constraint.h"
 #include "../include/Physics/ConstraintRegistry.h"
+#include "../include/Physics/ConstraintTemplate.h"
 #include <glm/gtc/constants.hpp>
 #include "../External/imgui/core/imgui.h"
 #include <vector>
@@ -65,626 +66,691 @@ static void DrawConstraintCreator(const DebugUIContext& context) {
     // State for object selection
     static GameObject* objectA = nullptr;
     static GameObject* objectB = nullptr;
-    static int constraintTypeIndex = 0;
+    static int createConstraintTypeIndex = 0;
     static char constraintName[64] = "";
+    // template selection 
+    static char templateName[64] = "";
+    static char templateDesc[256] = "";
 
-    ImGui::SeparatorText("Object Selection");
+    // tabs for create vs templates
+    if (ImGui::BeginTabBar("CreatorTabs")) {
 
-    // Display selected objects
-    if (objectA) {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object A: Selected");
-        if (ImGui::Button("Clear Object A")) {
-            objectA = nullptr;
-        }
-    }
-    else {
-        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object A: None");
-    }
+        // create new constraint tab
+        if (ImGui::BeginTabItem("Create")) {
+            ImGui::SeparatorText("Object Selection");
 
-    if (objectB) {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object B: Selected");
-        if (ImGui::Button("Clear Object B")) {
-            objectB = nullptr;
-        }
-    }
-    else {
-        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object B: None (Optional)");
-    }
-
-    ImGui::Separator();
-
-    // Quick select from inspector
-    if (context.selectedObject && context.selectedObject->hasPhysics()) {
-        if (ImGui::Button("Set Selected as Object A")) {
-            objectA = context.selectedObject;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Set Selected as Object B")) {
-            objectB = context.selectedObject;
-        }
-    }
-    else {
-        ImGui::TextDisabled("Select a physics object in the scene");
-    }
-
-    ImGui::SeparatorText("Constraint Type");
-
-    const char* types[] = {
-        "Fixed Joint",
-        "Hinge (Door/Wheel)",
-        "Slider (Drawer)",
-        "Spring (Suspension)",
-        "Generic 6DOF"
-    };
-    ImGui::Combo("Type", &constraintTypeIndex, types, IM_ARRAYSIZE(types));
-
-    // Optional name
-    ImGui::InputText("Name (Optional)", constraintName, IM_ARRAYSIZE(constraintName));
-
-    ImGui::SeparatorText("Parameters");
-
-    // Type-specific parameters
-    static float hingeAxis[3] = { 0.0f, 1.0f, 0.0f };
-    static float hingePivot[3] = { 0.0f, 0.0f, 0.0f };
-    static bool useHingeLimits = false;
-    static float hingeLowerLimit = 0.0f;
-    static float hingeUpperLimit = 90.0f;
-    static bool useHingeMotor = false;
-    static float hingeMotorVelocity = 1.0f;
-    static float hingeMotorForce = 10.0f;
-
-    static float sliderDistance = 2.0f;
-    static bool useSliderMotor = false;
-    static float sliderMotorVelocity = 1.0f;
-    static float sliderMotorForce = 10.0f;
-
-    static float springStiffness = 100.0f;
-    static float springDamping = 10.0f;
-    static bool springAxisEnabled[6] = { false, true, false, false, false, false }; // Y axis by default
-
-    static bool breakable = false;
-    static float breakForce = 1000.0f;
-    static float breakTorque = 1000.0f;
-
-    switch (constraintTypeIndex) {
-    case 0: // Fixed
-        ImGui::TextWrapped("Fixed joints lock two objects together rigidly. No parameters needed.");
-        break;
-
-    case 1: // Hinge
-        ImGui::InputFloat3("Hinge Axis", hingeAxis);
-        ImGui::InputFloat3("Pivot Point", hingePivot);
-
-        ImGui::Checkbox("Use Limits", &useHingeLimits);
-        if (useHingeLimits) {
-            ImGui::SliderFloat("Lower Limit (deg)", &hingeLowerLimit, -180.0f, 180.0f);
-            ImGui::SliderFloat("Upper Limit (deg)", &hingeUpperLimit, -180.0f, 180.0f);
-        }
-
-        ImGui::Checkbox("Use Motor", &useHingeMotor);
-        if (useHingeMotor) {
-            ImGui::SliderFloat("Motor Velocity", &hingeMotorVelocity, -10.0f, 10.0f);
-            ImGui::SliderFloat("Motor Force", &hingeMotorForce, 0.0f, 100.0f);
-        }
-        break;
-
-    case 2: // Slider
-        ImGui::SliderFloat("Slide Distance", &sliderDistance, 0.1f, 10.0f);
-
-        ImGui::Checkbox("Use Motor", &useSliderMotor);
-        if (useSliderMotor) {
-            ImGui::SliderFloat("Motor Velocity", &sliderMotorVelocity, -10.0f, 10.0f);
-            ImGui::SliderFloat("Motor Force", &sliderMotorForce, 0.0f, 100.0f);
-        }
-        break;
-
-    case 3: // Spring
-        ImGui::SliderFloat("Stiffness", &springStiffness, 1.0f, 1000.0f);
-        ImGui::SliderFloat("Damping", &springDamping, 0.1f, 100.0f);
-
-        ImGui::Text("Active Axes:");
-        ImGui::Checkbox("X", &springAxisEnabled[0]); ImGui::SameLine();
-        ImGui::Checkbox("Y", &springAxisEnabled[1]); ImGui::SameLine();
-        ImGui::Checkbox("Z", &springAxisEnabled[2]);
-        break;
-
-    case 4: // Generic 6DOF
-        ImGui::TextWrapped("Advanced constraint with full control over all 6 degrees of freedom.");
-        break;
-    }
-
-    ImGui::SeparatorText("Breaking");
-    ImGui::Checkbox("Breakable", &breakable);
-    if (breakable) {
-        ImGui::SliderFloat("Break Force", &breakForce, 10.0f, 10000.0f);
-        ImGui::SliderFloat("Break Torque", &breakTorque, 10.0f, 10000.0f);
-    }
-
-    ImGui::Separator();
-
-    // Create button
-    bool canCreate = objectA != nullptr && objectA->hasPhysics();
-    if (!canCreate) {
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Need at least Object A with physics!");
-    }
-
-    ImGui::BeginDisabled(!canCreate);
-    if (ImGui::Button("Create Constraint", ImVec2(-1, 0))) {
-        Constraint* newConstraint = nullptr;
-
-        switch (constraintTypeIndex) {
-        case 0: // Fixed
-            if (context.constraintCommands.createFixed) {
-                newConstraint = context.constraintCommands.createFixed(objectA, objectB);
+            // Display selected objects
+            if (objectA) {
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object A: Selected");
+                if (ImGui::Button("Clear Object A##CreateClearA")) {
+                    objectA = nullptr;
+                }
             }
-            break;
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object A: None");
+            }
 
-        case 1: { // Hinge
-            if (context.constraintCommands.createHingeAdvanced) {
-                HingeParams params;
-                params.pivotA = glm::vec3(hingePivot[0], hingePivot[1], hingePivot[2]);
-                params.axisA = glm::normalize(glm::vec3(hingeAxis[0], hingeAxis[1], hingeAxis[2]));
+            if (objectB) {
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object B: Selected");
+                if (ImGui::Button("Clear Object B##CreateClearB")) {
+                    objectB = nullptr;
+                }
+            }
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object B: None (Optional)");
+            }
 
-                if (objectB) {
-                    params.pivotB = glm::vec3(hingePivot[0], hingePivot[1], hingePivot[2]);
-                    params.axisB = params.axisA;
+            ImGui::Separator();
+
+            // Quick select from inspector
+            if (context.selectedObject && context.selectedObject->hasPhysics()) {
+                if (ImGui::Button("Set Selected as Object A##CreateA")) {
+                    objectA = context.selectedObject;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Set Selected as Object B##CreateB")) {
+                    objectB = context.selectedObject;
+                }
+            }
+            else {
+                ImGui::TextDisabled("Select a physics object in the scene");
+            }
+
+            ImGui::SeparatorText("Constraint Type");
+
+            const char* types[] = {
+                "Fixed Joint",
+                "Hinge (Door/Wheel)",
+                "Slider (Drawer)",
+                "Spring (Suspension)",
+                "Generic 6DOF"
+            };
+            ImGui::Combo("Type##CreateType", &createConstraintTypeIndex, types, IM_ARRAYSIZE(types));
+
+            // Optional name
+            ImGui::InputText("Name (Optional)##CreateName", constraintName, IM_ARRAYSIZE(constraintName));
+
+            ImGui::SeparatorText("Parameters");
+
+            // Type-specific parameters
+            static float hingeAxis[3] = { 0.0f, 1.0f, 0.0f };
+            static float hingePivot[3] = { 0.0f, 0.0f, 0.0f };
+            static bool useHingeLimits = false;
+            static float hingeLowerLimit = 0.0f;
+            static float hingeUpperLimit = 90.0f;
+            static bool useHingeMotor = false;
+            static float hingeMotorVelocity = 1.0f;
+            static float hingeMotorForce = 10.0f;
+
+            static float sliderDistance = 2.0f;
+            static bool useSliderMotor = false;
+            static float sliderMotorVelocity = 1.0f;
+            static float sliderMotorForce = 10.0f;
+
+            static float springStiffness = 100.0f;
+            static float springDamping = 10.0f;
+            static bool springAxisEnabled[6] = { false, true, false, false, false, false }; // Y axis by default
+
+            // Generic 6DOF parameters
+            static bool useLinearX = false;
+            static float linearXLower = -1.0f;
+            static float linearXUpper = 1.0f;
+
+            static bool useLinearY = false;
+            static float linearYLower = -1.0f;
+            static float linearYUpper = 1.0f;
+
+            static bool useLinearZ = false;
+            static float linearZLower = -1.0f;
+            static float linearZUpper = 1.0f;
+
+            static bool useAngularX = false;
+            static float angularXLower = -45.0f;
+            static float angularXUpper = 45.0f;
+
+            static bool useAngularY = false;
+            static float angularYLower = -45.0f;
+            static float angularYUpper = 45.0f;
+
+            static bool useAngularZ = false;
+            static float angularZLower = -45.0f;
+            static float angularZUpper = 45.0f;
+
+            static bool breakable = false;
+            static float breakForce = 1000.0f;
+            static float breakTorque = 1000.0f;
+
+            switch (createConstraintTypeIndex) {
+            case 0: // Fixed
+                ImGui::TextWrapped("Fixed joints lock two objects together rigidly. No parameters needed.");
+                break;
+
+            case 1: // Hinge
+                ImGui::InputFloat3("Hinge Axis", hingeAxis);
+                ImGui::InputFloat3("Pivot Point", hingePivot);
+
+                ImGui::Checkbox("Use Limits", &useHingeLimits);
+                if (useHingeLimits) {
+                    ImGui::SliderFloat("Lower Limit (deg)", &hingeLowerLimit, -180.0f, 180.0f);
+                    ImGui::SliderFloat("Upper Limit (deg)", &hingeUpperLimit, -180.0f, 180.0f);
                 }
 
-                params.useLimits = useHingeLimits;
-                params.lowerLimit = glm::radians(hingeLowerLimit);
-                params.upperLimit = glm::radians(hingeUpperLimit);
-                params.useMotor = useHingeMotor;
-                params.motorTargetVelocity = hingeMotorVelocity;
-                params.motorMaxImpulse = hingeMotorForce;
+                ImGui::Checkbox("Use Motor", &useHingeMotor);
+                if (useHingeMotor) {
+                    ImGui::SliderFloat("Motor Velocity", &hingeMotorVelocity, -10.0f, 10.0f);
+                    ImGui::SliderFloat("Motor Force", &hingeMotorForce, 0.0f, 100.0f);
+                }
+                break;
 
-                newConstraint = context.constraintCommands.createHingeAdvanced(objectA, objectB, params);
-            }
-            break;
-        }
+            case 2: // Slider
+                ImGui::SliderFloat("Slide Distance", &sliderDistance, 0.1f, 10.0f);
 
-        case 2: { // Slider
-            if (context.constraintCommands.createSlider) {
-                SliderParams params;
-                params.useLimits = true;
-                params.lowerLimit = 0.0f;
-                params.upperLimit = sliderDistance;
-                params.useMotor = useSliderMotor;
-                params.motorTargetVelocity = sliderMotorVelocity;
-                params.motorMaxForce = sliderMotorForce;
+                ImGui::Checkbox("Use Motor", &useSliderMotor);
+                if (useSliderMotor) {
+                    ImGui::SliderFloat("Motor Velocity", &sliderMotorVelocity, -10.0f, 10.0f);
+                    ImGui::SliderFloat("Motor Force", &sliderMotorForce, 0.0f, 100.0f);
+                }
+                break;
 
-                newConstraint = context.constraintCommands.createSlider(objectA, objectB, params);
-            }
-            break;
-        }
+            case 3: // Spring
+                ImGui::SliderFloat("Stiffness", &springStiffness, 1.0f, 1000.0f);
+                ImGui::SliderFloat("Damping", &springDamping, 0.1f, 100.0f);
 
-        case 3: { // Spring
-            if (context.constraintCommands.createSpringAdvanced) {
-                SpringParams params;
-                for (int i = 0; i < 6; i++) {
-                    params.enableSpring[i] = springAxisEnabled[i];
-                    params.stiffness[i] = springStiffness;
-                    params.damping[i] = springDamping;
+                ImGui::Text("Linear Axes:");
+                ImGui::Checkbox("X##SpringLinX", &springAxisEnabled[0]); ImGui::SameLine();
+                ImGui::Checkbox("Y##SpringLinY", &springAxisEnabled[1]); ImGui::SameLine();
+                ImGui::Checkbox("Z##SpringLinZ", &springAxisEnabled[2]);
+
+                ImGui::Text("Angular Axes:");
+                ImGui::Checkbox("Rot X##SpringAngX", &springAxisEnabled[3]); ImGui::SameLine();
+                ImGui::Checkbox("Rot Y##SpringAngY", &springAxisEnabled[4]); ImGui::SameLine();
+                ImGui::Checkbox("Rot Z##SpringAngZ", &springAxisEnabled[5]);
+                break;
+
+            case 4: // Generic 6DOF
+                ImGui::TextWrapped("Advanced constraint with full control over all 6 degrees of freedom.");
+
+                ImGui::Separator();
+                ImGui::Text("Linear Limits (Translation)");
+
+                ImGui::Checkbox("Limit X Axis", &useLinearX);
+                if (useLinearX) {
+                    ImGui::SliderFloat("X Lower", &linearXLower, -10.0f, 0.0f);
+                    ImGui::SliderFloat("X Upper", &linearXUpper, 0.0f, 10.0f);
                 }
 
-                newConstraint = context.constraintCommands.createSpringAdvanced(objectA, objectB, params);
-            }
-            break;
-        }
+                ImGui::Checkbox("Limit Y Axis", &useLinearY);
+                if (useLinearY) {
+                    ImGui::SliderFloat("Y Lower", &linearYLower, -10.0f, 0.0f);
+                    ImGui::SliderFloat("Y Upper", &linearYUpper, 0.0f, 10.0f);
+                }
 
-        case 4: { // Generic 6DOF
-            if (context.constraintCommands.createGeneric6Dof) {
-                Generic6DofParams params;
-                newConstraint = context.constraintCommands.createGeneric6Dof(objectA, objectB, params);
-            }
-            break;
-        }
-        }
+                ImGui::Checkbox("Limit Z Axis", &useLinearZ);
+                if (useLinearZ) {
+                    ImGui::SliderFloat("Z Lower", &linearZLower, -10.0f, 0.0f);
+                    ImGui::SliderFloat("Z Upper", &linearZUpper, 0.0f, 10.0f);
+                }
 
-        if (newConstraint) {
-            // Set name if provided
-            if (strlen(constraintName) > 0) {
-                newConstraint->setName(std::string(constraintName));
+                ImGui::Separator();
+                ImGui::Text("Angular Limits (Rotation in degrees)");
+
+                ImGui::Checkbox("Limit X Rotation", &useAngularX);
+                if (useAngularX) {
+                    ImGui::SliderFloat("X Rot Lower", &angularXLower, -180.0f, 0.0f);
+                    ImGui::SliderFloat("X Rot Upper", &angularXUpper, 0.0f, 180.0f);
+                }
+
+                ImGui::Checkbox("Limit Y Rotation", &useAngularY);
+                if (useAngularY) {
+                    ImGui::SliderFloat("Y Rot Lower", &angularYLower, -180.0f, 0.0f);
+                    ImGui::SliderFloat("Y Rot Upper", &angularYUpper, 0.0f, 180.0f);
+                }
+
+                ImGui::Checkbox("Limit Z Rotation", &useAngularZ);
+                if (useAngularZ) {
+                    ImGui::SliderFloat("Z Rot Lower", &angularZLower, -180.0f, 0.0f);
+                    ImGui::SliderFloat("Z Rot Upper", &angularZUpper, 0.0f, 180.0f);
+                }
+                break;
             }
 
-            // Set breaking threshold if enabled
+            ImGui::SeparatorText("Breaking");
+            ImGui::Checkbox("Breakable", &breakable);
             if (breakable) {
-                newConstraint->setBreakingThreshold(breakForce, breakTorque);
+                ImGui::SliderFloat("Break Force", &breakForce, 10.0f, 10000.0f);
+                ImGui::SliderFloat("Break Torque", &breakTorque, 10.0f, 10000.0f);
             }
 
-            std::cout << "Created " << ConstraintTypeToString(newConstraint->getType()) << " constraint" << std::endl;
+            ImGui::Separator();
 
-            // Clear selection for next constraint
-            objectA = nullptr;
-            objectB = nullptr;
-        }
-    }
-    ImGui::EndDisabled();
-
-    ImGui::End();
-}
-
-// ========== Constraint Presets Panel ==========
-
-static void DrawConstraintPresets(const DebugUIContext& context) {
-    ImGui::Begin("Constraint Presets");
-
-    ImGui::TextWrapped("Quick create common constraint setups");
-    ImGui::Separator();
-
-    static GameObject* presetObjA = nullptr;
-    static GameObject* presetObjB = nullptr;
-
-    if (presetObjA) {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object A: Selected");
-        if (ImGui::Button("Clear A")) presetObjA = nullptr;
-    }
-    else {
-        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object A: None");
-    }
-
-    if (presetObjB) {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object B: Selected");
-        if (ImGui::Button("Clear B")) presetObjB = nullptr;
-    }
-    else {
-        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object B: None");
-    }
-
-    if (context.selectedObject && context.selectedObject->hasPhysics()) {
-        if (ImGui::Button("Set Selected as A")) presetObjA = context.selectedObject;
-        ImGui::SameLine();
-        if (ImGui::Button("Set Selected as B")) presetObjB = context.selectedObject;
-    }
-
-    ImGui::Separator();
-
-    bool canCreate = presetObjA && presetObjB && presetObjA->hasPhysics();
-
-    ImGui::BeginDisabled(!canCreate);
-
-    // Door Hinge
-    if (ImGui::Button("Door Hinge", ImVec2(-1, 0))) {
-        if (context.constraintCommands.createDoorHinge) {
-            glm::vec3 hingePos = presetObjA->getPosition();
-            context.constraintCommands.createDoorHinge(presetObjA, presetObjB, hingePos);
-        }
-    }
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("Hinge that swings 0-90 degrees like a door");
-    }
-
-    // Drawer
-    static float drawerDist = 1.5f;
-    ImGui::SliderFloat("Drawer Distance", &drawerDist, 0.5f, 5.0f);
-    if (ImGui::Button("Drawer Slider", ImVec2(-1, 0))) {
-        if (context.constraintCommands.createDrawer) {
-            context.constraintCommands.createDrawer(presetObjA, presetObjB, drawerDist);
-        }
-    }
-
-    // Suspension
-    static float suspStiff = 100.0f;
-    static float suspDamp = 10.0f;
-    ImGui::SliderFloat("Suspension Stiffness", &suspStiff, 10.0f, 500.0f);
-    ImGui::SliderFloat("Suspension Damping", &suspDamp, 1.0f, 50.0f);
-    if (ImGui::Button("Suspension Spring", ImVec2(-1, 0))) {
-        if (context.constraintCommands.createSuspension) {
-            context.constraintCommands.createSuspension(presetObjA, presetObjB, suspStiff, suspDamp);
-        }
-    }
-
-    // Rope Segment
-    static float ropeStiff = 50.0f;
-    ImGui::SliderFloat("Rope Stiffness", &ropeStiff, 10.0f, 200.0f);
-    if (ImGui::Button("Rope Segment", ImVec2(-1, 0))) {
-        if (context.constraintCommands.createRopeSegment) {
-            context.constraintCommands.createRopeSegment(presetObjA, presetObjB, ropeStiff);
-        }
-    }
-
-    // Pendulum
-    if (ImGui::Button("Pendulum", ImVec2(-1, 0))) {
-        if (context.constraintCommands.createPendulum && presetObjB) {
-            glm::vec3 pivotPos = presetObjB->getPosition();
-            context.constraintCommands.createPendulum(presetObjA, presetObjB, pivotPos);
-        }
-    }
-
-    ImGui::EndDisabled();
-
-    if (!canCreate) {
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-            "Select two physics objects!");
-    }
-
-    ImGui::End();
-}
-
-// ========== Constraint List Panel ==========
-
-static void DrawConstraintList(const DebugUIContext& context) {
-    ImGui::Begin("Constraints");
-
-   
-    // Stats at top
-    ImGui::Text("Total: %d", context.constraints.totalConstraints);
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Active: %d", context.constraints.activeConstraints);
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Broken: %d", context.constraints.brokenConstraints);
-
-    ImGui::Separator();
-    static int selectedConstraintIndex = -1;
-    // Type breakdown
-    if (ImGui::TreeNode("By Type")) {
-        ImGui::BulletText("Fixed: %d", context.constraints.fixedCount);
-        ImGui::BulletText("Hinge: %d", context.constraints.hingeCount);
-        ImGui::BulletText("Slider: %d", context.constraints.sliderCount);
-        ImGui::BulletText("Spring: %d", context.constraints.springCount);
-        ImGui::BulletText("Generic 6DOF: %d", context.constraints.dof6Count);
-        ImGui::TreePop();
-    }
-
-    ImGui::Separator();
-
-    // Filter controls
-    static int filterType = -1; // -1 = all
-    const char* filterItems[] = { "All", "Fixed", "Hinge", "Slider", "Spring", "6DOF" };
-    ImGui::Combo("Filter", &filterType, filterItems, IM_ARRAYSIZE(filterItems));
-
-    static bool showBrokenOnly = false;
-    ImGui::Checkbox("Broken Only", &showBrokenOnly);
-   
-    ImGui::Separator();
-
-    // Clear all button
-    if (ImGui::Button("Clear All Constraints", ImVec2(-1, 0))) {
-        if (context.constraintCommands.clearAllConstraints) {
-            context.constraintCommands.clearAllConstraints();
-            selectedConstraintIndex = -1;  // Reset index
-            ImGui::End();
-            return;
-        }
-    }
-
-    ImGui::Separator();
-
-    ImGui::BeginChild("ConstraintList", ImVec2(0, 250), true);
-    int currentIndex = 0;
-    for (Constraint* constraint : context.constraints.allConstraints) {
-        if (!constraint) {
-            currentIndex++;
-            continue;
-        }
-
-        // Apply filters
-        if (showBrokenOnly && !constraint->isBroken()) {
-            currentIndex++;
-            continue;
-        }
-        if (filterType > 0) {
-            ConstraintType expectedType = static_cast<ConstraintType>(filterType - 1);
-            if (constraint->getType() != expectedType) {
-                currentIndex++;
-                continue;
+            // Create button
+            bool canCreate = objectA != nullptr && objectA->hasPhysics();
+            if (!canCreate) {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Need at least Object A with physics!");
             }
-        }
 
-        // Display constraint
-        ImGui::PushID(currentIndex);
+            ImGui::BeginDisabled(!canCreate);
+            if (ImGui::Button("Create Constraint", ImVec2(-1, 0))) {
+                Constraint* newConstraint = nullptr;
 
-        bool isSelected = (selectedConstraintIndex == currentIndex);
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-        if (isSelected) flags |= ImGuiTreeNodeFlags_Selected;
+                switch (createConstraintTypeIndex) {
+                case 0: // Fixed
+                    if (context.constraintCommands.createFixed) {
+                        newConstraint = context.constraintCommands.createFixed(objectA, objectB);
+                    }
+                    break;
 
-        std::string label = constraint->getName().empty() ?
-            ConstraintTypeToString(constraint->getType()) :
-            constraint->getName();
+                case 1: { // Hinge
+                    if (context.constraintCommands.createHingeAdvanced) {
+                        HingeParams params;
+                        params.pivotA = glm::vec3(hingePivot[0], hingePivot[1], hingePivot[2]);
+                        params.axisA = glm::normalize(glm::vec3(hingeAxis[0], hingeAxis[1], hingeAxis[2]));
 
-        if (constraint->isBroken()) {
-            label += " [BROKEN]";
-        }
+                        if (objectB) {
+                            params.pivotB = glm::vec3(hingePivot[0], hingePivot[1], hingePivot[2]);
+                            params.axisB = params.axisA;
+                        }
 
-        ImGui::TreeNodeEx(label.c_str(), flags);
+                        params.useLimits = useHingeLimits;
+                        params.lowerLimit = glm::radians(hingeLowerLimit);
+                        params.upperLimit = glm::radians(hingeUpperLimit);
+                        params.useMotor = useHingeMotor;
+                        params.motorTargetVelocity = hingeMotorVelocity;
+                        params.motorMaxImpulse = hingeMotorForce;
 
-        if (ImGui::IsItemClicked()) {
-            selectedConstraintIndex = currentIndex;
-        }
+                        newConstraint = context.constraintCommands.createHingeAdvanced(objectA, objectB, params);
+                    }
+                    break;
+                }
 
-        ImGui::PopID();
-        currentIndex++;
-    }
+                case 2: { // Slider
+                    if (context.constraintCommands.createSlider) {
+                        SliderParams params;
+                        params.useLimits = true;
+                        params.lowerLimit = 0.0f;
+                        params.upperLimit = sliderDistance;
+                        params.useMotor = useSliderMotor;
+                        params.motorTargetVelocity = sliderMotorVelocity;
+                        params.motorMaxForce = sliderMotorForce;
 
-    ImGui::EndChild();
+                        newConstraint = context.constraintCommands.createSlider(objectA, objectB, params);
+                    }
+                    break;
+                }
 
-    // Selected constraint details
-    Constraint* selectedConstraint = nullptr;
-    if (selectedConstraintIndex >= 0 &&
-        selectedConstraintIndex < context.constraints.allConstraints.size()) {
-        selectedConstraint = context.constraints.allConstraints[selectedConstraintIndex];
-    }
-    if (selectedConstraint) {
-        ImGui::Separator();
-        ImGui::Text("Selected: %s", selectedConstraint->getName().empty() ?
-            ConstraintTypeToString(selectedConstraint->getType()) :
-            selectedConstraint->getName().c_str());
+                case 3: { // Spring
+                    if (context.constraintCommands.createSpringAdvanced) {
+                        SpringParams params;
+                        for (int i = 0; i < 6; i++) {
+                            params.enableSpring[i] = springAxisEnabled[i];
+                            params.stiffness[i] = springStiffness;
+                            params.damping[i] = springDamping;
+                        }
 
-        if (ImGui::Button("Remove This Constraint")) {
-            if (context.constraintCommands.removeConstraint) {
-                context.constraintCommands.removeConstraint(selectedConstraint);
-                selectedConstraintIndex = -1;
+                        newConstraint = context.constraintCommands.createSpringAdvanced(objectA, objectB, params);
+                    }
+                    break;
+                }
+
+                case 4: { // Generic 6DOF
+                    if (context.constraintCommands.createGeneric6Dof) {
+                        Generic6DofParams params;
+
+                        // Set linear limits
+                        params.useLinearLimits[0] = useLinearX;
+                        params.lowerLinearLimit[0] = linearXLower;
+                        params.upperLinearLimit[0] = linearXUpper;
+
+                        params.useLinearLimits[1] = useLinearY;
+                        params.lowerLinearLimit[1] = linearYLower;
+                        params.upperLinearLimit[1] = linearYUpper;
+
+                        params.useLinearLimits[2] = useLinearZ;
+                        params.lowerLinearLimit[2] = linearZLower;
+                        params.upperLinearLimit[2] = linearZUpper;
+
+                        // Set angular limits (convert degrees to radians)
+                        params.useAngularLimits[0] = useAngularX;
+                        params.lowerAngularLimit[0] = glm::radians(angularXLower);
+                        params.upperAngularLimit[0] = glm::radians(angularXUpper);
+
+                        params.useAngularLimits[1] = useAngularY;
+                        params.lowerAngularLimit[1] = glm::radians(angularYLower);
+                        params.upperAngularLimit[1] = glm::radians(angularYUpper);
+
+                        params.useAngularLimits[2] = useAngularZ;
+                        params.lowerAngularLimit[2] = glm::radians(angularZLower);
+                        params.upperAngularLimit[2] = glm::radians(angularZUpper);
+
+                        newConstraint = context.constraintCommands.createGeneric6Dof(objectA, objectB, params);
+                    }
+                    break;
+                }
+                }
+
+                if (newConstraint) {
+                    // Set name if provided
+                    if (strlen(constraintName) > 0) {
+                        newConstraint->setName(std::string(constraintName));
+                    }
+
+                    // Set breaking threshold if enabled
+                    if (breakable) {
+                        newConstraint->setBreakingThreshold(breakForce, breakTorque);
+                    }
+
+                    std::cout << "Created " << ConstraintTypeToString(newConstraint->getType()) << " constraint" << std::endl;
+
+                    // Clear selection for next constraint
+                    objectA = nullptr;
+                    objectB = nullptr;
+                }
             }
-        }
-    }
+            ImGui::EndDisabled();
 
+            // Save as template button
+            ImGui::Separator();
+            ImGui::SeparatorText("Save as Template");
+            ImGui::InputText("Template Name##SaveTemplateName", templateName, IM_ARRAYSIZE(templateName));
+            ImGui::InputText("Description##SaveTemplateDesc", templateDesc, IM_ARRAYSIZE(templateDesc));
+
+            bool canSaveTemplate = templateName[0] != '\0';
+            ImGui::BeginDisabled(!canSaveTemplate);
+
+            if (ImGui::Button("Save Current Settings as Template", ImVec2(-1, 0))) {
+                ConstraintTemplate templ;
+                templ.name = templateName;
+                templ.description = templateDesc;
+                templ.type = static_cast<ConstraintType>(createConstraintTypeIndex);
+                templ.breakable = breakable;
+                templ.breakForce = breakForce;
+                templ.breakTorque = breakTorque;
+
+                // Save type-specific params
+                switch (createConstraintTypeIndex) {
+                case 1: // Hinge
+                    templ.hingeParams.pivotA = glm::vec3(hingePivot[0], hingePivot[1], hingePivot[2]);
+                    templ.hingeParams.axisA = glm::normalize(glm::vec3(hingeAxis[0], hingeAxis[1], hingeAxis[2]));
+                    templ.hingeParams.useLimits = useHingeLimits;
+                    templ.hingeParams.lowerLimit = glm::radians(hingeLowerLimit);
+                    templ.hingeParams.upperLimit = glm::radians(hingeUpperLimit);
+                    templ.hingeParams.useMotor = useHingeMotor;
+                    templ.hingeParams.motorTargetVelocity = hingeMotorVelocity;
+                    templ.hingeParams.motorMaxImpulse = hingeMotorForce;
+                    break;
+                case 2: // Slider
+                    templ.sliderParams.useLimits = true;
+                    templ.sliderParams.lowerLimit = 0.0f;
+                    templ.sliderParams.upperLimit = sliderDistance;
+                    templ.sliderParams.useMotor = useSliderMotor;
+                    templ.sliderParams.motorTargetVelocity = sliderMotorVelocity;
+                    templ.sliderParams.motorMaxForce = sliderMotorForce;
+                    break;
+                case 3: // Spring
+                    for (int i = 0; i < 6; ++i) {
+                        templ.springParams.enableSpring[i] = springAxisEnabled[i];
+                        templ.springParams.stiffness[i] = springStiffness;
+                        templ.springParams.damping[i] = springDamping;
+                    }
+                    break;
+                case 4: // Generic 6DOF
+                    templ.dofParams.useLinearLimits[0] = useLinearX;
+                    templ.dofParams.lowerLinearLimit[0] = linearXLower;
+                    templ.dofParams.upperLinearLimit[0] = linearXUpper;
+                    templ.dofParams.useLinearLimits[1] = useLinearY;
+                    templ.dofParams.lowerLinearLimit[1] = linearYLower;
+                    templ.dofParams.upperLinearLimit[1] = linearYUpper;
+                    templ.dofParams.useLinearLimits[2] = useLinearZ;
+                    templ.dofParams.lowerLinearLimit[2] = linearZLower;
+                    templ.dofParams.upperLinearLimit[2] = linearZUpper;
+                    templ.dofParams.useAngularLimits[0] = useAngularX;
+                    templ.dofParams.lowerAngularLimit[0] = glm::radians(angularXLower);
+                    templ.dofParams.upperAngularLimit[0] = glm::radians(angularXUpper);
+                    templ.dofParams.useAngularLimits[1] = useAngularY;
+                    templ.dofParams.lowerAngularLimit[1] = glm::radians(angularYLower);
+                    templ.dofParams.upperAngularLimit[1] = glm::radians(angularYUpper);
+                    templ.dofParams.useAngularLimits[2] = useAngularZ;
+                    templ.dofParams.lowerAngularLimit[2] = glm::radians(angularZLower);
+                    templ.dofParams.upperAngularLimit[2] = glm::radians(angularZUpper);
+                    break;
+                }
+
+                ConstraintTemplateRegistry::getInstance().addTemplate(templ);
+                ConstraintTemplateRegistry::getInstance().save();
+
+                std::cout << "Template '" << templateName << "' saved!" << std::endl;
+
+                // Clear template name field
+                templateName[0] = '\0';
+                templateDesc[0] = '\0';
+            }
+
+            ImGui::EndDisabled();
+
+            ImGui::EndTabItem();
+        }
+
+        // templates tab
+        if (ImGui::BeginTabItem("Templates")) {
+            ImGui::TextWrapped("Load saved constraint templates and apply them to selected objects.");
+            ImGui::Separator();
+
+            auto& registry = ConstraintTemplateRegistry::getInstance();
+            auto templates = registry.getAllTemplates();
+
+            if (templates.empty()) {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "No templates saved yet.");
+                ImGui::Text("Create a constraint and save it as a template!");
+            }
+            else {
+                ImGui::Text("Available Templates: %d", (int)templates.size());
+                ImGui::Separator();
+
+                static int selectedTemplate = 0;
+
+                // Template list
+                if (ImGui::BeginListBox("##Templates", ImVec2(-1, 200))) {
+                    for (int i = 0; i < templates.size(); ++i) {
+                        const auto& templ = templates[i];
+                        ImGui::PushID(i);
+                        bool isSelected = (selectedTemplate == i);
+                        std::string label = templ.name + " (" + ConstraintTypeToString(templ.type) + ")";
+
+                        if (ImGui::Selectable(label.c_str(), isSelected)) {
+                            selectedTemplate = i;
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::EndListBox();
+                }
+
+                // Template details
+                if (selectedTemplate >= 0 && selectedTemplate < templates.size()) {
+                    const auto& templ = templates[selectedTemplate];
+
+                    ImGui::SeparatorText("Template Details");
+                    ImGui::Text("Name: %s", templ.name.c_str());
+                    ImGui::Text("Type: %s", ConstraintTypeToString(templ.type));
+                    if (!templ.description.empty()) {
+                        ImGui::TextWrapped("Description: %s", templ.description.c_str());
+                    }
+
+                    ImGui::Separator();
+
+                    // Object selection for applying template
+                    ImGui::SeparatorText("Apply Template");
+
+                    if (objectA) {
+                        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object A: ID %llu", objectA->getID());
+                    }
+                    else {
+                        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object A: None");
+                    }
+
+                    if (objectB) {
+                        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Object B: ID %llu", objectB->getID());
+                    }
+                    else {
+                        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Object B: None (Optional)");
+                    }
+
+                    if (context.selectedObject && context.selectedObject->hasPhysics()) {
+                        if (ImGui::Button("Set Selected as Object A##Template")) {
+                            objectA = context.selectedObject;
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Set Selected as Object B##Template")) {
+                            objectB = context.selectedObject;
+                        }
+                    }
+
+                    ImGui::Separator();
+
+                    bool canApply = objectA != nullptr && objectA->hasPhysics();
+                    ImGui::BeginDisabled(!canApply);
+
+                    if (ImGui::Button("Apply Template to Objects", ImVec2(-1, 0))) {
+                        auto constraint = registry.applyTemplate(templ.name, objectA, objectB);
+
+                        if (constraint) {
+                            // Template creates the constraint after its added to the registry
+                            // The ConstraintRegistry::getInstance().addConstraint() 
+                            ConstraintRegistry::getInstance().addConstraint(std::move(constraint));
+                            std::cout << "Applied template '" << templ.name << "'" << std::endl;
+                        }
+                    }
+
+                    ImGui::EndDisabled();
+
+                    ImGui::Separator();
+
+                    // Delete template button
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+                    if (ImGui::Button("Delete Template", ImVec2(-1, 0))) {
+                        registry.removeTemplate(templ.name);
+                        registry.save();
+                        selectedTemplate = 0;
+                        std::cout << "Deleted template '" << templ.name << "'" << std::endl;
+                    }
+                    ImGui::PopStyleColor();
+                }
+            }
+            ImGui::EndTabItem();
+        }
+
+
+        ImGui::EndTabBar();
+    }
     ImGui::End();
 }
+static void DrawUnifiedInspector(const DebugUIContext& context) {
+    ImGui::Begin("Inspector");
 
-// ========== Constraint Inspector Panel ==========
-static void DrawConstraintInspector(const DebugUIContext& context) {
-
-    ImGui::Begin("Constraint Inspector");
-
-    // Show constraints for selected object
     if (!context.selectedObject) {
-        ImGui::Text("No object selected");
-        ImGui::Text("Select an object to see its constraints");
+        ImGui::Text("No object selected.");
+        ImGui::Text("Click an object in the scene to inspect it.");
         ImGui::End();
         return;
     }
 
-    ImGui::Text("Object Selected");
+    // object properties
+
+    glm::vec3 pos = context.selectedObject->getPosition();
+    glm::vec3 scale = context.selectedObject->getScale();
+    glm::quat rot = context.selectedObject->getRotation();
+
+    ImGui::Text("Object ID: %llu", context.selectedObject->getID());
     ImGui::Separator();
 
-    // Find constraints for this object
-    std::vector<Constraint*> objectConstraints;
-    if (context.constraintCommands.findConstraintsForObject) {
-        objectConstraints = context.constraintCommands.findConstraintsForObject(context.selectedObject);
-    }
+    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-   
-    ImGui::Text("Constraints: %d", (int)objectConstraints.size());
+        // Physics status
+        if (context.selectedObject->isRenderOnly()) {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Physics: Disabled (Render Only)");
+        }
+        else {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics: Enabled");
+        }
 
-    if (objectConstraints.empty()) {
-        ImGui::TextDisabled("This object has no constraints");
+        // Position
+        float posArr[3] = { pos.x, pos.y, pos.z };
+        if (ImGui::DragFloat3("Position", posArr, 0.05f)) {
+            context.selectedObject->setPosition(glm::vec3(posArr[0], posArr[1], posArr[2]));
+        }
 
-        if (ImGui::Button("Remove All Constraints")) {
-            if (context.constraintCommands.removeConstraintsForObject) {
-                context.constraintCommands.removeConstraintsForObject(context.selectedObject);
+        // Rotation
+        glm::vec3 eulerRad = QuatToEulerRad(rot);
+        glm::vec3 eulerDeg = glm::degrees(eulerRad);
+        float rotArr[3] = { eulerDeg.x, eulerDeg.y, eulerDeg.z };
+        if (ImGui::DragFloat3("Rotation (deg)", rotArr, 0.5f)) {
+            glm::vec3 newEulerRad = glm::radians(glm::vec3(rotArr[0], rotArr[1], rotArr[2]));
+            context.selectedObject->setRotation(EulerRadToQuat(newEulerRad));
+        }
+
+        // Scale
+        float scaleArr[3] = { scale.x, scale.y, scale.z };
+        if (ImGui::DragFloat3("Scale", scaleArr, 0.05f, 0.01f, 1000.0f)) {
+            if (context.scene.setObjectScale) {
+                context.scene.setObjectScale(
+                    context.selectedObject,
+                    glm::vec3(scaleArr[0], scaleArr[1], scaleArr[2])
+                );
             }
         }
     }
-    else {
-        ImGui::Separator();
 
-        // List each constraint with controls
-        static int selectedConstraintIndex = -1;
+    // constraint section
+    if (ImGui::CollapsingHeader("Constraints")) {
+        auto constraints = ConstraintRegistry::getInstance().findConstraintsByObject(context.selectedObject);
 
-        if (selectedConstraintIndex >= objectConstraints.size()) {
-            selectedConstraintIndex = -1;
+        if (constraints.empty()) {
+            ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No constraints attached");
         }
-        for (int i = 0; i < objectConstraints.size(); i++) {
-            Constraint* constraint = objectConstraints[i];
-            ImGui::PushID(i);
-
-            bool isSelected = (selectedConstraintIndex == i);
-            if (ImGui::Selectable(
-                constraint->getName().empty() ?
-                ConstraintTypeToString(constraint->getType()) :
-                constraint->getName().c_str(),
-                isSelected)) {
-                selectedConstraintIndex = i;
-            }
-
-            ImGui::PopID();
-        }
-
-        // Show details for selected constraint
-        if (selectedConstraintIndex >= 0 && selectedConstraintIndex < objectConstraints.size()) {
-            Constraint* constraint = objectConstraints[selectedConstraintIndex];
-
-            ImGui::Separator();
-            ImGui::Text("Type: %s", ConstraintTypeToString(constraint->getType()));
-            ImGui::Text("Enabled: %s", constraint->isBroken() ? "No (Broken)" : "Yes");
-            ImGui::Text("Breakable: %s", constraint->isBreakable() ? "Yes" : "No");
-
-            if (constraint->isBreakable()) {
-                ImGui::Text("Break Force: %.1f", constraint->getBreakForce());
-                ImGui::Text("Break Torque: %.1f", constraint->getBreakTorque());
-            }
-
+        else {
+            ImGui::Text("Attached Constraints: %d", (int)constraints.size());
             ImGui::Separator();
 
-            // Type-specific controls
-            switch (constraint->getType()) {
-            case ConstraintType::HINGE: {
-                float currentAngle = constraint->getHingeAngle();
-                ImGui::Text("Current Angle: %.2f deg", glm::degrees(currentAngle));
+            for (int i = 0; i < constraints.size(); ++i) {
+                Constraint* c = constraints[i];
 
-                static float newLower = 0.0f;
-                static float newUpper = 90.0f;
-                ImGui::SliderFloat("Lower Limit", &newLower, -180.0f, 180.0f);
-                ImGui::SliderFloat("Upper Limit", &newUpper, -180.0f, 180.0f);
-                if (ImGui::Button("Apply Limits")) {
-                    constraint->setAngleLimits(glm::radians(newLower), glm::radians(newUpper));
+                ImGui::PushID(i);
+
+                std::string label = c->getName().empty() ?
+                    ("Constraint " + std::to_string(i)) : c->getName();
+
+                if (ImGui::TreeNode(label.c_str())) {
+                    ImGui::Text("Type: %s", ConstraintTypeToString(c->getType()));
+
+                    // Show connected objects
+                    GameObject* bodyA = c->getBodyA();
+                    GameObject* bodyB = c->getBodyB();
+
+                    if (bodyA) {
+                        ImGui::Text("Connected to A: ID %llu", bodyA->getID());
+                    }
+                    if (bodyB) {
+                        ImGui::Text("Connected to B: ID %llu", bodyB->getID());
+                    }
+                    else {
+                        ImGui::Text("Connected to: World");
+                    }
+
+                    // Enable/disable
+                    bool enabled = !c->isBroken();
+                    if (ImGui::Checkbox("Enabled", &enabled)) {
+                        c->setEnabled(enabled);
+                    }
+
+                    // Type-specific controls
+                    if (c->getType() == ConstraintType::HINGE) {
+                        float angle = glm::degrees(c->getHingeAngle());
+                        ImGui::Text("Current Angle: %.1f°", angle);
+                    }
+                    else if (c->getType() == ConstraintType::SLIDER) {
+                        float pos = c->getSliderPosition();
+                        ImGui::Text("Current Position: %.2f", pos);
+                    }
+
+                    // Breakable info
+                    if (c->isBreakable()) {
+                        ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Breakable");
+                        ImGui::Text("Break Force: %.0f", c->getBreakForce());
+                    }
+
+                    // Remove button
+                    ImGui::Separator();
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+                    if (ImGui::Button("Remove Constraint", ImVec2(-1, 0))) {
+                        if (context.constraintCommands.removeConstraint) {
+                            context.constraintCommands.removeConstraint(c);
+                        }
+                    }
+                    ImGui::PopStyleColor();
+
+                    ImGui::TreePop();
                 }
 
-                static float motorVel = 1.0f;
-                static float motorImpulse = 10.0f;
-                ImGui::SliderFloat("Motor Velocity", &motorVel, -10.0f, 10.0f);
-                ImGui::SliderFloat("Motor Impulse", &motorImpulse, 0.0f, 100.0f);
-                if (ImGui::Button("Enable Motor")) {
-                    constraint->enableMotor(motorVel, motorImpulse);
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Disable Motor")) {
-                    constraint->disableMotor();
-                }
-                break;
-            }
-
-            case ConstraintType::SLIDER: {
-                float currentPos = constraint->getSliderPosition();
-                ImGui::Text("Current Position: %.2f", currentPos);
-
-                static float newLowerLin = 0.0f;
-                static float newUpperLin = 2.0f;
-                ImGui::SliderFloat("Lower Limit", &newLowerLin, -10.0f, 10.0f);
-                ImGui::SliderFloat("Upper Limit", &newUpperLin, -10.0f, 10.0f);
-                if (ImGui::Button("Apply Limits")) {
-                    constraint->setLinearLimits(newLowerLin, newUpperLin);
-                }
-
-                static float linMotorVel = 1.0f;
-                static float linMotorForce = 10.0f;
-                ImGui::SliderFloat("Motor Velocity", &linMotorVel, -10.0f, 10.0f);
-                ImGui::SliderFloat("Motor Force", &linMotorForce, 0.0f, 100.0f);
-                if (ImGui::Button("Enable Linear Motor")) {
-                    constraint->enableLinearMotor(linMotorVel, linMotorForce);
-                }
-                break;
-            }
-
-            case ConstraintType::SPRING: {
-                static int axis = 1; // Y axis
-                static float stiffness = 100.0f;
-                static float damping = 10.0f;
-
-                ImGui::SliderInt("Axis (0=X,1=Y,2=Z)", &axis, 0, 5);
-                ImGui::SliderFloat("Stiffness", &stiffness, 1.0f, 1000.0f);
-                ImGui::SliderFloat("Damping", &damping, 0.1f, 100.0f);
-
-                if (ImGui::Button("Apply Spring Settings")) {
-                    constraint->setSpringStiffness(axis, stiffness);
-                    constraint->setSpringDamping(axis, damping);
-                }
-                break;
-            }
-
-            default:
-                ImGui::TextDisabled("No runtime controls for this type");
-                break;
-            }
-
-            ImGui::Separator();
-
-            if (ImGui::Button("Remove This Constraint", ImVec2(-1, 0))) {
-                if (context.constraintCommands.removeConstraint) {
-                    context.constraintCommands.removeConstraint(constraint);
-                    selectedConstraintIndex = -1;
-                }
-            }
-        }
-
-        ImGui::Separator();
-
-        if (ImGui::Button("Remove All Constraints from Object", ImVec2(-1, 0))) {
-            if (context.constraintCommands.removeConstraintsForObject) {
-                context.constraintCommands.removeConstraintsForObject(context.selectedObject);
-                selectedConstraintIndex = -1;
+                ImGui::PopID();
             }
         }
     }
+    
+
+    ImGui::Separator();
+
+    // DELETE OBJECT 
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+
+    if (ImGui::Button("Delete Object", ImVec2(-1, 0))) {
+        if (context.scene.destroyObject) {
+            context.scene.destroyObject(context.selectedObject);
+        }
+    }
+
+    ImGui::PopStyleColor(3);
 
     ImGui::End();
 }
@@ -943,106 +1009,8 @@ void DebugUI::draw(const DebugUIContext& context)
     }
 
     ImGui::End();
-
-    // ============================
-    // Inspector
-    //
-    // Shows details for the currently selected object.
-    // This is the first step towards a real editor workflow:
-    // click in scene -> inspect -> edit -> see changes live.
-    ImGui::Begin("Inspector");
-
-    // Nothing selected -> show hint and exit early.
-    // Prevents null pointer access and keeps UI clear.
-    if (!context.selectedObject)
-    {
-        ImGui::Text("No object selected.");
-        ImGui::Text("Click an object in the scene to inspect it.");
-    }
-
-    else {
-        // Pull current transform from the selected object.
-        // We copy into local values because ImGui works with plain floats.
-        glm::vec3 pos = context.selectedObject->getPosition();
-        glm::vec3 scale = context.selectedObject->getScale();
-        glm::quat rot = context.selectedObject->getRotation();
-
-        ImGui::Text("Object ID: %llu", context.selectedObject->getID());
-        ImGui::Separator();
-
-        ImGui::Text("Selected Object");
-        ImGui::Separator();
-
-        // Physics status display
-        if (context.selectedObject->isRenderOnly())
-        {
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "Physics: Disabled (Render Only)");
-        }
-        else
-        {
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics: Enabled");
-        }
-
-        // ----------------------------
-        // Position
-        // ----------------------------
-        // Convert glm::vec3 -> float[3] for ImGui controls.
-        float posArr[3] = { pos.x, pos.y, pos.z };
-
-        // If user edits the values, write them back into the GameObject.
-        if (ImGui::DragFloat3("Position", posArr, 0.05f))
-        {
-            context.selectedObject->setPosition(glm::vec3(posArr[0], posArr[1], posArr[2]));
-        }
-
-        // ----------------------------
-        // Rotation
-        // ----------------------------
-        // Convert quaternion -> Euler (degrees) for UI editing.
-        glm::vec3 eulerRad = QuatToEulerRad(rot);
-        glm::vec3 eulerDeg = glm::degrees(eulerRad);
-
-        float rotArr[3] = { eulerDeg.x, eulerDeg.y, eulerDeg.z };
-        if (ImGui::DragFloat3("Rotation (deg)", rotArr, 0.5f))
-        {
-            glm::vec3 newEulerRad = glm::radians(glm::vec3(rotArr[0], rotArr[1], rotArr[2]));
-            context.selectedObject->setRotation(EulerRadToQuat(newEulerRad));
-        }
-
-        // ----------------------------
-        // Scale
-        // ----------------------------
-        // Same approach as position, but clamp scale to avoid negatives/zero.
-        float scaleArr[3] = { scale.x, scale.y, scale.z };
-
-        if (ImGui::DragFloat3("Scale", scaleArr, 0.05f, 0.01f, 1000.0f))
-        {
-            if (context.scene.setObjectScale) {
-                context.scene.setObjectScale(
-                    context.selectedObject,
-                    glm::vec3(scaleArr[0], scaleArr[1], scaleArr[2])
-                );
-            }
-        }
-
-        ImGui::Separator();
-
-        // Delete Object Button
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
-
-        if (ImGui::Button("Delete Object", ImVec2(-1, 0)))
-        {
-            if (context.scene.destroyObject)
-                context.scene.destroyObject(context.selectedObject);
-        }
-
-        ImGui::PopStyleColor(3);
-
-    }
-    ImGui::End();
-
+  
+    
 
     // Lighting Controls
     ImGui::Begin("Lighting");
@@ -1153,10 +1121,8 @@ void DebugUI::draw(const DebugUIContext& context)
     ImGui::Separator();
     ImGui::TextWrapped("Place .obj files in the models/ folder. Restart to refresh list.");
 
+    DrawUnifiedInspector(context);
     DrawConstraintCreator(context);
-    DrawConstraintPresets(context);
-    DrawConstraintList(context);
-    DrawConstraintInspector(context);
 
     ImGui::End();
 }

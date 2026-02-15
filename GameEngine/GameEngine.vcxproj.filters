@@ -34,6 +34,8 @@
     <ClCompile Include="src\Physics\Constraintpreset.cpp" />
     <ClCompile Include="src\Physics\Constraintregistry.cpp" />
     <ClCompile Include="src\Physics\PhysicsQuery.cpp" />
+    <ClCompile Include="src\Rendering\ShadowMap.cpp" />
+    <ClCompile Include="src\Physics\ConstraintTemplate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -82,6 +84,8 @@
     <ClInclude Include="external\imgui\backends\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="external\imgui\core\imstb_rectpack.h" />
     <ClInclude Include="external\imgui\core\imstb_textedit.h" />
+    <ClInclude Include="include\Rendering\ShadowMap.h" />
+    <ClInclude Include="include\Physics\ConstraintTemplate.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
