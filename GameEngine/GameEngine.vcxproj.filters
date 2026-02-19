@@ -86,6 +86,8 @@
     <ClInclude Include="external\imgui\core\imstb_textedit.h" />
     <ClInclude Include="include\Rendering\ShadowMap.h" />
     <ClInclude Include="include\Physics\ConstraintTemplate.h" />
+    <ClInclude Include="..\..\json.hpp" />
+    <ClInclude Include="external\json\json.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

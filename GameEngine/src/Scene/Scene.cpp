@@ -6,6 +6,9 @@
 #include <iostream>
 #include <algorithm>  // std::min, std::max
 #include <cfloat>  // for FLT_MAX
+#include "../External/json/json.hpp"
+using json = nlohmann::json;
+#include <fstream>
 
 /**
  * @brief Constructs a new Scene with a reference to the physics world.
@@ -82,6 +85,8 @@ GameObject* Scene::spawnObject(ShapeType type,
     // Store GameObject pointer in rigid body's user pointer
     // This allows raycasts to return the GameObject instead of just the raw physics body
     body->setUserPointer(obj.get());
+    obj->updateFromPhysics();
+
     // Set render mesh based on shape type
     switch (type) {
     case ShapeType::CUBE:
@@ -156,6 +161,9 @@ void Scene::setObjectScale(GameObject* obj, const glm::vec3& newScale) {
         std::cerr << "Error: Cannot set scale on null object" << std::endl;
         return;
     }
+
+    json test;
+    test["hello"] = "world";
 
     // Update visual scale
     obj->getTransform().setScale(newScale);
@@ -580,4 +588,191 @@ void Scene::setObjectPhysicsScale(GameObject* obj, const glm::vec3& newPhysicsSc
         std::cerr << "Error: Failed to resize rigid body!" << std::endl;
     }
 }
+
+bool Scene::saveToFile(const std::string& path) const
+{
+    json sceneJson;
+    sceneJson["objects"] = json::array();
+
+    for (const auto& objPtr : gameObjects)
+    {
+        const GameObject& obj = *objPtr;
+
+        json o;
+
+        // Basic info
+        o["id"] = obj.getID();
+        o["name"] = obj.getName();
+        o["shape"] = (int)obj.getShapeType();
+
+        // Transform
+        o["transform"]["position"] = {
+            obj.getPosition().x,
+            obj.getPosition().y,
+            obj.getPosition().z
+        };
+
+        o["transform"]["rotation"] = {
+            obj.getRotation().x,
+            obj.getRotation().y,
+            obj.getRotation().z,
+            obj.getRotation().w
+        };
+
+        o["transform"]["scale"] = {
+            obj.getScale().x,
+            obj.getScale().y,
+            obj.getScale().z
+        };
+
+        // Render
+        o["render"]["texture"] = obj.getTexturePath();
+
+        // Physics
+        o["physics"]["enabled"] = obj.hasPhysics();
+        o["physics"]["physicsScale"] = {
+            obj.getPhysicsScale().x,
+            obj.getPhysicsScale().y,
+            obj.getPhysicsScale().z
+        };
+
+        if (obj.hasPhysics())
+        {
+            btRigidBody* rb = obj.getRigidBody();
+
+            float mass = 0.0f;
+            if (rb->getInvMass() != 0.0f)
+                mass = 1.0f / rb->getInvMass();
+
+            o["physics"]["mass"] = mass;
+            o["physics"]["material"] = obj.getMaterialName();
+        }
+
+        sceneJson["objects"].push_back(o);
+    }
+
+    std::ofstream file(path);
+    if (!file.is_open())
+    {
+        std::cout << "Failed to save scene: " << path << std::endl;
+        return false;
+    }
+
+    file << sceneJson.dump(4);
+
+    std::cout << "Scene saved to " << path << std::endl;
+    return true;
+}
+
+bool Scene::loadFromFile(const std::string& path)
+{
+    std::ifstream file(path);
+    if (!file.is_open())
+    {
+        std::cout << "Failed to load scene: " << path << std::endl;
+        return false;
+    }
+
+    json sceneJson;
+    file >> sceneJson;
+
+    // Remove existing objects
+    clear();
+
+    for (const auto& o : sceneJson["objects"])
+    {
+        ShapeType shape = (ShapeType)o["shape"].get<int>();
+
+        glm::vec3 position(
+            o["transform"]["position"][0],
+            o["transform"]["position"][1],
+            o["transform"]["position"][2]
+        );
+
+        glm::quat rotation(
+            o["transform"]["rotation"][3],
+            o["transform"]["rotation"][0],
+            o["transform"]["rotation"][1],
+            o["transform"]["rotation"][2]
+        );
+
+        glm::vec3 scale(
+            o["transform"]["scale"][0],
+            o["transform"]["scale"][1],
+            o["transform"]["scale"][2]
+        );
+
+        std::string texture = o["render"]["texture"];
+
+        bool physicsEnabled = o["physics"]["enabled"];
+
+        GameObject* obj = nullptr;
+
+        if (physicsEnabled)
+        {
+            float mass = o["physics"]["mass"];
+            std::string material = o["physics"]["material"];
+
+            glm::vec3 physScale(
+                o["physics"]["physicsScale"][0],
+                o["physics"]["physicsScale"][1],
+                o["physics"]["physicsScale"][2]
+            );
+
+            glm::vec3 collisionSize = scale * physScale;
+
+            obj = spawnObject(shape, position, collisionSize, mass, material, texture);
+
+            obj->setScale(scale);
+            obj->setPhysicsScale(physScale);
+
+            // force exact transform into Bullet immediately
+            obj->getPhysics()->syncFromTransform(obj->getTransform());
+
+            // make render match physics immediately
+            obj->updateFromPhysics();
+        }
+
+        else
+        {
+            obj = spawnRenderObject(shape, position, scale, texture);
+        }
+
+        obj->setRotation(rotation);
+
+        if (o.contains("name"))
+            obj->setName(o["name"]);
+    }
+
+    std::cout << "Scene loaded from " << path << std::endl;
+
+    // --- Apply exact transforms to physics bodies (NO simulation) ---
+    for (auto& obj : gameObjects)
+    {
+        if (obj->hasPhysics())
+        {
+            // Copy transform -> rigid body
+            obj->getPhysics()->syncFromTransform(obj->getTransform());
+        }
+    }
+
+    // --- Freeze everything so nothing moves ---
+    for (auto& obj : gameObjects)
+    {
+        if (obj->hasPhysics())
+        {
+            btRigidBody* body = obj->getRigidBody();
+            if (body)
+            {
+                body->setLinearVelocity(btVector3(0, 0, 0));
+                body->setAngularVelocity(btVector3(0, 0, 0));
+                body->clearForces();
+                body->setActivationState(ISLAND_SLEEPING);
+            }
+        }
+    }
+
+    return true;
+}
+
 

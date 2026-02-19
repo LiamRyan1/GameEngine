@@ -89,6 +89,11 @@ public:
     // Clear all objects
     void clear();
 
+    // Scene serialization
+    bool saveToFile(const std::string& path) const;
+    bool loadFromFile(const std::string& path);
+
+
     /**
      * @brief Load .obj model and spawn it in the scene
      * @param filepath Path to .obj file

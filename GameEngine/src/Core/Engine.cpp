@@ -254,6 +254,13 @@ int Start(void)
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
                 std::cout << "Mode: GAME" << std::endl;
+
+                // --- WAKE ALL PHYSICS BODIES ---
+                for (auto& obj : scene.getObjects())
+                {
+                    if (obj->hasPhysics())
+                        obj->getRigidBody()->activate(true);
+                }
             }
             else
             {
@@ -271,6 +278,16 @@ int Start(void)
         {
             renderer.toggleDebugPhysics();
             std::cout << "Debug Physics Wireframes: " << (renderer.isDebugPhysicsEnabled() ? "ON" : "OFF") << std::endl;
+        }
+
+        if (Input::GetKeyPressed(GLFW_KEY_F5))
+        {
+            scene.saveToFile("scene_test.json");
+        }
+
+        if (Input::GetKeyPressed(GLFW_KEY_F9))
+        {
+            scene.loadFromFile("scene_test.json");
         }
 
 
