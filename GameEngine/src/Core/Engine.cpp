@@ -23,6 +23,8 @@
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Physics/ConstraintPreset.h"
 #include "../include/Physics/ConstraintTemplate.h"
+#include <filesystem>
+
 
 void simulate(double dt)
 {
@@ -282,12 +284,12 @@ int Start(void)
 
         if (Input::GetKeyPressed(GLFW_KEY_F5))
         {
-            scene.saveToFile("scene_test.json");
+            scene.saveToFile("../../assets/scenes/scene_test.json");
         }
 
         if (Input::GetKeyPressed(GLFW_KEY_F9))
         {
-            scene.loadFromFile("scene_test.json");
+            scene.loadFromFile("../../assets/scenes/scene_test.json");
         }
 
 
@@ -385,6 +387,11 @@ int Start(void)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        ImGui::Begin("Working Directory");
+        ImGui::Text("%s", std::filesystem::current_path().string().c_str());
+        ImGui::End();
+
 
         // ImGui tells us if the UI wants mouse input this frame
         // (hovering, dragging sliders, clicking windows, etc.)

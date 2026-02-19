@@ -9,6 +9,8 @@
 #include "../External/json/json.hpp"
 using json = nlohmann::json;
 #include <fstream>
+#include <filesystem>
+
 
 /**
  * @brief Constructs a new Scene with a reference to the physics world.
@@ -650,6 +652,7 @@ bool Scene::saveToFile(const std::string& path) const
 
         sceneJson["objects"].push_back(o);
     }
+    std::filesystem::create_directories(std::filesystem::path(path).parent_path());
 
     std::ofstream file(path);
     if (!file.is_open())
