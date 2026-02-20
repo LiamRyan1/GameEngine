@@ -4,6 +4,7 @@
 #include "../include/Scene/Scene.h"
 #include "../External/imgui/core/imgui.h"
 
+#include <iostream>
 #include <filesystem>
 #include <vector>
 #include <string>
@@ -13,6 +14,8 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     static char sceneName[128] = "scene_test";
     static std::vector<std::string> sceneFiles;
     static int selectedIndex = -1;
+
+    static char renameBuffer[128] = "";
 
     const std::string sceneFolder = "../../assets/scenes/";
 
@@ -76,6 +79,34 @@ void DrawSceneSaveLoadPanel(Scene& scene)
             items.push_back(s.c_str());
 
         ImGui::Combo("Scenes", &selectedIndex, items.data(), items.size());
+    }
+
+    // =========================
+    // RENAME
+    // =========================
+    if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
+    {
+        ImGui::InputText("New Name", renameBuffer, sizeof(renameBuffer));
+
+        if (ImGui::Button("Rename Scene"))
+        {
+            std::string oldPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
+            std::string newPath = sceneFolder + std::string(renameBuffer) + ".json";
+
+            if (!std::filesystem::exists(newPath))
+            {
+                std::filesystem::rename(oldPath, newPath);
+
+                // Update list immediately
+                sceneFiles[selectedIndex] = renameBuffer;
+
+                std::cout << "Scene renamed to " << renameBuffer << std::endl;
+            }
+            else
+            {
+                std::cout << "Rename failed: file already exists\n";
+            }
+        }
     }
 
     // =========================

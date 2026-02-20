@@ -247,7 +247,8 @@ int Start(void)
         //  - Mouse cursor is captured
         //  - Camera controls are active
         //  - Editor interaction is disabled
-        if (Input::GetKeyPressed(GLFW_KEY_E))
+        if (!ImGui::GetIO().WantCaptureKeyboard &&
+            Input::GetKeyPressed(GLFW_KEY_E))
         {
             if (engineMode == EngineMode::Editor)
             {
