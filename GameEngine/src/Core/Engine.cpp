@@ -49,6 +49,11 @@ int Start(void)
     // Editor mode (UI + selection) or game mode (gameplay + camera control).
     EngineMode engineMode = EngineMode::Editor;
 
+    // Display mode on screen
+    float modeDisplayTimer = 0.0f;
+    const float modeDisplayDuration = 2.0f;
+    std::string modeDisplayText = "EDITOR MODE";
+
     // Currently selected object in editor mode.
     // This is editor-only state and does NOT belong in Renderer or Scene.
     std::vector<GameObject*> selectedObjects;
@@ -255,6 +260,10 @@ int Start(void)
             {
                 engineMode = EngineMode::Game;
 
+                // SHOW MODE TEXT
+                modeDisplayText = "GAME MODE";
+                modeDisplayTimer = modeDisplayDuration;
+
                 // Capture the mouse for gameplay / camera control
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -270,6 +279,10 @@ int Start(void)
             else
             {
                 engineMode = EngineMode::Editor;
+
+                // SHOW MODE TEXT
+                modeDisplayText = "EDITOR MODE";
+                modeDisplayTimer = modeDisplayDuration;
 
                 // Release the mouse so the user can interact with the editor UI
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -773,6 +786,40 @@ int Start(void)
 
         // Draw SceneSavePanel
         DrawSceneSaveLoadPanel(scene, engineMode);
+
+        // Mode change fade timer
+        if (modeDisplayTimer > 0.0f)
+        {
+            modeDisplayTimer -= deltaTime;
+
+            float alpha = std::clamp(modeDisplayTimer / modeDisplayDuration, 0.0f, 1.0f);
+
+            ImGui::SetNextWindowBgAlpha(0.0f);
+            ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+
+            // Tell ImGui to place window at center of screen
+            // Pivot 0.5,0.5 means the window is centered around that point
+            ImGui::SetNextWindowPos(
+                ImVec2(displaySize.x * 0.5f, displaySize.y * 0.5f),
+                ImGuiCond_Always,
+                ImVec2(0.5f, 0.5f)
+            );
+
+            ImGui::Begin("ModeDisplay",
+                nullptr,
+                ImGuiWindowFlags_NoDecoration |
+                ImGuiWindowFlags_NoInputs |
+                ImGuiWindowFlags_NoNav |
+                ImGuiWindowFlags_AlwaysAutoResize);
+
+            ImGui::TextColored(
+                ImVec4(1.0f, 1.0f, 1.0f, alpha),
+                "%s",
+                modeDisplayText.c_str()
+            );
+
+            ImGui::End();
+        }
 
         // End ImGui frame
         ImGui::Render();
