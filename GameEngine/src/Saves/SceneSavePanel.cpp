@@ -4,6 +4,8 @@
 #include "../include/Scene/Scene.h"
 #include "../External/imgui/core/imgui.h"
 
+#include "../include/Core/Engine.h"
+
 #include <iostream>
 #include <filesystem>
 #include <vector>
@@ -12,7 +14,7 @@
 /*Scenes are stored as JSON files in:
 ../../assets/scenes/ */
 
-void DrawSceneSaveLoadPanel(Scene& scene)
+void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode)
 {
     // Buffer used when typing a name to SAVE a new scene
     static char sceneName[128] = "scene_test";
@@ -58,24 +60,32 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // After saving we refresh the dropdown list.
     ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
 
+    if (engineMode != EngineMode::Editor)
+    {
+        ImGui::BeginDisabled();
+    }
+
     if (ImGui::Button("Save Scene"))
     {
         std::string fullPath = sceneFolder + std::string(sceneName) + ".json";
         scene.saveToFile(fullPath);
 
-        // AUTO REFRESH SCENE LIST AFTER SAVE
+        // refresh list
         sceneFiles.clear();
-
         if (std::filesystem::exists(sceneFolder))
         {
             for (auto& entry : std::filesystem::directory_iterator(sceneFolder))
             {
                 if (entry.path().extension() == ".json")
-                {
                     sceneFiles.push_back(entry.path().stem().string());
-                }
             }
         }
+    }
+
+    if (engineMode != EngineMode::Editor)
+    {
+        ImGui::EndDisabled();
+        ImGui::TextDisabled("Saving only allowed in Editor mode");
     }
 
     ImGui::Separator();
@@ -102,40 +112,48 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     {
         ImGui::InputText("New Name", renameBuffer, sizeof(renameBuffer));
 
+        if (engineMode != EngineMode::Editor)
+            ImGui::BeginDisabled();
+
         if (ImGui::Button("Rename Scene"))
         {
             std::string oldPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
             std::string newPath = sceneFolder + std::string(renameBuffer) + ".json";
 
-            // Only rename if destination doesn't already exist
             if (!std::filesystem::exists(newPath))
             {
                 std::filesystem::rename(oldPath, newPath);
-
-                // Update dropdown list immediately
                 sceneFiles[selectedIndex] = renameBuffer;
-
-                std::cout << "Scene renamed to " << renameBuffer << std::endl;
+                std::cout << "Scene renamed\n";
             }
             else
             {
-                std::cout << "Rename failed: file already exists\n";
+                std::cout << "Rename failed: file exists\n";
             }
         }
+
+        if (engineMode != EngineMode::Editor)
+            ImGui::EndDisabled();
     }
 
     // =========================
     // LOAD
     // =========================
     // Loads selected scene into the engine.
-    if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
+    // Disable loading while game simulation is running
+    bool canLoad = (engineMode == EngineMode::Editor);
+
+    if (!canLoad)
+        ImGui::BeginDisabled();
+
+    if (ImGui::Button("Load Scene"))
     {
-        if (ImGui::Button("Load Scene"))
-        {
-            std::string fullPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
-            scene.loadFromFile(fullPath);
-        }
+        std::string fullPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
+        scene.loadFromFile(fullPath);
     }
+
+    if (!canLoad)
+        ImGui::EndDisabled();
 
     // =========================
     // DELETE
@@ -144,10 +162,14 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // Prevents accidental deletion.
     if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
     {
+        if (engineMode != EngineMode::Editor)
+            ImGui::BeginDisabled();
+
         if (ImGui::Button("Delete Scene"))
-        {
             ImGui::OpenPopup("Confirm Delete");
-        }
+
+        if (engineMode != EngineMode::Editor)
+            ImGui::EndDisabled();
     }
 
     if (ImGui::BeginPopupModal("Confirm Delete", NULL, ImGuiWindowFlags_AlwaysAutoResize))
