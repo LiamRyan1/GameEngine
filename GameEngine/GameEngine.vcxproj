@@ -145,6 +145,7 @@
     <ClCompile Include="src\Rendering\DirectionalLight.cpp" />
     <ClCompile Include="src\Rendering\ShadowMap.cpp" />
     <ClCompile Include="src\Rendering\Skybox.cpp" />
+    <ClCompile Include="src\Saves\SceneSavePanel.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
     <ClCompile Include="src\UI\DebugUI.cpp" />
     <ClCompile Include="src\Scene\GameObject.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="include\Physics\PhysicsQuery.h" />
     <ClInclude Include="include\Rendering\Camera.h" />
     <ClInclude Include="include\Rendering\ShadowMap.h" />
+    <ClInclude Include="include\Saves\SceneSavePanel.h" />
     <ClInclude Include="include\Scene\Component.h" />
     <ClInclude Include="include\Physics\ConstraintPreset.h" />
     <ClInclude Include="include\Physics\Constraint.h" />

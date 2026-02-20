@@ -72,6 +72,9 @@ target_sources(GameEngine PRIVATE
     # Editor
     src/Editor/Gizmo.cpp
 
+     # Saves
+     src/Saves/SceneSavePanel.cpp
+
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_draw.cpp
@@ -81,6 +84,8 @@ target_sources(GameEngine PRIVATE
     # --- ImGui Backends ---
     ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.cpp
     ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.cpp
+
+
 )
 
 # Copy shaders to build directory

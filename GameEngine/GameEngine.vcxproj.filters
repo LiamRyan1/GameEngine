@@ -36,6 +36,7 @@
     <ClCompile Include="src\Physics\PhysicsQuery.cpp" />
     <ClCompile Include="src\Rendering\ShadowMap.cpp" />
     <ClCompile Include="src\Physics\ConstraintTemplate.cpp" />
+    <ClCompile Include="src\Saves\SceneSavePanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="include\Physics\ConstraintTemplate.h" />
     <ClInclude Include="..\..\json.hpp" />
     <ClInclude Include="external\json\json.hpp" />
+    <ClInclude Include="include\Saves\SceneSavePanel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

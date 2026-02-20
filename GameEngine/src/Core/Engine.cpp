@@ -23,6 +23,7 @@
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Physics/ConstraintPreset.h"
 #include "../include/Physics/ConstraintTemplate.h"
+#include "../include/Saves/SceneSavePanel.h"
 #include <filesystem>
 
 
@@ -767,6 +768,9 @@ int Start(void)
 
         // Draw Debug UI (logic only)
         debugUI.draw(uiContext);
+
+        // Draw SceneSavePanel
+        DrawSceneSaveLoadPanel(scene);
 
         // End ImGui frame
         ImGui::Render();
