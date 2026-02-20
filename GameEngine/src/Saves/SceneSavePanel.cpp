@@ -18,23 +18,10 @@ void DrawSceneSaveLoadPanel(Scene& scene)
 
     ImGui::Begin("Scene Manager");
 
-    // =========================
-    // SAVE
-    // =========================
-    ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
+    // Auto-load scene list once
+    static bool loadedOnce = false;
 
-    if (ImGui::Button("Save Scene"))
-    {
-        std::string fullPath = sceneFolder + std::string(sceneName) + ".json";
-        scene.saveToFile(fullPath);
-    }
-
-    ImGui::Separator();
-
-    // =========================
-    // REFRESH FILE LIST
-    // =========================
-    if (ImGui::Button("Refresh Scene List"))
+    if (!loadedOnce)
     {
         sceneFiles.clear();
 
@@ -48,7 +35,36 @@ void DrawSceneSaveLoadPanel(Scene& scene)
                 }
             }
         }
+
+        loadedOnce = true;
     }
+
+    // =========================
+    // SAVE
+    // =========================
+    ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
+
+    if (ImGui::Button("Save Scene"))
+    {
+        std::string fullPath = sceneFolder + std::string(sceneName) + ".json";
+        scene.saveToFile(fullPath);
+
+        // AUTO REFRESH SCENE LIST AFTER SAVE
+        sceneFiles.clear();
+
+        if (std::filesystem::exists(sceneFolder))
+        {
+            for (auto& entry : std::filesystem::directory_iterator(sceneFolder))
+            {
+                if (entry.path().extension() == ".json")
+                {
+                    sceneFiles.push_back(entry.path().stem().string());
+                }
+            }
+        }
+    }
+
+    ImGui::Separator();
 
     // =========================
     // DROPDOWN
