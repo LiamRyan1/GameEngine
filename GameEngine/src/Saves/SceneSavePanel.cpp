@@ -9,14 +9,22 @@
 #include <vector>
 #include <string>
 
+/*Scenes are stored as JSON files in:
+../../assets/scenes/ */
+
 void DrawSceneSaveLoadPanel(Scene& scene)
 {
+    // Buffer used when typing a name to SAVE a new scene
     static char sceneName[128] = "scene_test";
+    // Cached list of scene filenames
     static std::vector<std::string> sceneFiles;
+    // Currently selected scene in dropdown
     static int selectedIndex = -1;
 
+    // Buffer used when typing a new name for RENAME
     static char renameBuffer[128] = "";
 
+    // Folder where scene JSON files live
     const std::string sceneFolder = "../../assets/scenes/";
 
     ImGui::Begin("Scene Manager");
@@ -24,6 +32,7 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // Auto-load scene list once
     static bool loadedOnce = false;
 
+    // We scan the scene directory once when panel first opens.
     if (!loadedOnce)
     {
         sceneFiles.clear();
@@ -45,6 +54,8 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // =========================
     // SAVE
     // =========================
+    // User types a name and saves the current scene.
+    // After saving we refresh the dropdown list.
     ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
 
     if (ImGui::Button("Save Scene"))
@@ -72,6 +83,7 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // =========================
     // DROPDOWN
     // =========================
+    // Shows all available scenes found in the directory.
     if (!sceneFiles.empty())
     {
         std::vector<const char*> items;
@@ -84,6 +96,8 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // =========================
     // RENAME
     // =========================
+    // Renames selected scene file on disk.
+    // Prevents overwriting an existing file.
     if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
     {
         ImGui::InputText("New Name", renameBuffer, sizeof(renameBuffer));
@@ -93,11 +107,12 @@ void DrawSceneSaveLoadPanel(Scene& scene)
             std::string oldPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
             std::string newPath = sceneFolder + std::string(renameBuffer) + ".json";
 
+            // Only rename if destination doesn't already exist
             if (!std::filesystem::exists(newPath))
             {
                 std::filesystem::rename(oldPath, newPath);
 
-                // Update list immediately
+                // Update dropdown list immediately
                 sceneFiles[selectedIndex] = renameBuffer;
 
                 std::cout << "Scene renamed to " << renameBuffer << std::endl;
@@ -112,6 +127,7 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // =========================
     // LOAD
     // =========================
+    // Loads selected scene into the engine.
     if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
     {
         if (ImGui::Button("Load Scene"))
@@ -124,6 +140,8 @@ void DrawSceneSaveLoadPanel(Scene& scene)
     // =========================
     // DELETE
     // =========================
+    // Opens confirmation popup before removing scene file.
+    // Prevents accidental deletion.
     if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
     {
         if (ImGui::Button("Delete Scene"))
@@ -137,6 +155,7 @@ void DrawSceneSaveLoadPanel(Scene& scene)
         ImGui::Text("Are you sure you want to delete this scene?");
         ImGui::Separator();
 
+        // ---- Confirm deletion ----
         if (ImGui::Button("Yes", ImVec2(120, 0)))
         {
             std::string fullPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
@@ -144,10 +163,10 @@ void DrawSceneSaveLoadPanel(Scene& scene)
             if (std::filesystem::exists(fullPath))
                 std::filesystem::remove(fullPath);
 
-            // Reset selection
+            // Reset selection after deletion
             selectedIndex = -1;
 
-            // Refresh scene list
+            // Refresh scene list after deletion
             sceneFiles.clear();
 
             if (std::filesystem::exists(sceneFolder))
@@ -168,6 +187,7 @@ void DrawSceneSaveLoadPanel(Scene& scene)
 
         ImGui::SameLine();
 
+        // Cancel deletion
         if (ImGui::Button("Cancel", ImVec2(120, 0)))
         {
             ImGui::CloseCurrentPopup();
