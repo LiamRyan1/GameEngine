@@ -121,5 +121,60 @@ void DrawSceneSaveLoadPanel(Scene& scene)
         }
     }
 
+    // =========================
+    // DELETE
+    // =========================
+    if (selectedIndex >= 0 && selectedIndex < sceneFiles.size())
+    {
+        if (ImGui::Button("Delete Scene"))
+        {
+            ImGui::OpenPopup("Confirm Delete");
+        }
+    }
+
+    if (ImGui::BeginPopupModal("Confirm Delete", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Are you sure you want to delete this scene?");
+        ImGui::Separator();
+
+        if (ImGui::Button("Yes", ImVec2(120, 0)))
+        {
+            std::string fullPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
+
+            if (std::filesystem::exists(fullPath))
+                std::filesystem::remove(fullPath);
+
+            // Reset selection
+            selectedIndex = -1;
+
+            // Refresh scene list
+            sceneFiles.clear();
+
+            if (std::filesystem::exists(sceneFolder))
+            {
+                for (auto& entry : std::filesystem::directory_iterator(sceneFolder))
+                {
+                    if (entry.path().extension() == ".json")
+                    {
+                        sceneFiles.push_back(entry.path().stem().string());
+                    }
+                }
+            }
+
+            std::cout << "Scene deleted\n";
+
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
     ImGui::End();
 }
