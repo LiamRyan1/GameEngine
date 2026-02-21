@@ -31,7 +31,9 @@ private:
 
     DirectionalLight mainLight;
 
-	Texture* loadTexture(const std::string& filepath); // load texture with caching
+    // Texture loading with caching
+    // Supports diffuse, specular, and normal maps
+	Texture* loadTexture(const std::string& filepath);
 
     Skybox skybox;
     bool skyboxEnabled;

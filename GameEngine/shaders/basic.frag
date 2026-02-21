@@ -14,7 +14,9 @@ uniform vec3 lightColor;    // Light color
 
 uniform sampler2D textureSampler;  // Texture sampler
 uniform sampler2D shadowMap; // shadow depth texture
+uniform sampler2D specularMap;
 uniform bool useTexture;           // Flag to enable/disable texture
+uniform bool useSpecularMap;
 
 
 uniform bool uIsSelected;
@@ -85,12 +87,17 @@ void main()
     float diff = max(dot(norm, lightDirection), 0.0);
     vec3 diffuse = diff * lightColor;
     
-    // Specular lighting (shiny highlights)
+    // Specular lighting
     float specularStrength = 0.5;
+    if (useSpecularMap) {
+        // Sample specular map (grayscale - use R channel)
+        specularStrength = texture(specularMap, TexCoord).r;
+    }
+
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
+    vec3 specular = specularStrength * spec * lightColor;   
 
     // Calculate shadow
     float shadow = ShadowCalculation(FragPosLightSpace);
