@@ -41,6 +41,7 @@ target_sources(GameEngine PRIVATE
     src/Rendering/Skybox.cpp
     src/Rendering/ShadowMap.cpp
     src/Rendering/TextureManager.cpp
+    src/Rendering/ShaderManager.cpp
     
     # Physics
     src/Physics/Physics.cpp

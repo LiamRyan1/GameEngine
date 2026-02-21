@@ -12,6 +12,7 @@
 #include "../include/Rendering/Skybox.h"
 #include "ShadowMap.h"
 #include "TextureManager.h"
+#include "ShaderManager.h"
 #include <string>
 #include <memory>  // for std::unique_ptr
 #include <unordered_map>
@@ -19,8 +20,8 @@
 
 class Renderer {
 private:
-    unsigned int shaderProgram;
-    unsigned int shadowShaderProgram; // shader for shadow pass
+    
+    ShaderManager shaderManager;
     ShadowMap shadowMap;
     Mesh cubeMesh;
     Mesh sphereMesh;
@@ -28,16 +29,9 @@ private:
     bool debugPhysicsEnabled;
     TextureManager textureManager;
     DirectionalLight mainLight;
-
-  
-
     Skybox skybox;
     bool skyboxEnabled;
 
-    std::string loadShaderSource(const std::string& filepath);
-    void setupShaders();
-    void setupShadowShaders();
-    unsigned int compileShader(unsigned int type, const char* source);
     void drawGameObject(const GameObject& obj, int modelLoc, int colorLoc);// draw a single game object
     void drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc);
     void drawDebugCollisionShape(const GameObject& obj, int modelLoc, int colorLoc);
