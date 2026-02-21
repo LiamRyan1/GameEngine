@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include "../include/Rendering/Renderer.h"
 #include "../include./Rendering/Texture.h"
+#include "../include/Rendering/MeshFactory.h"
 #include <iostream>
 #include <fstream>   
 #include <sstream> 
@@ -26,9 +27,9 @@ void Renderer::initialize() {
 
 	shadowMap.initialize();
 
-	cubeMesh = Mesh::createCube();
-	sphereMesh = Mesh::createSphere();
-	cylinderMesh = Mesh::createCylinder();
+	cubeMesh = MeshFactory::createCube();
+	sphereMesh = MeshFactory::createSphere();
+	cylinderMesh = MeshFactory::createCylinder();
 }
 
 bool Renderer::loadSkybox(const std::vector<std::string>& faces) {
@@ -104,16 +105,6 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 	unsigned int mainShader = shaderManager.getProgram("main");
 	int useTexLoc = glGetUniformLocation(mainShader, "useTexture");
 	int texLoc = glGetUniformLocation(mainShader, "textureSampler");;
-
-	if (!texture) {
-		glEnable(GL_POLYGON_OFFSET_LINE);
-		glPolygonOffset(-0.50f, -0.50f);
-		glUniform1i(useTexLoc, 0);
-		glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
-		glLineWidth(2.0f);
-		mesh->drawEdges();
-		glDisable(GL_POLYGON_OFFSET_LINE);
-	}
 
 	if (texture) {
 		texture->bind(0);
@@ -255,12 +246,14 @@ void Renderer::drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc
 	glUniform1i(useTexLoc, 0);
 	glUniform3f(colorLoc, 0.0f, 0.0f, 0.0f);
 
-	// Render only edges, offset so it draws on top
+	// Render as wireframe overlay
 	glEnable(GL_POLYGON_OFFSET_LINE);
 	glPolygonOffset(-0.5f, -0.5f);
 	glLineWidth(2.0f);
 
-	mesh->drawEdges();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	mesh->draw();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDisable(GL_POLYGON_OFFSET_LINE);
 }

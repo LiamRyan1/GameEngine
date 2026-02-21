@@ -1,4 +1,3 @@
-#include <GL/glew.h>
 #include "../include/Saves/SceneSavePanel.h"
 
 #include "../include/Scene/Scene.h"

@@ -1,11 +1,9 @@
+#include <GL/glew.h>
 #include "../include/Editor/Gizmo.h"
-
 #include <GLFW/glfw3.h>
 #include "../External/imgui/core/imgui.h"
-
 #include "../include/Rendering/Camera.h"
 #include "../include/Scene/GameObject.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 
 // Constructor

@@ -34,6 +34,7 @@ target_sources(GameEngine PRIVATE
     # Rendering
     src/Rendering/Renderer.cpp
     src/Rendering/Mesh.cpp
+    src/Rendering/MeshFactory.cpp
     src/Rendering/Texture.cpp
     src/Rendering/Camera.cpp
     src/Rendering/DirectionalLight.cpp

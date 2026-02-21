@@ -2,6 +2,7 @@
 #include "../include/Scene/Scene.h"
 #include "../include/Core/Engine.h"
 #include "../include/Physics/ConstraintRegistry.h"
+#include "../include/Rendering/MeshFactory.h"
 #include <unordered_map> 
 #include <iostream>
 #include <algorithm>  // std::min, std::max
@@ -435,7 +436,7 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
     const std::string& materialName)
 {
     // Load mesh from file
-    Mesh loadedMesh = Mesh::loadFromFile(filepath);
+    Mesh loadedMesh = MeshFactory::loadFromFile(filepath);
 
     // Check if load was successful (mesh has vertices)
     if (loadedMesh.getVertexCount() == 0) {
