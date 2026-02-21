@@ -72,7 +72,8 @@ GameObject* Scene::spawnObject(ShapeType type,
     const glm::vec3& size,
     float mass,
     const std::string& materialName,
-    const std::string& texturePath) 
+    const std::string& texturePath,
+    const std::string& specularPath)
 {
     // Create physics body
     btRigidBody* body = physicsWorld.createRigidBody(
@@ -85,6 +86,12 @@ GameObject* Scene::spawnObject(ShapeType type,
 
     // Create game object 
     auto obj = std::make_unique<GameObject>(type, body, size, materialName, texturePath);
+    
+    // Set specular texture if provided
+    if (!specularPath.empty()) {
+        obj->getRender().setSpecularTexturePath(specularPath);
+    }
+    
     // Store GameObject pointer in rigid body's user pointer
     // This allows raycasts to return the GameObject instead of just the raw physics body
     body->setUserPointer(obj.get());
@@ -130,10 +137,16 @@ GameObject* Scene::spawnRenderObject(
     ShapeType type,
     const glm::vec3& position,
     const glm::vec3& size,
-    const std::string& texturePath)
+    const std::string& texturePath,
+    const std::string& specularPath)
 {
     // Render-only constructor (no rigid body)
     auto obj = std::make_unique<GameObject>(type, position, size, texturePath);
+
+    // Set specular texture if provided
+    if (!specularPath.empty()) {
+        obj->getRender().setSpecularTexturePath(specularPath);
+    }
 
     switch (type) {
     case ShapeType::CUBE:

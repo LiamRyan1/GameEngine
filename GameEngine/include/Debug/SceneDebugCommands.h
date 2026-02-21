@@ -16,10 +16,11 @@ struct SceneDebugCommands
     std::function<void(const glm::vec3& position, bool withPhysics)> spawnCube;
     
     // New generic spawn function
-    std::function<void(ShapeType, const glm::vec3&, const glm::vec3&, float, const std::string&, const std::string&)> spawnObject;
+    std::function<GameObject* (ShapeType, const glm::vec3&, const glm::vec3&, float, const std::string&, const std::string&, const std::string&)> spawnObject;
+
 
     // Render-only spawn
-    std::function<GameObject* (ShapeType, const glm::vec3&, const glm::vec3&, const std::string&)> spawnRenderObject;
+    std::function<GameObject* (ShapeType, const glm::vec3&, const glm::vec3&, const std::string&, const std::string&)> spawnRenderObject;
 
     // Register a custom material
     std::function<void(const std::string&, float, float)> registerMaterial;

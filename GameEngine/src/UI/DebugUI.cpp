@@ -933,14 +933,20 @@ void DebugUI::draw(const DebugUIContext& context)
         }
     }
     // Texture selection
+    ImGui::SeparatorText("Textures");
+
     if (!availableTextures.empty()) {
-        // add "None" option at start
+        // Diffuse texture
         std::vector<const char*> textureNames;
-        textureNames.push_back("");
+        textureNames.push_back("None");
         for (const auto& tex : availableTextures) {
             textureNames.push_back(tex.c_str());
         }
-        ImGui::Combo("Texture", &selectedTextureIndex, textureNames.data(), static_cast<int>(textureNames.size()));
+        ImGui::Combo("Diffuse Texture", &selectedTextureIndex, textureNames.data(), static_cast<int>(textureNames.size()));
+
+        // Specular texture
+        static int selectedSpecularIndex = 0;
+        ImGui::Combo("Specular Map", &selectedSpecularIndex, textureNames.data(), static_cast<int>(textureNames.size()));
     }
     else {
         ImGui::TextDisabled("No textures found");
@@ -948,34 +954,34 @@ void DebugUI::draw(const DebugUIContext& context)
     ImGui::Separator();
 
     // Spawn Button
-    if (ImGui::Button("Spawn Object", ImVec2(-1, 0))){
+    if (ImGui::Button("Spawn Object", ImVec2(-1, 0))) {
         if (context.scene.spawnObject) {
             //Determine shape
-			ShapeType shapeType;
+            ShapeType shapeType;
             glm::vec3 size;
 
             switch (selectedShape) {
-                case 0://cube
-                    shapeType = ShapeType::CUBE;
-                    size = glm::vec3(cubeSize[0], cubeSize[1], cubeSize[2]);
-					break;
-                case 1://sphere
-                    shapeType = ShapeType::SPHERE;
-					size = glm::vec3(sphereRadius);
-                    break;
-                case 2://capsule
-                    shapeType = ShapeType::CAPSULE;
-                    size = glm::vec3(capsuleRadius, capsuleHeight, capsuleRadius);
-                    break;
-                default:
-					shapeType = ShapeType::CUBE;
-					size = glm::vec3(1.0f);
+            case 0://cube
+                shapeType = ShapeType::CUBE;
+                size = glm::vec3(cubeSize[0], cubeSize[1], cubeSize[2]);
+                break;
+            case 1://sphere
+                shapeType = ShapeType::SPHERE;
+                size = glm::vec3(sphereRadius);
+                break;
+            case 2://capsule
+                shapeType = ShapeType::CAPSULE;
+                size = glm::vec3(capsuleRadius, capsuleHeight, capsuleRadius);
+                break;
+            default:
+                shapeType = ShapeType::CUBE;
+                size = glm::vec3(1.0f);
             }
 
-			// Determine material
-			std::string materialName;
+            // Determine material
+            std::string materialName;
             if (useCustomMaterial) {
-				materialName = std::string(customMaterialName);
+                materialName = std::string(customMaterialName);
                 //register if not already registered
                 if (context.scene.registerMaterial) {
                     context.scene.registerMaterial(
@@ -985,7 +991,8 @@ void DebugUI::draw(const DebugUIContext& context)
                     );
                 }
 
-            }else {
+            }
+            else {
                 if (selectedMaterialIndex >= 0 &&
                     selectedMaterialIndex < static_cast<int>(context.physics.availableMaterials.size())) {
                     materialName = context.physics.availableMaterials[selectedMaterialIndex];
@@ -994,10 +1001,18 @@ void DebugUI::draw(const DebugUIContext& context)
                     materialName = "Default";
                 }
             }
+
             // Determine texture path
             std::string texturePath = "";
             if (selectedTextureIndex > 0 && selectedTextureIndex <= static_cast<int>(availableTextures.size())) {
                 texturePath = availableTextures[selectedTextureIndex - 1];
+            }
+
+            // Determine specular texture path
+            static int selectedSpecularIndex = 0;
+            std::string specularPath = "";
+            if (selectedSpecularIndex > 0 && selectedSpecularIndex <= static_cast<int>(availableTextures.size())) {
+                specularPath = availableTextures[selectedSpecularIndex - 1];
             }
 
             // Spawn the object
@@ -1009,7 +1024,8 @@ void DebugUI::draw(const DebugUIContext& context)
                     size,
                     mass,
                     materialName,
-                    texturePath
+                    texturePath,
+                    specularPath
                 );
             }
             else
@@ -1018,12 +1034,11 @@ void DebugUI::draw(const DebugUIContext& context)
                     shapeType,
                     glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]),
                     size,
-                    texturePath
+                    texturePath,
+                    specularPath
                 );
             }
-
         }
-
     }
 
     ImGui::End();

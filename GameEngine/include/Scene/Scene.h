@@ -37,14 +37,17 @@ public:
         const glm::vec3& size,
         float mass,
         const std::string& materialName = "Default",
-		const std::string& texturePath = "");
+		const std::string& texturePath = "",
+        const std::string & specularPath = ""
+    );
 
     // Spawn render-only object (no physics)
     GameObject* spawnRenderObject(
         ShapeType type,
         const glm::vec3& position,
         const glm::vec3& size,
-        const std::string& texturePath = ""
+        const std::string& texturePath = "",
+        const std::string & specularPath = ""
     );
 
     void setObjectScale(GameObject* obj, const glm::vec3& newScale);
