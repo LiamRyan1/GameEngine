@@ -97,14 +97,24 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 
 	bool hasTexture = !obj.getTexturePath().empty();
 	Texture* texture = nullptr;
+	Texture* specularTexture = nullptr;
 
 	if (hasTexture) {
 		texture = textureManager.loadTexture(obj.getTexturePath());
 	}
 
+	// Load specular map if exists
+	std::string specularPath = obj.getRender().getSpecularTexturePath();
+	bool hasSpecular = !specularPath.empty();
+	if (hasSpecular) {
+		specularTexture = textureManager.loadTexture(specularPath);
+	}
+
 	unsigned int mainShader = shaderManager.getProgram("main");
 	int useTexLoc = glGetUniformLocation(mainShader, "useTexture");
-	int texLoc = glGetUniformLocation(mainShader, "textureSampler");;
+	int texLoc = glGetUniformLocation(mainShader, "textureSampler");
+	int useSpecLoc = glGetUniformLocation(mainShader, "useSpecularMap");
+	int specLoc = glGetUniformLocation(mainShader, "specularMap");
 
 	if (texture) {
 		texture->bind(0);
@@ -129,6 +139,14 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 		glUniform3f(colorLoc, color.r, color.g, color.b);
 	}
 
+	if (specularTexture) {
+		specularTexture->bind(2);
+		glUniform1i(specLoc, 2);
+		glUniform1i(useSpecLoc, 1);
+	}
+	else {
+		glUniform1i(useSpecLoc, 0);
+	}
 
 	mesh->draw();
 
