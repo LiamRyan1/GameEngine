@@ -11,6 +11,7 @@
 #include "../include/Rendering/DirectionalLight.h"
 #include "../include/Rendering/Skybox.h"
 #include "ShadowMap.h"
+#include "TextureManager.h"
 #include <string>
 #include <memory>  // for std::unique_ptr
 #include <unordered_map>
@@ -21,19 +22,14 @@ private:
     unsigned int shaderProgram;
     unsigned int shadowShaderProgram; // shader for shadow pass
     ShadowMap shadowMap;
-
     Mesh cubeMesh;
     Mesh sphereMesh;
     Mesh cylinderMesh;
     bool debugPhysicsEnabled;
-
-    std::unordered_map<std::string, Texture> textureCache;  //texture cache
-
+    TextureManager textureManager;
     DirectionalLight mainLight;
 
-    // Texture loading with caching
-    // Supports diffuse, specular, and normal maps
-	Texture* loadTexture(const std::string& filepath);
+  
 
     Skybox skybox;
     bool skyboxEnabled;

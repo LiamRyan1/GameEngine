@@ -192,27 +192,6 @@ unsigned int Renderer::compileShader(unsigned int type, const char* source) {
     return shader;
 }
 
-Texture* Renderer::loadTexture(const std::string& filepath) {
-    // Check if texture is already cached
-    auto it = textureCache.find(filepath);
-    if (it != textureCache.end()) {
-        // Already loaded - return cached texture
-        return &it->second;
-    }
-
-    // Not cached - load new texture
-    Texture texture;
-    if (!texture.loadFromFile(filepath)) {
-        std::cerr << "Failed to load texture: " << filepath << std::endl;
-        return nullptr;
-    }
-
-    // Store in cache and return pointer
-    textureCache[filepath] = std::move(texture);
-    std::cout << "Cached texture: " << filepath << std::endl;
-    return &textureCache[filepath];
-}
-
 void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc) {
     glm::mat4 model = Transform::model(
         obj.getPosition(),
@@ -231,7 +210,7 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
     Texture* texture = nullptr;
 
     if (hasTexture) {
-        texture = loadTexture(obj.getTexturePath());
+        texture = textureManager.loadTexture(obj.getTexturePath());
     }
 
     int useTexLoc = glGetUniformLocation(shaderProgram, "useTexture");
@@ -457,12 +436,7 @@ void Renderer::cleanup() {
     skybox.cleanup();
     shadowMap.cleanup();
 
-    for (auto& pair : textureCache) {
-        pair.second.cleanup();
-    }
-    textureCache.clear();
-    std::cout << "Cleaned up " << textureCache.size() << " textures" << std::endl;
-
+    textureManager.cleanup();
     glDeleteProgram(shaderProgram);
     glDeleteProgram(shadowShaderProgram);
     std::cout << "Renderer cleaned up" << std::endl;
