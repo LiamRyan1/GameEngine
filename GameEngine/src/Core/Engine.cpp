@@ -591,24 +591,23 @@ int Start(void)
         // Populate available materials from the registry
         uiContext.physics.availableMaterials = MaterialRegistry::getInstance().getAllMaterialNames();
         
-		// generic spawn function
+        // generic spawn function
         uiContext.scene.spawnObject =
             [&scene](ShapeType type, const glm::vec3& position,
                 const glm::vec3& size, float mass,
                 const std::string& materialName,
-                const std::string& texturePath)
+                const std::string& texturePath,
+                const std::string& specularPath)  // ADD THIS
             {
-                auto* obj = scene.spawnObject(type, position, size, mass, materialName);
-                if (!texturePath.empty()) {
-                    obj->setTexturePath(texturePath);
-                }
+                return scene.spawnObject(type, position, size, mass, materialName, texturePath, specularPath);
             };
 
         // Spawn for objects without physics
         uiContext.scene.spawnRenderObject =
-            [&scene](ShapeType type, const glm::vec3& pos, const glm::vec3& size, const std::string& tex)
+            [&scene](ShapeType type, const glm::vec3& pos, const glm::vec3& size,
+                const std::string& tex, const std::string& specularPath)  // ADD THIS
             {
-                return scene.spawnRenderObject(type, pos, size, tex);
+                return scene.spawnRenderObject(type, pos, size, tex, specularPath);
             };
 
         // Register custom material command
