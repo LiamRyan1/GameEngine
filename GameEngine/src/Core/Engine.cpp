@@ -412,10 +412,6 @@ int Start(void)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Working Directory");
-        ImGui::Text("%s", std::filesystem::current_path().string().c_str());
-        ImGui::End();
-
 
         // ImGui tells us if the UI wants mouse input this frame
         // (hovering, dragging sliders, clicking windows, etc.)
