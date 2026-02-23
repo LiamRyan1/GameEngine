@@ -37,6 +37,12 @@
     <ClCompile Include="src\Rendering\ShadowMap.cpp" />
     <ClCompile Include="src\Physics\ConstraintTemplate.cpp" />
     <ClCompile Include="src\Saves\SceneSavePanel.cpp" />
+    <ClCompile Include="src\Rendering\MeshFactory.cpp" />
+    <ClCompile Include="src\Rendering\TextureManager.cpp" />
+    <ClCompile Include="src\Rendering\ShaderManager.cpp" />
+    <ClCompile Include="src\Physics\Trigger.cpp" />
+    <ClCompile Include="src\Physics\TriggerRegistry.cpp" />
+    <ClCompile Include="src\UI\TriggerEditorPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -90,6 +96,14 @@
     <ClInclude Include="..\..\json.hpp" />
     <ClInclude Include="external\json\json.hpp" />
     <ClInclude Include="include\Saves\SceneSavePanel.h" />
+    <ClInclude Include="include\Rendering\MeshFactory.h" />
+    <ClInclude Include="include\Rendering\ShaderManager.h" />
+    <ClInclude Include="include\Rendering\TextureManager.h" />
+    <ClInclude Include="include\Physics\Trigger.h" />
+    <ClInclude Include="include\Physics\TriggerRegistry.h" />
+    <ClInclude Include="include\Debug\TriggerDebugView.h" />
+    <ClInclude Include="include\Debug\TriggerDebugCommands.h" />
+    <ClInclude Include="include\UI\TriggerEditorPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

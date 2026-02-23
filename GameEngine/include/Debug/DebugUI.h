@@ -9,5 +9,5 @@
 class DebugUI
 {
 public:
-    void draw(const DebugUIContext& context);
+    void draw(DebugUIContext& context);
 };

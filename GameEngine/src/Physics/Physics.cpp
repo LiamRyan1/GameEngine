@@ -3,6 +3,7 @@
 #include "../include/Physics/PhysicsMaterial.h"
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Physics/PhysicsQuery.h"
+#include "../include/Physics/TriggerRegistry.h" 
 #include <iostream>
 
 
@@ -55,7 +56,8 @@ void Physics::initialize() {
     querySystem = std::make_unique<PhysicsQuery>(dynamicsWorld);  
     // Initialize constraint registry with our dynamics world
     ConstraintRegistry::getInstance().initialize(dynamicsWorld);
-
+	// Initialize trigger registry with our dynamics world
+    TriggerRegistry::getInstance().initialize(dynamicsWorld);
     std::cout << "Physics initialized successfully" << std::endl;
 }
 // create a rigid body without a material
@@ -246,6 +248,8 @@ void Physics::update(float fixedDeltaTime) {
     dynamicsWorld->stepSimulation(fixedDeltaTime, 1, fixedDeltaTime);
     // Update constraints (check for broken constraints)
     ConstraintRegistry::getInstance().update();
+	// Update triggers (check for enter/exit events)
+    TriggerRegistry::getInstance().update(fixedDeltaTime);
 }
 
 int Physics::getRigidBodyCount() const {
@@ -260,6 +264,8 @@ void Physics::cleanup() {
     
     // Clear all constraints first (via registry)
     ConstraintRegistry::getInstance().clearAll();
+    // Clear all triggers
+    TriggerRegistry::getInstance().clearAll();
 
     // delete all rigid bodies (including ground)
     for (btRigidBody* body : rigidBodies) {

@@ -3,6 +3,8 @@
 #include "../include/Core/Engine.h"
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Rendering/MeshFactory.h"
+#include "../include/Physics/TriggerRegistry.h"
+#include "../include/Physics/Trigger.h" 
 #include <unordered_map> 
 #include <iostream>
 #include <algorithm>  // std::min, std::max
@@ -421,6 +423,13 @@ void Scene::printSpatialStats() const {
  */
 void Scene::clear() {
     std::cout << "Clearing scene (" << gameObjects.size() << " objects)" << std::endl;
+
+    // Clear all constraints first
+    ConstraintRegistry::getInstance().clearAll();
+
+    // Clear all triggers
+    TriggerRegistry::getInstance().clearAll();
+
     if (spatialGrid) {
         spatialGrid->clear();
     }
@@ -666,6 +675,43 @@ bool Scene::saveToFile(const std::string& path) const
 
         sceneJson["objects"].push_back(o);
     }
+    sceneJson["triggers"] = json::array();
+
+    std::vector<Trigger*> allTriggers =
+        TriggerRegistry::getInstance().getAllTriggers();
+
+    for (Trigger* trigger : allTriggers)
+    {
+        if (!trigger) continue;
+
+        json t;
+
+        t["id"] = trigger->getID();
+        t["name"] = trigger->getName();
+        t["type"] = static_cast<int>(trigger->getType());
+        t["enabled"] = trigger->isEnabled();
+        t["debugVisualize"] = trigger->shouldDebugVisualize();
+
+        glm::vec3 pos = trigger->getPosition();
+        t["position"] = { pos.x, pos.y, pos.z };
+
+        glm::vec3 size = trigger->getSize();
+        t["size"] = { size.x, size.y, size.z };
+
+        if (trigger->getType() == TriggerType::TELEPORT)
+        {
+            glm::vec3 dest = trigger->getTeleportDestination();
+            t["teleportDestination"] = { dest.x, dest.y, dest.z };
+        }
+        else if (trigger->getType() == TriggerType::SPEED_ZONE)
+        {
+            glm::vec3 dir = trigger->getForceDirection();
+            t["forceDirection"] = { dir.x, dir.y, dir.z };
+            t["forceMagnitude"] = trigger->getForceMagnitude();
+        }
+
+        sceneJson["triggers"].push_back(t);
+    }
     std::filesystem::create_directories(std::filesystem::path(path).parent_path());
 
     std::ofstream file(path);
@@ -762,6 +808,71 @@ bool Scene::loadFromFile(const std::string& path)
     }
 
     std::cout << "Scene loaded from " << path << std::endl;
+    if (sceneJson.contains("triggers"))
+    {
+        std::cout << "Loading triggers..." << std::endl;
+
+        for (const auto& t : sceneJson["triggers"])
+        {
+            std::string name =
+                t.contains("name")
+                ? t["name"].get<std::string>()
+                : "Unnamed_Trigger";
+
+            TriggerType type =
+                static_cast<TriggerType>(t["type"].get<int>());
+
+            glm::vec3 position(
+                t["position"][0],
+                t["position"][1],
+                t["position"][2]);
+
+            glm::vec3 size(
+                t["size"][0],
+                t["size"][1],
+                t["size"][2]);
+
+            Trigger* trigger =
+                TriggerRegistry::getInstance().createTrigger(
+                    name, type, position, size);
+
+            if (!trigger) continue;
+
+            if (t.contains("enabled"))
+                trigger->setEnabled(t["enabled"]);
+
+            if (t.contains("debugVisualize"))
+                trigger->setDebugVisualize(t["debugVisualize"]);
+
+            if (type == TriggerType::TELEPORT &&
+                t.contains("teleportDestination"))
+            {
+                glm::vec3 dest(
+                    t["teleportDestination"][0],
+                    t["teleportDestination"][1],
+                    t["teleportDestination"][2]);
+
+                trigger->setTeleportDestination(dest);
+            }
+            else if (type == TriggerType::SPEED_ZONE &&
+                t.contains("forceDirection") &&
+                t.contains("forceMagnitude"))
+            {
+                glm::vec3 dir(
+                    t["forceDirection"][0],
+                    t["forceDirection"][1],
+                    t["forceDirection"][2]);
+
+                float magnitude = t["forceMagnitude"];
+                trigger->setForce(dir, magnitude);
+            }
+
+            std::cout << "Loaded trigger: " << name << std::endl;
+        }
+
+        std::cout << "Triggers loaded successfully" << std::endl;
+    }
+
 
     // --- Apply exact transforms to physics bodies (NO simulation) ---
     for (auto& obj : gameObjects)

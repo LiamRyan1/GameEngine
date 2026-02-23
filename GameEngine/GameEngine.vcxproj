@@ -132,6 +132,7 @@
     <ClCompile Include="external\imgui\core\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
+    <ClCompile Include="src\UI\TriggerEditorPanel.cpp" />
     <ClCompile Include="src\Editor\Gizmo.cpp" />
     <ClCompile Include="src\Physics\Constraint.cpp" />
     <ClCompile Include="src\Physics\Constraintpreset.cpp" />
@@ -140,11 +141,16 @@
     <ClCompile Include="src\Physics\PhysicsMaterial.cpp" />
     <ClCompile Include="src\Physics\PhysicsQuery.cpp" />
     <ClCompile Include="src\Physics\SpatialGrid.cpp" />
+    <ClCompile Include="src\Physics\Trigger.cpp" />
+    <ClCompile Include="src\Physics\TriggerRegistry.cpp" />
     <ClCompile Include="src\Rendering\Camera.cpp" />
     <ClCompile Include="src\Rendering\Cubemap.cpp" />
     <ClCompile Include="src\Rendering\DirectionalLight.cpp" />
+    <ClCompile Include="src\Rendering\MeshFactory.cpp" />
+    <ClCompile Include="src\Rendering\ShaderManager.cpp" />
     <ClCompile Include="src\Rendering\ShadowMap.cpp" />
     <ClCompile Include="src\Rendering\Skybox.cpp" />
+    <ClCompile Include="src\Rendering\TextureManager.cpp" />
     <ClCompile Include="src\Saves\SceneSavePanel.cpp" />
     <ClCompile Include="src\Scene\PhysicsComponent.cpp" />
     <ClCompile Include="src\UI\DebugUI.cpp" />
@@ -186,10 +192,17 @@
     <ClInclude Include="external\imgui\core\imstb_textedit.h" />
     <ClInclude Include="external\imgui\core\imstb_truetype.h" />
     <ClInclude Include="external\json\json.hpp" />
+    <ClInclude Include="include\Debug\TriggerDebugCommands.h" />
+    <ClInclude Include="include\Debug\TriggerDebugView.h" />
     <ClInclude Include="include\Physics\ConstraintTemplate.h" />
     <ClInclude Include="include\Physics\PhysicsQuery.h" />
+    <ClInclude Include="include\Physics\Trigger.h" />
+    <ClInclude Include="include\Physics\TriggerRegistry.h" />
     <ClInclude Include="include\Rendering\Camera.h" />
+    <ClInclude Include="include\Rendering\MeshFactory.h" />
+    <ClInclude Include="include\Rendering\ShaderManager.h" />
     <ClInclude Include="include\Rendering\ShadowMap.h" />
+    <ClInclude Include="include\Rendering\TextureManager.h" />
     <ClInclude Include="include\Saves\SceneSavePanel.h" />
     <ClInclude Include="include\Scene\Component.h" />
     <ClInclude Include="include\Physics\ConstraintPreset.h" />
@@ -226,6 +239,7 @@
     <ClInclude Include="include\Rendering\Texture.h" />
     <ClInclude Include="include\Scene\Transform.h" />
     <ClInclude Include="include\Scene\TransformComponent.h" />
+    <ClInclude Include="include\UI\TriggerEditorPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="models\spyro.obj" />

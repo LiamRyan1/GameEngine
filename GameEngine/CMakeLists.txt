@@ -53,7 +53,8 @@ target_sources(GameEngine PRIVATE
     src/Physics/Constraintpreset.cpp
     src/Physics/ConstraintTemplate.cpp
     src/Physics/PhysicsQuery.cpp
-  
+    src/Physics/Trigger.cpp
+    src/Physics/TriggerRegistry.cpp
     # Scene
     src/Scene/Scene.cpp
     src/Scene/GameObject.cpp
@@ -67,6 +68,7 @@ target_sources(GameEngine PRIVATE
     # UI
     src/UI/DebugUI.cpp 
     src/UI/Raycast.cpp 
+    src/UI/TriggerEditorPanel.cpp 
 
     # External
     src/External/stb_image.cpp

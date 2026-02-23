@@ -3,6 +3,9 @@
 #include "../include/Physics/Constraint.h"
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Physics/ConstraintTemplate.h"
+#include "../include/UI/TriggerEditorPanel.h"
+#include "../include/Physics/Trigger.h"
+#include "../include/Physics/TriggerRegistry.h"
 #include <glm/gtc/constants.hpp>
 #include "../External/imgui/core/imgui.h"
 #include <vector>
@@ -60,7 +63,7 @@ static const char* ConstraintTypeToString(ConstraintType type) {
 
 // ========== Constraint Creation Panel ==========
 
-static void DrawConstraintCreator(const DebugUIContext& context) {
+static void DrawConstraintCreator(DebugUIContext& context) {
     ImGui::Begin("Constraint Creator");
 
     // State for object selection
@@ -603,7 +606,7 @@ static void DrawConstraintCreator(const DebugUIContext& context) {
     }
     ImGui::End();
 }
-static void DrawUnifiedInspector(const DebugUIContext& context) {
+static void DrawUnifiedInspector(DebugUIContext& context) {
     ImGui::Begin("Inspector");
 
     if (!context.selectedObject) {
@@ -773,7 +776,7 @@ static void DrawUnifiedInspector(const DebugUIContext& context) {
     ImGui::End();
 }
 
-void DebugUI::draw(const DebugUIContext& context)
+void DebugUI::draw(DebugUIContext& context)
 {
     // ============================
     // CREATE DOCKSPACE FIRST
@@ -1190,5 +1193,7 @@ void DebugUI::draw(const DebugUIContext& context)
     DrawUnifiedInspector(context);
     DrawConstraintCreator(context);
 
-    ImGui::End();
+	ImGui::End(); // End of Model Importer panel
+    //Trigg 
+    DrawTriggerEditorPanel(context);
 }

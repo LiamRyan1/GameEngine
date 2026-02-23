@@ -24,6 +24,8 @@
 #include "../include/Physics/ConstraintPreset.h"
 #include "../include/Physics/ConstraintTemplate.h"
 #include "../include/Saves/SceneSavePanel.h"
+#include "../include/Physics/TriggerRegistry.h" 
+#include "../include/Physics/Trigger.h"
 #include "../External/imgui/core/imgui.h"
 #include <filesystem>
 
@@ -144,6 +146,11 @@ int Start(void)
     Physics physics;
     physics.initialize();
     ConstraintRegistry::getInstance().initialize(physics.getWorld());
+    TriggerRegistry::getInstance().initialize(physics.getWorld()); 
+
+	// register ghost pair callback for trigger detection (bullet uses ghost objects to detect overlaps without physical response)
+    physics.getWorld()->getBroadphase()->getOverlappingPairCache()
+        ->setInternalGhostPairCallback(new btGhostPairCallback()); 
     std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
     // Initialize constraint templates
     ConstraintTemplateRegistry::getInstance().load();
@@ -319,6 +326,7 @@ int Start(void)
             while (accumulator >= fixedDt)
             {
                 physics.update(fixedDt); // advance simulation by one fixed step
+				TriggerRegistry::getInstance().update(fixedDt); // Update triggers with fixed timestep
                 accumulator -= fixedDt; // remove one step’s worth of time from the bucket
                 physicsSteps++; // count how many physics updates ran this second
             }
@@ -778,6 +786,96 @@ int Start(void)
         uiContext.constraintCommands.findConstraintsByType =
             [&registry](ConstraintType type) -> std::vector<Constraint*> {
             return registry.findConstraintsByType(type);
+            };
+        // ===== Trigger System Commands ===== (ADD THIS ENTIRE SECTION)
+        auto& triggerRegistry = TriggerRegistry::getInstance();
+
+        // Update trigger view state
+        uiContext.triggers.totalTriggers = triggerRegistry.getTriggerCount();
+        uiContext.triggers.allTriggers = triggerRegistry.getAllTriggers();
+
+        // Count enabled/disabled
+        uiContext.triggers.enabledTriggers = 0;
+        uiContext.triggers.disabledTriggers = 0;
+        for (Trigger* t : uiContext.triggers.allTriggers) {
+            if (t->isEnabled()) {
+                uiContext.triggers.enabledTriggers++;
+            }
+            else {
+                uiContext.triggers.disabledTriggers++;
+            }
+        }
+
+        // Count by type
+        uiContext.triggers.goalZoneCount = triggerRegistry.findTriggersByType(TriggerType::GOAL_ZONE).size();
+        uiContext.triggers.deathZoneCount = triggerRegistry.findTriggersByType(TriggerType::DEATH_ZONE).size();
+        uiContext.triggers.checkpointCount = triggerRegistry.findTriggersByType(TriggerType::CHECKPOINT).size();
+        uiContext.triggers.teleportCount = triggerRegistry.findTriggersByType(TriggerType::TELEPORT).size();
+        uiContext.triggers.speedZoneCount = triggerRegistry.findTriggersByType(TriggerType::SPEED_ZONE).size();
+        uiContext.triggers.customCount = triggerRegistry.findTriggersByType(TriggerType::CUSTOM).size();
+
+        // === Creation Commands ===
+        uiContext.triggerCommands.createTrigger =
+            [&triggerRegistry](const std::string& name, TriggerType type,
+                const glm::vec3& position, const glm::vec3& size) -> Trigger* {
+                    return triggerRegistry.createTrigger(name, type, position, size);
+            };
+
+        // === Management Commands ===
+        uiContext.triggerCommands.removeTrigger =
+            [&triggerRegistry](Trigger* trigger) {
+            triggerRegistry.removeTrigger(trigger);
+            };
+
+        uiContext.triggerCommands.removeTriggerByName =
+            [&triggerRegistry](const std::string& name) -> bool {
+            return triggerRegistry.removeTrigger(name);
+            };
+
+        uiContext.triggerCommands.clearAllTriggers =
+            [&triggerRegistry]() {
+            triggerRegistry.clearAll();
+            };
+
+        // === Query Commands ===
+        uiContext.triggerCommands.findTriggerByName =
+            [&triggerRegistry](const std::string& name) -> Trigger* {
+            return triggerRegistry.findTriggerByName(name);
+            };
+
+        uiContext.triggerCommands.findTriggersByType =
+            [&triggerRegistry](TriggerType type) -> std::vector<Trigger*> {
+            return triggerRegistry.findTriggersByType(type);
+            };
+
+        uiContext.triggerCommands.findTriggersContainingObject =
+            [&triggerRegistry](GameObject* obj) -> std::vector<Trigger*> {
+            return triggerRegistry.findTriggersContainingObject(obj);
+            };
+
+        // === Type-Specific Commands ===
+        uiContext.triggerCommands.setTeleportDestination =
+            [](Trigger* trigger, const glm::vec3& dest) {
+            if (trigger) trigger->setTeleportDestination(dest);
+            };
+
+        uiContext.triggerCommands.setForce =
+            [](Trigger* trigger, const glm::vec3& direction, float magnitude) {
+            if (trigger) trigger->setForce(direction, magnitude);
+            };
+        uiContext.triggerCommands.updateTriggerPosition =
+            [](Trigger* trigger, const glm::vec3& position) {
+            if (trigger) trigger->setPosition(position);
+            };
+
+        uiContext.triggerCommands.updateTriggerSize =
+            [](Trigger* trigger, const glm::vec3& size) {
+            if (trigger) trigger->setSize(size);
+            };
+
+        uiContext.triggerCommands.setTriggerEnabled =
+            [](Trigger* trigger, bool enabled) {
+            if (trigger) trigger->setEnabled(enabled);
             };
 
         // Draw Debug UI (logic only)
