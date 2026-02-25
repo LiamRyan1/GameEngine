@@ -27,6 +27,7 @@
 #include "../include/Physics/TriggerRegistry.h" 
 #include "../include/Physics/Trigger.h"
 #include "../External/imgui/core/imgui.h"
+#include "../include/Gameplay/PlayerController.h"
 #include <filesystem>
 
 
@@ -164,6 +165,7 @@ int Start(void)
     // x Remove this hardcoded scene setup when loading from files
     // Create ground plane as a visible GameObject
     scene.spawnObject(ShapeType::CUBE, glm::vec3(0, -0.25f, 0), glm::vec3(100.0f, 0.5f, 100.0f), 0.0f, "Default");
+
     // Create some test cubes
     auto cube1 = scene.spawnObject(ShapeType::CUBE, glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f), 1.0f, "Metal", "textures/stone-1024.jpg");
     auto cube2 = scene.spawnObject(ShapeType::CUBE, glm::vec3(4.0f, 8.0f, -6.0f), glm::vec3(1.0f), 1.0f, "Wood", "textures/wood1.jpg");
@@ -196,6 +198,22 @@ int Start(void)
     );
 
     CameraController cameraController(camera, 5.0f, 0.1f);
+
+    // === Spawn Player Test ===
+    GameObject* player = scene.spawnObject(
+        ShapeType::CAPSULE,
+        glm::vec3(0.0f, 3.0f, 0.0f),
+        glm::vec3(0.5f, 1.0f, 0.5f),
+        1.0f,
+        "Default"
+    );
+
+    // Lock rotation completely so player doesn't tip
+    player->getRigidBody()->setAngularFactor(btVector3(0, 0, 0));
+
+    // Attach PlayerController
+    player->setScript(std::make_unique<PlayerController>(&camera));
+
     cameraController.setMode(CameraController::Mode::ORBIT);  // Start in orbit mode
     cameraController.setOrbitalCenter(glm::vec3(0.0f));
     cameraController.setOrbitalRadius(25.0f);
@@ -274,6 +292,8 @@ int Start(void)
                 // Capture the mouse for gameplay / camera control
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+                Input::SetCameraController(nullptr);
+
                 std::cout << "Mode: GAME" << std::endl;
 
                 // --- WAKE ALL PHYSICS BODIES ---
@@ -293,6 +313,8 @@ int Start(void)
 
                 // Release the mouse so the user can interact with the editor UI
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+                Input::SetCameraController(&cameraController);
 
                 std::cout << "Mode: EDITOR" << std::endl;
             }
@@ -425,7 +447,11 @@ int Start(void)
             selectedObjects.empty() ? nullptr : selectedObjects.front();
 
         //Update camera controller
-        cameraController.update(deltaTime);
+        // Only allow normal camera control if NOT in game mode
+        if (engineMode != EngineMode::Game)
+        {
+            cameraController.update(deltaTime);
+        }
 
         bool gizmoCapturingMouse = gizmo.update(
             window, fbW, fbH,

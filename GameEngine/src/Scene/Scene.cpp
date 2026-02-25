@@ -1,5 +1,6 @@
 #include <GL/glew.h> 
 #include "../include/Scene/Scene.h"
+#include "../include/Core/GameTime.h"
 #include "../include/Core/Engine.h"
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Rendering/MeshFactory.h"
@@ -257,10 +258,16 @@ void Scene::update(EngineMode mode) {
     // Only sync transforms from physics in GAME mode
     if (mode == EngineMode::Game)
     {
-        // Sync all game objects with their physics simulation
-        for (auto& obj : gameObjects) {
+        // --- 1. Update gameplay scripts ---
+        for (auto& obj : gameObjects)
+        {
+            obj->updateScript(Time::GetDeltaTime());
+        }
+
+        // --- 2. Sync physics -> transform ---
+        for (auto& obj : gameObjects)
+        {
             if (obj->hasPhysics())
-                // Update each object's transform from its physics body
                 obj->updateFromPhysics();
         }
     }

@@ -1,4 +1,5 @@
 #include "../include/Scene/GameObject.h"
+#include "../include/Scene/ScriptComponent.h"
 #include <iostream>
 
 /**
@@ -137,4 +138,17 @@ void GameObject::setRotation(const glm::quat& newRot)
     if (physics) {
         physics->syncFromTransform(transform);
     }
+}
+
+void GameObject::setScript(std::unique_ptr<ScriptComponent> s)
+{
+    script = std::move(s);
+    if (script)
+        script->setOwner(this);
+}
+
+void GameObject::updateScript(float dt)
+{
+    if (script)
+        script->update(dt);
 }

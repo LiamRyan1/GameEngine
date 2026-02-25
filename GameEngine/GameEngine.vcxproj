@@ -132,6 +132,8 @@
     <ClCompile Include="external\imgui\core\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
+    <ClCompile Include="src\Gameplay\PlayerController.cpp" />
+    <ClCompile Include="src\Scene\ScriptComponent.cpp" />
     <ClCompile Include="src\UI\TriggerEditorPanel.cpp" />
     <ClCompile Include="src\Editor\Gizmo.cpp" />
     <ClCompile Include="src\Physics\Constraint.cpp" />
@@ -194,6 +196,7 @@
     <ClInclude Include="external\json\json.hpp" />
     <ClInclude Include="include\Debug\TriggerDebugCommands.h" />
     <ClInclude Include="include\Debug\TriggerDebugView.h" />
+    <ClInclude Include="include\Gameplay\PlayerController.h" />
     <ClInclude Include="include\Physics\ConstraintTemplate.h" />
     <ClInclude Include="include\Physics\PhysicsQuery.h" />
     <ClInclude Include="include\Physics\Trigger.h" />
@@ -230,6 +233,7 @@
     <ClInclude Include="include\Physics\Physics.h" />
     <ClInclude Include="include\Scene\PhysicsComponent.h" />
     <ClInclude Include="include\Physics\PhysicsMaterial.h" />
+    <ClInclude Include="include\Scene\ScriptComponent.h" />
     <ClInclude Include="include\UI\Raycast.h" />
     <ClInclude Include="include\Scene\RenderComponent.h" />
     <ClInclude Include="include\Rendering\Renderer.h" />

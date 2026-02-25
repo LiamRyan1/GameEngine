@@ -43,6 +43,8 @@
     <ClCompile Include="src\Physics\Trigger.cpp" />
     <ClCompile Include="src\Physics\TriggerRegistry.cpp" />
     <ClCompile Include="src\UI\TriggerEditorPanel.cpp" />
+    <ClCompile Include="src\Scene\ScriptComponent.cpp" />
+    <ClCompile Include="src\Gameplay\PlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
@@ -104,6 +106,8 @@
     <ClInclude Include="include\Debug\TriggerDebugView.h" />
     <ClInclude Include="include\Debug\TriggerDebugCommands.h" />
     <ClInclude Include="include\UI\TriggerEditorPanel.h" />
+    <ClInclude Include="include\Scene\ScriptComponent.h" />
+    <ClInclude Include="include\Gameplay\PlayerController.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

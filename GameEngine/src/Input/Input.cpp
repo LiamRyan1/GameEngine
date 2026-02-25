@@ -25,6 +25,12 @@ static GLFWwindow* internalWindow = nullptr;
 // Pointer to active CameraController
 static CameraController* s_CameraController = nullptr;
 
+static double lastMouseX = 0.0;
+static double lastMouseY = 0.0;
+static double mouseDeltaX = 0.0;
+static double mouseDeltaY = 0.0;
+static bool firstMouse = true;
+
 // KeyCallback
 // This function updates the key states every time a key is pressed or released
 // so the engine knows exactly what happened.
@@ -59,25 +65,34 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 // Mouse movement callback
 static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    // Forward event to ImGui
     ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
 
-    if (!s_CameraController)
-        return;
-
-    // If UI wants the mouse, don't rotate camera
-    if (ImGui::GetIO().WantCaptureMouse) {
-        s_CameraController->resetMouseTracking();
-        return;
+    if (firstMouse)
+    {
+        lastMouseX = xpos;
+        lastMouseY = ypos;
+        firstMouse = false;
     }
 
-    // Only rotate camera while holding RMB
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS) {
-        s_CameraController->resetMouseTracking();
-        return;
-    }
+    mouseDeltaX = xpos - lastMouseX;
+    mouseDeltaY = ypos - lastMouseY;
 
-    s_CameraController->processMouse(xpos, ypos);
+    lastMouseX = xpos;
+    lastMouseY = ypos;
+
+    // Only forward to CameraController in Editor mode
+    if (s_CameraController)
+    {
+        if (!ImGui::GetIO().WantCaptureMouse &&
+            glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            s_CameraController->processMouse(xpos, ypos);
+        }
+        else
+        {
+            s_CameraController->resetMouseTracking();
+        }
+    }
 }
 
 static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -147,6 +162,9 @@ void Input::BeginFrame()
         mouseButtonsReleased[i] = false;
     }
 
+    mouseDeltaX = 0.0;
+    mouseDeltaY = 0.0;
+
 }
 
 // Query Functions
@@ -192,5 +210,15 @@ bool Input::GetMouseReleased(int button)
 {
     if (button < 0 || button >= 8) return false;
     return mouseButtonsReleased[button];
+}
+
+double Input::GetMouseDeltaX()
+{
+    return mouseDeltaX;
+}
+
+double Input::GetMouseDeltaY()
+{
+    return mouseDeltaY;
 }
 

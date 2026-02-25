@@ -13,6 +13,9 @@ namespace Input
     // Clears per-frame input transitions (pressed / released)
     void BeginFrame();
 
+    double GetMouseDeltaX();
+    double GetMouseDeltaY();
+
     // Keyboard Input
     bool GetKeyDown(int key);         // is held
     bool GetKeyPressed(int key);      // pressed this frame

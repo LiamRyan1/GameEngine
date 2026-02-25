@@ -80,6 +80,9 @@ target_sources(GameEngine PRIVATE
      # Saves
      src/Saves/SceneSavePanel.cpp
 
+     # Gameplay
+     src/Gameplay/PlayerController.cpp
+
     # --- ImGui Core ---
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui.cpp
     ${CMAKE_SOURCE_DIR}/external/imgui/core/imgui_draw.cpp

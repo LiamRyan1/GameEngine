@@ -37,6 +37,7 @@ private:
 
     // Optional components
     std::unique_ptr<PhysicsComponent> physics;
+    std::unique_ptr<class ScriptComponent> script;
 
 public:
 
@@ -78,6 +79,10 @@ public:
      * Call this every frame after physics has stepped.
      */
     void updateFromPhysics();
+
+    void setScript(std::unique_ptr<ScriptComponent> s);
+    void updateScript(float dt);
+    bool hasScript() const { return script != nullptr; }
 
     // Component accessors - allows direct access to components
     TransformComponent& getTransform() { return transform; }
