@@ -68,7 +68,6 @@ GameObject::~GameObject() {
 }
 
 
-
 /**
  * @brief Synchronizes GameObject transform with its physics rigid body.
  *
@@ -140,15 +139,22 @@ void GameObject::setRotation(const glm::quat& newRot)
     }
 }
 
-void GameObject::setScript(std::unique_ptr<ScriptComponent> s)
+// scripts
+
+void GameObject::updateScripts(float dt)
 {
-    script = std::move(s);
-    if (script)
-        script->setOwner(this);
+    for (auto& script : scripts)
+        script->onUpdate(dt);
 }
 
-void GameObject::updateScript(float dt)
+void GameObject::fixedUpdateScripts(float fixedDt)
 {
-    if (script)
-        script->update(dt);
+    for (auto& script : scripts)
+        script->onFixedUpdate(fixedDt);
+}
+
+void GameObject::notifyDestroy()
+{
+    for (auto& script : scripts)
+        script->onDestroy();
 }

@@ -259,12 +259,18 @@ void Scene::update(EngineMode mode) {
     if (mode == EngineMode::Game)
     {
         // --- 1. Update gameplay scripts ---
+        float dt = Time::GetDeltaTime();
+
         for (auto& obj : gameObjects)
         {
-            obj->updateScript(Time::GetDeltaTime());
+            obj->updateScripts(dt);
         }
-
-        // --- 2. Sync physics -> transform ---
+		// --- 2. Fixed update for physics-related scripts ---
+        const float fixedDt = 1.0f / 60.0f;
+        for (auto& obj : gameObjects) {
+            obj->fixedUpdateScripts(fixedDt);
+        }
+        // --- 3. Sync physics -> transform ---
         for (auto& obj : gameObjects)
         {
             if (obj->hasPhysics())
@@ -298,6 +304,8 @@ void Scene::update(EngineMode mode) {
     {
         for (GameObject* obj : pendingDestroy)
         {
+			// Call onDestroy() on all scripts before removing the object
+            obj->notifyDestroy();
             // 1. Remove constraints
             ConstraintRegistry::getInstance().removeConstraintsForObject(obj);
 

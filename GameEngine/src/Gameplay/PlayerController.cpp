@@ -2,115 +2,120 @@
 #include "../include/Scene/GameObject.h"
 #include "../include/Input/Input.h"
 #include <btBulletDynamicsCommon.h>
+#include <GLFW/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+#include <cmath>
 
-PlayerController::PlayerController(Camera* cam,
-    float moveSpeed,
-    float jumpForce)
-    : camera(cam),
-    speed(moveSpeed),
-    jumpStrength(jumpForce)
+PlayerController::PlayerController(Camera* cam, PhysicsQuery* query)
+    : camera(cam), physicsQuery(query)
 {
 }
 
-void PlayerController::update(float dt)
+
+//  onStart - runs once when script is attached to the object
+void PlayerController::onStart()
 {
-    if (!owner) return;
-    if (!owner->hasPhysics()) return;
+    std::cout << "[PlayerController] Started on: " << owner->getName() << std::endl;
+
+    if (!physicsQuery)
+        std::cerr << "[PlayerController] Warning: no PhysicsQuery provided - isGrounded() will always return false" << std::endl;
+}
+// onUpdate - variable dt, runs every frame
+// Handles: orbit camera rotation from mouse, camera position follow
+// NOT movement - that lives in onFixedUpdate to stay in sync with physics
+// handles stuff that doesnt require physics like camera rotation and input, so it can run every frame and feel smooth even if physics is running at a fixed tick rate
+void PlayerController::onUpdate(float dt)
+{
+    if (!camera || !owner) return;
+
+    // Orbit camera: rotate when holding right mouse button
+    if (Input::GetMouseDown(GLFW_MOUSE_BUTTON_RIGHT))
+    {
+        orbitYaw += Input::GetMouseDeltaX() * mouseSensitivity;
+        orbitPitch -= Input::GetMouseDeltaY() * mouseSensitivity;
+
+        // Clamp pitch so camera can't flip over the top or clip through ground
+        if (orbitPitch > 80.0f) orbitPitch = 80.0f;
+        if (orbitPitch < -20.0f) orbitPitch = -20.0f;
+    }
+
+    // Calculate orbit offset from yaw/pitch angles
+    float yawRad = glm::radians(orbitYaw);
+    float pitchRad = glm::radians(orbitPitch);
+
+    glm::vec3 offset;
+    offset.x = cos(pitchRad) * cos(yawRad);
+    offset.y = sin(pitchRad);
+    offset.z = cos(pitchRad) * sin(yawRad);
+    offset *= cameraDistance;
+
+    // Orbit pivot is slightly above player feet (eye level-ish)
+    glm::vec3 pivotPos = owner->getPosition() + glm::vec3(0.0f, cameraHeight, 0.0f);
+
+    camera->setPosition(pivotPos - offset);
+    camera->setYaw(orbitYaw);
+    camera->setPitch(orbitPitch);
+}
+
+//  onFixedUpdate - fixed 1/60s tick, runs in sync with physics
+//  Handles: WASD movement, jumping
+//  Movement goes here (not onUpdate) so it stays consistent with
+//  the physics simulation step and doesn't vary with frame rate
+void PlayerController::onFixedUpdate(float fixedDt)
+{
+    if (!owner || !owner->hasPhysics()) return;
 
     btRigidBody* body = owner->getRigidBody();
     if (!body) return;
 
-    btVector3 velocity = body->getLinearVelocity();
+    // Keep body awake so physics doesn't put it to sleep mid-game
+    body->activate(true);
 
-    float moveX = 0.0f;
-    float moveZ = 0.0f;
+    // Build movement directions relative to camera's current facing
+    // Flatten to XZ plane so looking up/down doesn't affect movement speed
+    glm::vec3 forward = glm::normalize(glm::vec3(camera->getFront().x, 0.0f, camera->getFront().z));
+    glm::vec3 right = glm::normalize(glm::vec3(camera->getRight().x, 0.0f, camera->getRight().z));
 
-    if (Input::GetKeyDown(GLFW_KEY_W)) moveZ -= 1.0f;
-    if (Input::GetKeyDown(GLFW_KEY_S)) moveZ += 1.0f;
-    if (Input::GetKeyDown(GLFW_KEY_A)) moveX -= 1.0f;
-    if (Input::GetKeyDown(GLFW_KEY_D)) moveX += 1.0f;
+    glm::vec3 moveDir(0.0f);
+    if (Input::GetKeyDown(GLFW_KEY_W)) moveDir += forward;
+    if (Input::GetKeyDown(GLFW_KEY_S)) moveDir -= forward;
+    if (Input::GetKeyDown(GLFW_KEY_A)) moveDir -= right;
+    if (Input::GetKeyDown(GLFW_KEY_D)) moveDir += right;
 
-    glm::vec3 moveDir(moveX, 0.0f, moveZ);
-
-    if (glm::length(moveDir) > 0.0f)
+    // Normalize so diagonal movement isn't faster than straight movement
+    if (glm::length(moveDir) > 0.01f)
         moveDir = glm::normalize(moveDir);
 
-    velocity.setX(moveDir.x * speed);
-    velocity.setZ(moveDir.z * speed);
+    // Apply horizontal velocity while preserving vertical (gravity still applies)
+    btVector3 currentVel = body->getLinearVelocity();
+    body->setLinearVelocity(btVector3(
+        moveDir.x * moveSpeed,
+        currentVel.y(),           // keep vertical so gravity and jumps work
+        moveDir.z * moveSpeed
+    ));
 
-    // Jump
-    if (Input::GetKeyPressed(GLFW_KEY_SPACE) && isGrounded())
+    // Jump - only if actually on the ground (PhysicsQuery raycast check)
+    if (Input::GetKeyPressed(GLFW_KEY_SPACE) && checkGrounded())
     {
-        velocity.setY(jumpStrength);
-    }
-
-    body->setLinearVelocity(velocity);
-
-    // --- Third Person Camera Follow ---
-    if (camera)
-    {
-        glm::vec3 playerPos = owner->getPosition();
-
-        glm::vec3 forward = camera->getFront();
-
-        // Ignore vertical component
-        forward.y = 0.0f;
-        forward = glm::normalize(forward);
-
-        glm::vec3 backward = -forward;
-
-        glm::vec3 camPos = playerPos + backward * cameraDistance + glm::vec3(0.0f, cameraHeight, 0.0f);
-
-        camera->setPosition(camPos);
-
-        // --- Third Person Orbit Camera ---
-        if (camera)
-        {
-            // Rotate camera when holding right mouse button
-            if (Input::GetMouseDown(GLFW_MOUSE_BUTTON_RIGHT))
-            {
-                float mouseX = Input::GetMouseDeltaX();
-                float mouseY = Input::GetMouseDeltaY();
-
-                orbitYaw += mouseX * mouseSensitivity;
-                orbitPitch -= mouseY * mouseSensitivity;
-
-                // Clamp pitch to prevent flipping
-                if (orbitPitch > 89.0f) orbitPitch = 89.0f;
-                if (orbitPitch < -89.0f) orbitPitch = -89.0f;
-            }
-
-            glm::vec3 playerPos = owner->getPosition();
-            playerPos.y += cameraHeight;
-
-            float yawRad = glm::radians(orbitYaw);
-            float pitchRad = glm::radians(orbitPitch);
-
-            glm::vec3 offset;
-            offset.x = cos(pitchRad) * cos(yawRad);
-            offset.y = sin(pitchRad);
-            offset.z = cos(pitchRad) * sin(yawRad);
-
-            offset *= cameraDistance;
-
-            glm::vec3 camPos = playerPos - offset;
-
-            camera->setPosition(camPos);
-            camera->setYaw(orbitYaw);
-            camera->setPitch(orbitPitch);
-        }
+        // applyCentralImpulse(force applied from the center of the object to avoid rotation) adds to existing velocity rather than overriding it
+        body->applyCentralImpulse(btVector3(0.0f, jumpForce, 0.0f));
     }
 }
 
-bool PlayerController::isGrounded()
+
+void PlayerController::onDestroy()
 {
-    if (!owner) return false;
+    std::cout << "[PlayerController] Destroyed" << std::endl;
+}
 
-    btRigidBody* body = owner->getRigidBody();
-    if (!body) return false;
+// use physics query to check if player is grounded by raycasting down from their position
+// instead of relying on Bullet's contact points which can be unreliable and cause "sticky" feeling when trying to jump
+bool PlayerController::checkGrounded() const
+{
+    if (!physicsQuery || !owner) return false;
 
-    btVector3 vel = body->getLinearVelocity();
-
-    // Simple grounded check: nearly zero vertical velocity
-    return std::abs(vel.getY()) < 0.1f;
+    // Cast a short ray downward from the player's position
+    // 1.1f gives a small margin below the capsule's bottom
+    return physicsQuery->isGrounded(owner->getPosition(), 1.1f);
 }

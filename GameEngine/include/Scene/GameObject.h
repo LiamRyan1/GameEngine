@@ -4,10 +4,12 @@
 
 #include <memory>
 #include <string>
+#include <vector>
+#include <utility>   
 #include "../include/Scene/TransformComponent.h"
 #include "../include/Scene/PhysicsComponent.h"
 #include "../include/Scene/RenderComponent.h"
-
+#include "../include/Scene/ScriptComponent.h"
 /**
  * @brief  A component-based game object.
  *
@@ -15,8 +17,11 @@
  *  TransformComponent (always present) - position, rotation, scale
  * - RenderComponent (always present) - shape, texture
  * - PhysicsComponent (optional) - rigid body, physics simulation
+ *  - ScriptComponent(s) (optional) - gameplay logic (multiple allowed)
  * Usage examples:
- *
+ * //adding scripts to game objects
+ *  player->addScript<PlayerController>(&camera);
+ *  player->addScript<HealthComponent>(100.0f);
  * // Physics-enabled object (typical game object)
  * auto crate = GameObject(ShapeType::CUBE, body, glm::vec3(1.0f), "Wood", "crate.jpg");
  *
@@ -37,7 +42,8 @@ private:
 
     // Optional components
     std::unique_ptr<PhysicsComponent> physics;
-    std::unique_ptr<class ScriptComponent> script;
+	// Support multiple scripts per object - store in a vector
+    std::vector<std::unique_ptr<ScriptComponent>> scripts;
 
 public:
 
@@ -71,6 +77,39 @@ public:
     ~GameObject();
 
 
+    /**
+        *@brief Attach a script to this object.
+        *
+        * Constructs the script in - place, sets its owner, then calls onStart().
+        * You can attach multiple scripts of different types.
+        *
+        * @tparam T   Must derive from ScriptComponent
+        * @tparam Args Constructor argument types(deduced)
+        * @return Raw pointer to the newly attached script(owned by this GameObject)
+        *
+        *@example
+        * player->addScript<PlayerController>(&camera);
+        *player->addScript<HealthComponent>(100.0f);
+    */
+    template<typename T, typename... Args>
+    T * addScript(Args&&... args)
+    {
+        auto script = std::make_unique<T>(std::forward<Args>(args)...);
+        script->setOwner(this);
+        script->onStart();
+        T* raw = script.get();
+        scripts.push_back(std::move(script));
+        return raw;
+    }
+    /** Called by Scene::update() every frame in Game mode */
+    void updateScripts(float dt);
+
+    /** Called by Scene::update() every physics tick in Game mode */
+    void fixedUpdateScripts(float fixedDt);
+
+    /** Calls onDestroy() on all scripts - called by Scene before destruction */
+    void notifyDestroy();
+
 
     /**
      * @brief Updates transform from physics simulation.
@@ -79,11 +118,6 @@ public:
      * Call this every frame after physics has stepped.
      */
     void updateFromPhysics();
-
-    void setScript(std::unique_ptr<ScriptComponent> s);
-    void updateScript(float dt);
-    bool hasScript() const { return script != nullptr; }
-
     // Component accessors - allows direct access to components
     TransformComponent& getTransform() { return transform; }
     const TransformComponent& getTransform() const { return transform; }

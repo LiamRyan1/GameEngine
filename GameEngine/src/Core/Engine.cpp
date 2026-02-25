@@ -26,10 +26,8 @@
 #include "../include/Saves/SceneSavePanel.h"
 #include "../include/Physics/TriggerRegistry.h" 
 #include "../include/Physics/Trigger.h"
-#include "../External/imgui/core/imgui.h"
-#include "../include/Gameplay/PlayerController.h"
+#include "../include/Gameplay/GameScene.h"
 #include <filesystem>
-
 
 void simulate(double dt)
 {
@@ -161,29 +159,7 @@ int Start(void)
 
     // Create scene manager
     Scene scene(physics, renderer);
-
-    // x Remove this hardcoded scene setup when loading from files
-    // Create ground plane as a visible GameObject
-    scene.spawnObject(ShapeType::CUBE, glm::vec3(0, -0.25f, 0), glm::vec3(100.0f, 0.5f, 100.0f), 0.0f, "Default");
-
-    // Create some test cubes
-    auto cube1 = scene.spawnObject(ShapeType::CUBE, glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f), 1.0f, "Metal", "textures/stone-1024.jpg");
-    auto cube2 = scene.spawnObject(ShapeType::CUBE, glm::vec3(4.0f, 8.0f, -6.0f), glm::vec3(1.0f), 1.0f, "Wood", "textures/wood1.jpg");
-    auto cube3 = scene.spawnObject(ShapeType::CUBE, glm::vec3(-3.0f, 6.0f, -5.0f), glm::vec3(1.0f), 1.0f, "Rubber");
-    // no texture - default to orange
-    auto cube4 = scene.spawnObject(ShapeType::CUBE, glm::vec3(-6.0f, 10.0f, -10.0f), glm::vec3(1.0f), 1.0f, "Ice", "textures/texture_06.png");
-    auto cube5 = scene.spawnObject(ShapeType::CUBE, glm::vec3(5.0f, 12.0f, -7.0f), glm::vec3(1.0f), 1.0f, "Plastic");
-    // Create a sphere (currently rendered as cube with sphere collider)
-    auto sphere1 = scene.spawnObject(ShapeType::SPHERE, glm::vec3(2.0f, 15.0f, 3.0f), glm::vec3(1.0f), 1.0f, "Rubber");
-
-    scene.spawnRenderObject(
-        ShapeType::CUBE,
-        glm::vec3(0, 3, 0),
-        glm::vec3(1.0f),
-        "textures/wood1.jpg"
-    );
-
-
+    
     // TODO: Replace hardcoded scene with file loading
     // scene.loadFromFile("scenes/test_level.json");
 
@@ -199,20 +175,7 @@ int Start(void)
 
     CameraController cameraController(camera, 5.0f, 0.1f);
 
-    // === Spawn Player Test ===
-    GameObject* player = scene.spawnObject(
-        ShapeType::CAPSULE,
-        glm::vec3(0.0f, 3.0f, 0.0f),
-        glm::vec3(0.5f, 1.0f, 0.5f),
-        1.0f,
-        "Default"
-    );
-
-    // Lock rotation completely so player doesn't tip
-    player->getRigidBody()->setAngularFactor(btVector3(0, 0, 0));
-
-    // Attach PlayerController
-    player->setScript(std::make_unique<PlayerController>(&camera));
+    SetupGameScene(scene, camera, physics);
 
     cameraController.setMode(CameraController::Mode::ORBIT);  // Start in orbit mode
     cameraController.setOrbitalCenter(glm::vec3(0.0f));
@@ -335,6 +298,7 @@ int Start(void)
         if (Input::GetKeyPressed(GLFW_KEY_F9))
         {
             scene.loadFromFile("../../assets/scenes/scene_test.json");
+			SetupScripts(scene, camera, physics); // Re-setup scripts after loading new scene
         }
 
 
