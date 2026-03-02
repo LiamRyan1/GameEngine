@@ -228,12 +228,9 @@ void TriggerRegistry::printStats() const {
 
     for (const auto& trigger : triggers) {
         switch (trigger->getType()) {
-        case TriggerType::GOAL_ZONE: goalZones++; break;
-        case TriggerType::DEATH_ZONE: deathZones++; break;
-        case TriggerType::CHECKPOINT: checkpoints++; break;
         case TriggerType::TELEPORT: teleports++; break;
         case TriggerType::SPEED_ZONE: speedZones++; break;
-        case TriggerType::CUSTOM: custom++; break;
+        case TriggerType::EVENT: custom++; break;
         }
 
         if (trigger->isEnabled()) {
@@ -268,12 +265,9 @@ void TriggerRegistry::printAllTriggers() const {
 
         std::cout << "  Type: ";
         switch (trigger->getType()) {
-        case TriggerType::GOAL_ZONE: std::cout << "Goal Zone"; break;
-        case TriggerType::DEATH_ZONE: std::cout << "Death Zone"; break;
-        case TriggerType::CHECKPOINT: std::cout << "Checkpoint"; break;
         case TriggerType::TELEPORT: std::cout << "Teleport"; break;
         case TriggerType::SPEED_ZONE: std::cout << "Speed Zone"; break;
-        case TriggerType::CUSTOM: std::cout << "Custom"; break;
+        case TriggerType::EVENT: std::cout << "Custom"; break;
         }
         std::cout << std::endl;
 

@@ -120,21 +120,6 @@ void Trigger::executeDefaultBehavior(GameObject* obj) {
     if (!obj) return;
 
     switch (type) {
-    case TriggerType::GOAL_ZONE:
-        std::cout << "[GOAL] Level complete!" << std::endl;
-        // TODO: Trigger win condition in game manager
-        break;
-
-    case TriggerType::DEATH_ZONE:
-        std::cout << "[DEATH ZONE] Object destroyed/respawn" << std::endl;
-        // TODO: Request object respawn or destruction
-        break;
-
-    case TriggerType::CHECKPOINT:
-        std::cout << "[CHECKPOINT] Progress saved at " << name << std::endl;
-        // TODO: Save checkpoint data
-        break;
-
     case TriggerType::TELEPORT:
         std::cout << "[TELEPORT] Teleporting to (" << teleportDestination.x
             << ", " << teleportDestination.y << ", " << teleportDestination.z << ")" << std::endl;
@@ -156,7 +141,7 @@ void Trigger::executeDefaultBehavior(GameObject* obj) {
         }
         break;
 
-    case TriggerType::CUSTOM:
+    case TriggerType::EVENT:
         // Custom behavior handled by callbacks
         break;
     }
@@ -182,4 +167,11 @@ void Trigger::setSize(const glm::vec3& newSize) {
     if (ghostObject) {
         ghostObject->setCollisionShape(shape);
     }
+}
+void Trigger::setForce(const glm::vec3& direction, float magnitude)
+{
+    // Safely normalize — avoid NaN if zero vector passed
+    float len = glm::length(direction);
+    forceDirection = (len > 0.0001f) ? direction / len : glm::vec3(0, 1, 0);
+    forceMagnitude = magnitude;
 }

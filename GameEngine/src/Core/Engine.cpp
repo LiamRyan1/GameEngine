@@ -26,6 +26,8 @@
 #include "../include/Saves/SceneSavePanel.h"
 #include "../include/Physics/TriggerRegistry.h" 
 #include "../include/Physics/Trigger.h"
+#include "../include/Physics/ForceGeneratorRegistry.h"
+#include "../include/Physics/ForceGenerator.h"
 #include "../include/Gameplay/GameScene.h"
 #include <filesystem>
 
@@ -146,10 +148,12 @@ int Start(void)
     physics.initialize();
     ConstraintRegistry::getInstance().initialize(physics.getWorld());
     TriggerRegistry::getInstance().initialize(physics.getWorld()); 
+    ForceGeneratorRegistry::getInstance().initialize(physics.getWorld());
 
 	// register ghost pair callback for trigger detection (bullet uses ghost objects to detect overlaps without physical response)
     physics.getWorld()->getBroadphase()->getOverlappingPairCache()
         ->setInternalGhostPairCallback(new btGhostPairCallback()); 
+
     std::cout << "Physics world has " << physics.getRigidBodyCount()<< " rigid bodies" << std::endl;
     // Initialize constraint templates
     ConstraintTemplateRegistry::getInstance().load();
@@ -313,6 +317,7 @@ int Start(void)
             {
                 physics.update(fixedDt); // advance simulation by one fixed step
 				TriggerRegistry::getInstance().update(fixedDt); // Update triggers with fixed timestep
+                ForceGeneratorRegistry::getInstance().update(fixedDt);
                 accumulator -= fixedDt; // remove one step’s worth of time from the bucket
                 physicsSteps++; // count how many physics updates ran this second
             }
@@ -793,12 +798,9 @@ int Start(void)
         }
 
         // Count by type
-        uiContext.triggers.goalZoneCount = triggerRegistry.findTriggersByType(TriggerType::GOAL_ZONE).size();
-        uiContext.triggers.deathZoneCount = triggerRegistry.findTriggersByType(TriggerType::DEATH_ZONE).size();
-        uiContext.triggers.checkpointCount = triggerRegistry.findTriggersByType(TriggerType::CHECKPOINT).size();
         uiContext.triggers.teleportCount = triggerRegistry.findTriggersByType(TriggerType::TELEPORT).size();
         uiContext.triggers.speedZoneCount = triggerRegistry.findTriggersByType(TriggerType::SPEED_ZONE).size();
-        uiContext.triggers.customCount = triggerRegistry.findTriggersByType(TriggerType::CUSTOM).size();
+        uiContext.triggers.customCount = triggerRegistry.findTriggersByType(TriggerType::EVENT).size();
 
         // === Creation Commands ===
         uiContext.triggerCommands.createTrigger =

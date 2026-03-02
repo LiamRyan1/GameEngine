@@ -132,8 +132,10 @@
     <ClCompile Include="external\imgui\core\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\core\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\core\imgui_widgets.cpp" />
+    <ClCompile Include="src\Gameplay\GameScene.cpp" />
     <ClCompile Include="src\Gameplay\PlayerController.cpp" />
-    <ClCompile Include="src\Scene\ScriptComponent.cpp" />
+    <ClCompile Include="src\Physics\ForceGenerator.cpp" />
+    <ClCompile Include="src\Physics\ForceGeneratorRegistry.cpp" />
     <ClCompile Include="src\UI\TriggerEditorPanel.cpp" />
     <ClCompile Include="src\Editor\Gizmo.cpp" />
     <ClCompile Include="src\Physics\Constraint.cpp" />
@@ -196,8 +198,11 @@
     <ClInclude Include="external\json\json.hpp" />
     <ClInclude Include="include\Debug\TriggerDebugCommands.h" />
     <ClInclude Include="include\Debug\TriggerDebugView.h" />
+    <ClInclude Include="include\Gameplay\GameScene.h" />
     <ClInclude Include="include\Gameplay\PlayerController.h" />
     <ClInclude Include="include\Physics\ConstraintTemplate.h" />
+    <ClInclude Include="include\Physics\ForceGenerator.h" />
+    <ClInclude Include="include\Physics\ForceGeneratorRegistry.h" />
     <ClInclude Include="include\Physics\PhysicsQuery.h" />
     <ClInclude Include="include\Physics\Trigger.h" />
     <ClInclude Include="include\Physics\TriggerRegistry.h" />

@@ -9,12 +9,9 @@ static const char* TriggerTypeToString(TriggerType type)
 {
     switch (type)
     {
-    case TriggerType::GOAL_ZONE:  return "Goal Zone";
-    case TriggerType::DEATH_ZONE: return "Death Zone";
-    case TriggerType::CHECKPOINT: return "Checkpoint";
     case TriggerType::TELEPORT:   return "Teleport";
     case TriggerType::SPEED_ZONE: return "Speed Zone";
-    case TriggerType::CUSTOM:     return "Custom";
+    case TriggerType::EVENT:     return "Custom";
     default:                      return "Unknown";
     }
 }
@@ -23,13 +20,9 @@ static TriggerType IndexToTriggerType(int index)
 {
     switch (index)
     {
-    case 0: return TriggerType::GOAL_ZONE;
-    case 1: return TriggerType::DEATH_ZONE;
-    case 2: return TriggerType::CHECKPOINT;
-    case 3: return TriggerType::TELEPORT;
-    case 4: return TriggerType::SPEED_ZONE;
-    case 5: return TriggerType::CUSTOM;
-    default: return TriggerType::CUSTOM;
+    case 0:  return TriggerType::TELEPORT;
+    case 1:  return TriggerType::SPEED_ZONE;
+    default: return TriggerType::EVENT;
     }
 }
 
@@ -68,19 +61,17 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
             ImGui::InputText("Name", newTriggerName, sizeof(newTriggerName));
 
             const char* triggerTypes[] =
-            { "Goal Zone", "Death Zone", "Checkpoint", "Teleport", "Speed Zone", "Custom" };
+            {  "Teleport", "Speed Zone", "EVENT" };
             ImGui::Combo("Type", &selectedTypeIndex, triggerTypes, IM_ARRAYSIZE(triggerTypes));
 
             ImGui::Separator();
             ImGui::TextWrapped("Description:");
             switch (selectedTypeIndex)
             {
-            case 0: ImGui::TextWrapped("Triggers win condition when player enters."); break;
-            case 1: ImGui::TextWrapped("Kills or respawns objects that enter."); break;
-            case 2: ImGui::TextWrapped("Saves player progress when entered."); break;
-            case 3: ImGui::TextWrapped("Instantly moves objects to a destination."); break;
-            case 4: ImGui::TextWrapped("Applies force to objects entering."); break;
-            case 5: ImGui::TextWrapped("User-defined behavior via callbacks."); break;
+            case 0: ImGui::TextWrapped("Instantly moves objects to a destination."); break;
+            case 1: ImGui::TextWrapped("Applies force to objects entering."); break;
+            case 2: ImGui::TextWrapped("Fires enter/exit/stay callbacks only. "
+                "Behavior must be set in code via setOnEnterCallback()."); break;
             }
 
             ImGui::Separator();
@@ -102,7 +93,7 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
             }
             else
             {
-                ImGui::TextDisabled("No additional parameters for this type");
+                ImGui::TextDisabled("Set callbacks in code.");
             }
 
             ImGui::Separator();

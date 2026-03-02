@@ -1,16 +1,20 @@
 ﻿  imgui_impl_glfw.cpp
   imgui_impl_opengl3.cpp
-  TriggerEditorPanel.cpp
+  GameScene.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\backends\imgui_impl_glfw.cpp(111,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\backends\imgui_impl_opengl3.cpp(126,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
-  Trigger.cpp
-  DebugUI.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/UI/DebugUI.cpp')
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Gameplay/GameScene.cpp')
   
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintTemplate.h(79,57): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  (compiling source file 'src/UI/DebugUI.cpp')
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Gameplay/GameScene.cpp')
   
+  MeshFactory.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(74,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(79,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(134,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(186,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(221,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Input.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\backends\imgui_impl_glfw.h(28,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
   (compiling source file 'src/Input/Input.cpp')
@@ -30,6 +34,7 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.
   (compiling source file 'src/Physics/Physics.cpp')
   
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Physics\Physics.cpp(52,44): warning C4305: 'argument': truncation from 'double' to 'const btScalar'
+  Renderer.cpp
   Scene.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Scene/Scene.cpp')

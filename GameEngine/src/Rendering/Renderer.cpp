@@ -277,11 +277,25 @@ void Renderer::drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc
 }
 
 void Renderer::drawDebugCollisionShape(const GameObject& obj, int modelLoc, int colorLoc) {
-	// Build model matrix
+	glm::vec3 debugScale = obj.getScale();
+
+	btRigidBody* rb = obj.getRigidBody();
+	if (rb && rb->getCollisionShape()) {
+		btCollisionShape* shape = rb->getCollisionShape();
+		if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
+			btBoxShape* box = static_cast<btBoxShape*>(shape);
+			btVector3 half = box->getHalfExtentsWithMargin();
+			debugScale = glm::vec3(
+				half.x() * 2.0f,
+				half.y() * 2.0f,
+				half.z() * 2.0f
+			);
+		}
+	}
 	glm::mat4 model = Transform::model(
 		obj.getPosition(),
 		obj.getRotation(),
-		obj.getScale()
+		debugScale
 	);
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 

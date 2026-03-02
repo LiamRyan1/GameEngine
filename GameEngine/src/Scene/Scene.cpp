@@ -492,48 +492,48 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
  
     if (enablePhysics) {
 
-        // Calculate bounding box from mesh vertices
         const std::vector<float>& verts = meshPtr->getVertices();
-        const size_t FLOATS_PER_VERTEX = 6;
+        const size_t FLOATS_PER_VERTEX = 8; // pos(3), normal(3), uv(2)
+
         glm::vec3 minBounds(FLT_MAX);
         glm::vec3 maxBounds(-FLT_MAX);
-
-        // Iterate through vertices (skip normals, only read positions)
-        for (size_t i = 0; i < verts.size(); i += FLOATS_PER_VERTEX) {
-            glm::vec3 pos(verts[i], verts[i + 1], verts[i + 2]);
-
-            minBounds.x = std::min(minBounds.x, pos.x);
-            minBounds.y = std::min(minBounds.y, pos.y);
-            minBounds.z = std::min(minBounds.z, pos.z);
-
-            maxBounds.x = std::max(maxBounds.x, pos.x);
-            maxBounds.y = std::max(maxBounds.y, pos.y);
-            maxBounds.z = std::max(maxBounds.z, pos.z);
+        std::cout << "minBounds Y (raw before normalization): " << minBounds.y << std::endl;
+        std::cout << "maxBounds Y (raw before normalization): " << maxBounds.y << std::endl;
+        for (size_t i = 0; i < verts.size(); i += FLOATS_PER_VERTEX)
+        {
+            glm::vec3 p(verts[i], verts[i + 1], verts[i + 2]);
+            minBounds = glm::min(minBounds, p);
+            maxBounds = glm::max(maxBounds, p);
         }
+        // Apply mesh scale
+        glm::vec3 scaledMin = minBounds * meshScale;
+        glm::vec3 scaledMax = maxBounds * meshScale;
 
-        std::cout << "Model bounds: min(" << minBounds.x << "," << minBounds.y << "," << minBounds.z
-            << ") max(" << maxBounds.x << "," << maxBounds.y << "," << maxBounds.z << ")" << std::endl;
+        // Exact half extents — perfectly encapsulates mesh in all directions
+        glm::vec3 halfExtents = (scaledMax - scaledMin) * 0.5f;
+        halfExtents = glm::max(halfExtents, glm::vec3(0.01f));
 
-        // Calculate collision box size and center offset
-        glm::vec3 boundingBoxSize = (maxBounds - minBounds) * physicsBoxScale;
-        glm::vec3 halfExtents = boundingBoxSize * 0.5f;
-
-        // Calculate where the center of the bounding box is relative to model origin
-        glm::vec3 boundingBoxCenter = (minBounds + maxBounds) * 0.5f * meshScale;
-
-        // Adjust spawn position to account for model's offset
-        glm::vec3 adjustedPosition = position + boundingBoxCenter;
-
-        std::cout << "Creating physics box: " << halfExtents.x << ", "
-            << halfExtents.y << ", " << halfExtents.z << std::endl;
-        std::cout << "Bounding box center offset: " << boundingBoxCenter.x << ", "
-            << boundingBoxCenter.y << ", " << boundingBoxCenter.z << std::endl;
-
+        // Mesh center in world space — box is centered exactly on mesh
+        glm::vec3 meshCenter = (scaledMin + scaledMax) * 0.5f;
+        glm::vec3 spawnPosition = glm::vec3(
+            position.x + meshCenter.x,
+            position.y + halfExtents.y + meshCenter.y,
+            position.z + meshCenter.z
+        );
+        glm::vec3 fullExtents = halfExtents * 2.0f;
+        // DEBUG 
+        std::cout << "minBounds: " << minBounds.y << std::endl;
+        std::cout << "maxBounds: " << maxBounds.y << std::endl;
+        std::cout << "meshCenter.y: " << meshCenter.y << std::endl;
+        std::cout << "meshScale: " << meshScale.x << ", " << meshScale.y << ", " << meshScale.z << std::endl;
+        std::cout << "scaledMin.y: " << scaledMin.y << std::endl;
+        std::cout << "scaledMax.y: " << scaledMax.y << std::endl;
+        std::cout << "halfExtents (final): " << halfExtents.x << ", " << halfExtents.y << ", " << halfExtents.z << std::endl;
         // Create rigid body at adjusted position
         btRigidBody* body = physicsWorld.createRigidBody(
             ShapeType::CUBE,
-            adjustedPosition,  // Use adjusted position
-            halfExtents,
+            spawnPosition,
+            fullExtents,
             mass,
             materialName
         );
@@ -542,14 +542,19 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
         auto objUnique = std::make_unique<GameObject>(
             ShapeType::CUBE, body, halfExtents, materialName, ""
         );
+        body->setUserPointer(objUnique.get());
 
-        // Store physicsBoxScale
+        // Set render mesh and transform
+        objUnique->getRender().setRenderMesh(meshPtr);
+
+        // Apply visual mesh scale
+        objUnique->getTransform().setScale(meshScale);
+
+        // Store physics scale for future reference
         objUnique->setPhysicsScale(physicsBoxScale);
 
-        body->setUserPointer(objUnique.get());
-        objUnique->getRender().setRenderMesh(meshPtr);
-        objUnique->setPosition(adjustedPosition);  // Use adjusted position
-        objUnique->setScale(meshScale);
+        // sync transform from physics body so position is correct immediately 
+        objUnique->updateFromPhysics();
 
         obj = objUnique.get();
         gameObjects.push_back(std::move(objUnique));
@@ -557,9 +562,6 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
         if (spatialGrid) {
             spatialGrid->insertObject(obj);
         }
-
-        std::cout << "Spawned model with physics at (" << adjustedPosition.x << ", "
-            << adjustedPosition.y << ", " << adjustedPosition.z << ")" << std::endl;
     }
     else {
         // Create render-only object

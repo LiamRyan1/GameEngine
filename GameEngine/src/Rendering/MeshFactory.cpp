@@ -328,15 +328,16 @@ Mesh MeshFactory::loadFromFile(const std::string& filepath) {
             maxBounds.y = std::max(maxBounds.y, vertices[i + 1]);
             maxBounds.z = std::max(maxBounds.z, vertices[i + 2]);
         }
-
+        glm::vec3 center = (minBounds + maxBounds) * 0.5f;
         glm::vec3 size = maxBounds - minBounds;
         float maxDim = std::max(size.x, std::max(size.y, size.z));
         float normalizeScale = 2.0f / maxDim;
 
         for (size_t i = 0; i < vertices.size(); i += 8) {
-            vertices[i + 0] *= normalizeScale;
-            vertices[i + 1] *= normalizeScale;
-            vertices[i + 2] *= normalizeScale;
+            // Center first,then scale — so mesh center lands at origin
+            vertices[i] = (vertices[i] - center.x) * normalizeScale;
+            vertices[i + 1] = (vertices[i + 1] - center.y) * normalizeScale;
+            vertices[i + 2] = (vertices[i + 2] - center.z) * normalizeScale;
         }
 
         std::cout << "  Normalized to unit scale" << std::endl;

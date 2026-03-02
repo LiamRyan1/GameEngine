@@ -13,12 +13,9 @@ class GameObject;
  * @brief Defines the type/behavior of a trigger zone
  */
 enum class TriggerType {
-    GOAL_ZONE,      // Win condition, level completion
-    DEATH_ZONE,     // Kills player, respawns objects
-    CHECKPOINT,     // Save point
     TELEPORT,       // Moves object to another location
     SPEED_ZONE,     // Changes object velocity
-    CUSTOM          // User-defined behavior via callbacks
+    EVENT          // User-defined behavior via callbacks
 };
 
 /**
@@ -133,6 +130,9 @@ public:
     void setOnStayCallback(std::function<void(GameObject*, float)> callback) {
         onStayCallback = callback;
     }
+    void clearOnEnterCallback() { onEnterCallback = nullptr; }
+    void clearOnExitCallback() { onExitCallback = nullptr; }
+    void clearOnStayCallback() { onStayCallback = nullptr; }
 
     // === Type-Specific Configuration ===
 
@@ -148,11 +148,7 @@ public:
     /**
      * @brief Set force to apply (for SPEED_ZONE type)
      */
-    void setForce(const glm::vec3& direction, float magnitude) {
-        forceDirection = glm::normalize(direction);
-        forceMagnitude = magnitude;
-    }
-
+    void setForce(const glm::vec3& direction, float magnitude);
     glm::vec3 getForceDirection() const { return forceDirection; }
     float getForceMagnitude() const { return forceMagnitude; }
 };

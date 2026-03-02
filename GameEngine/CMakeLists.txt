@@ -55,6 +55,9 @@ target_sources(GameEngine PRIVATE
     src/Physics/PhysicsQuery.cpp
     src/Physics/Trigger.cpp
     src/Physics/TriggerRegistry.cpp
+    src/Physics/ForceGenerator.cpp
+    src/Physics/ForceGeneratorRegistry.cpp
+
     # Scene
     src/Scene/Scene.cpp
     src/Scene/GameObject.cpp

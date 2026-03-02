@@ -3,7 +3,10 @@
 #include "../include/Scene/Scene.h"
 #include "../include/Rendering/Camera.h"
 #include "../include/Physics/Physics.h"
-
+#include "../include/Physics/TriggerRegistry.h"
+#include "../include/Physics/Trigger.h"
+#include "../include/Physics/ForceGeneratorRegistry.h"
+#include "../include/Physics/ForceGenerator.h"
 void SetupGameScene(Scene& scene, Camera& camera, Physics& physics)
 {
     // Ground
@@ -22,6 +25,16 @@ void SetupGameScene(Scene& scene, Camera& camera, Physics& physics)
     player->getRigidBody()->setContactProcessingThreshold(0.0f);
     // Pass PhysicsQuery so PlayerController can do proper ground raycasts
     player->addScript<PlayerController>(&camera, &physics.getQuerySystem());
+
+
+    auto& forceRegistry = ForceGeneratorRegistry::getInstance();
+    forceRegistry.createWind(
+        "wind_corridor",
+        glm::vec3(0.0f, 2.0f, 0.0f),  // center of the wind area
+        8.0f,                            // radius
+        glm::vec3(1.0f, 0.0f, 0.0f),    // direction (blowing toward +X)
+        60.0f                            // strength
+    );
 }
 void SetupScripts(Scene& scene, Camera& camera, Physics& physics)
 {
