@@ -42,6 +42,63 @@ Scene::~Scene() {
 }
 
 
+// Installs a lambda on the object that fires whenever addTag() is called.
+// The lambda looks up the tag in tagScriptRegistry and calls the attacher if found.
+// Called at the end of every spawn method so ALL objects get the callback,
+// whether spawned at runtime or loaded from file.
+void Scene::wireTagCallback(GameObject* obj)
+{
+    obj->setOnTagAddedCallback([this](GameObject* obj, const std::string& tag)
+        {
+            auto it = tagScriptRegistry.find(tag);
+            if (it != tagScriptRegistry.end() && it->second.attach)
+            {
+                std::cout << "[TagScript] Attaching script for tag '" << tag
+                    << "' to object '" << obj->getName() << "'" << std::endl;
+                it->second.attach(obj);
+            }
+        });
+
+    obj->setOnTagRemovedCallback([this](GameObject* obj, const std::string& tag)
+        {
+            auto it = tagScriptRegistry.find(tag);
+            if (it != tagScriptRegistry.end() && it->second.remove)
+            {
+                std::cout << "[TagScript] Removing script for tag '" << tag
+                    << "' from object '" << obj->getName() << "'" << std::endl;
+                it->second.remove(obj);
+            }
+        });
+}
+// Stores a tag->script binding. Must be called in SetupScripts()
+// before applyTagScriptsToExistingObjects() so loaded objects get scripts too.
+void Scene::registerTagScript(const std::string& tag,
+    std::function<void(GameObject*)> scriptAttacher,
+    std::function<void(GameObject*)> scriptRemover)
+{
+    tagScriptRegistry[tag] = TagScriptBinding(scriptAttacher, scriptRemover);
+    std::cout << "[TagScript] Registered script for tag '" << tag << "'" << std::endl;
+}
+
+// One - time pass after registerTagScript() calls to catch objects that
+// already have tags from loadFromFile() before the registry was populated.
+// Call at the END of SetupScripts() after all registerTagScript() calls
+void Scene::applyTagScriptsToExistingObjects()
+{
+    for (auto& obj : gameObjects)
+    {
+        for (const auto& tag : obj->getTags())
+        {
+            auto it = tagScriptRegistry.find(tag);
+            if (it != tagScriptRegistry.end() && it->second.attach)
+            {
+                std::cout << "[TagScript] Applying script for tag '" << tag
+                    << "' to existing object '" << obj->getName() << "'" << std::endl;
+                it->second.attach(obj.get());
+            }
+        }
+    }
+}
 
 /**
  * @brief Spawns a new game object in the scene with physics.
@@ -119,6 +176,7 @@ GameObject* Scene::spawnObject(ShapeType type,
     if (spatialGrid) {
         spatialGrid->insertObject(ptr);
     }
+    wireTagCallback(ptr);
     // Log creation
     const char* shapeName = "Unknown";
     switch (type) {
@@ -166,7 +224,7 @@ GameObject* Scene::spawnRenderObject(
 
     GameObject* ptr = obj.get();
     gameObjects.push_back(std::move(obj));
- 
+    wireTagCallback(ptr);
 
     std::cout << "Spawned Render-Only Object at ("
         << position.x << ", " << position.y << ", " << position.z << ")\n";
@@ -355,7 +413,7 @@ std::vector<GameObject*> Scene::findObjectsInRadius(
 
         // Calculate distance from center
         glm::vec3 diff = obj->getPosition() - center;
-        float distSquared = glm::dot(diff, diff);  // ||v||² = v·v (cheaper than length())
+        float distSquared = glm::dot(diff, diff);  
 
         // Within radius?
         if (distSquared <= radiusSquared) {
@@ -396,6 +454,16 @@ GameObject* Scene::findNearestObject(
     }
 
     return nearest;  // Returns nullptr if nothing found
+}
+
+std::vector<GameObject*> Scene::findObjectsByTag(const std::string& tag) const
+{
+    std::vector<GameObject*> results;
+    for (const auto& obj : gameObjects) {
+        if (obj->hasTag(tag))
+            results.push_back(obj.get());
+    }
+    return results;
 }
 
 // controls
@@ -577,6 +645,8 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
         std::cout << "Spawned render-only model at (" << position.x << ", "
             << position.y << ", " << position.z << ")" << std::endl;
     }
+    // wire up tag->script callback for model-spawned objects too
+    wireTagCallback(obj);
     return obj;
 }
 
@@ -645,6 +715,10 @@ bool Scene::saveToFile(const std::string& path) const
         // Basic info
         o["id"] = obj.getID();
         o["name"] = obj.getName();
+        // Tags
+        o["tags"] = json::array();
+        for (const auto& tag : obj.getTags())
+            o["tags"].push_back(tag);
         o["shape"] = (int)obj.getShapeType();
 
         // Transform
@@ -822,6 +896,10 @@ bool Scene::loadFromFile(const std::string& path)
 
         if (o.contains("name"))
             obj->setName(o["name"]);
+
+        if (o.contains("tags"))
+            for (const auto& tag : o["tags"])
+                obj->addTag(tag.get<std::string>());
     }
 
     std::cout << "Scene loaded from " << path << std::endl;

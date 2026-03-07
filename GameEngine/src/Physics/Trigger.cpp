@@ -50,6 +50,15 @@ Trigger::~Trigger() {
     delete shape;
 }
 
+// Returns true if obj has ALL of the trigger's required tags,
+// or if no required tags have been set (empty = affect everything).
+bool Trigger::passesTagFilter(GameObject* obj) const
+{
+    if (requiredTags.empty()) return true;   // no filter — affect everything
+    for (const auto& tag : requiredTags)
+        if (!obj->hasTag(tag)) return false; // missing at least one required tag
+    return true;
+}
 void Trigger::update(btDiscreteDynamicsWorld* world, float deltaTime) {
     if (!enabled || !ghostObject) return;
 
@@ -64,7 +73,7 @@ void Trigger::update(btDiscreteDynamicsWorld* world, float deltaTime) {
 
         // Get GameObject from user pointer
         GameObject* obj = static_cast<GameObject*>(colObj->getUserPointer());
-        if (obj) {
+        if (obj && passesTagFilter(obj) ) {
             currentlyInside.push_back(obj);
         }
     }

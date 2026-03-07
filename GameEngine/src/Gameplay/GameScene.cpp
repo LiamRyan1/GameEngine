@@ -23,8 +23,10 @@ void SetupGameScene(Scene& scene, Camera& camera, Physics& physics)
     player->getRigidBody()->setFriction(0.8f);
     player->getRigidBody()->setRestitution(0.0f);
     player->getRigidBody()->setContactProcessingThreshold(0.0f);
-    // Pass PhysicsQuery so PlayerController can do proper ground raycasts
-    player->addScript<PlayerController>(&camera, &physics.getQuerySystem());
+    // script is now attached
+    // SetupScripts() registers "player" -> PlayerController, so adding this
+    // tag here fires the attachment immediately through wireTagCallback.
+    player->addTag("player");
 
 
     auto& forceRegistry = ForceGeneratorRegistry::getInstance();
@@ -38,14 +40,21 @@ void SetupGameScene(Scene& scene, Camera& camera, Physics& physics)
 }
 void SetupScripts(Scene& scene, Camera& camera, Physics& physics)
 {
-    // Find the player by name and re-attach its script
-    for (auto& obj : scene.getObjects())
-    {
-        if (obj->getName() == "Player")
-        {
+    // Each call maps a tag string to a lambda that attaches the right script.
+    // From this point on, ANY object that gets this tag added — whether at
+    // spawn time, from loadFromFile(), or at runtime via the Inspector —
+    // will immediately have the script attached.
+    scene.registerTagScript("player",
+        [&](GameObject* obj) {
             obj->addScript<PlayerController>(&camera, &physics.getQuerySystem());
+        },
+        [](GameObject* obj) {
+            obj->removeScript<PlayerController>();
         }
-        // Add more script re-attachments here as game grows
-        // e.g. if (obj->getName() == "Enemy") obj->addScript<EnemyAI>();
-    }
+    );
+
+    // One-time pass to attach scripts to any objects that were loaded
+    // from file and already had tags set before registerTagScript() was called.
+    // Must be called AFTER all registerTagScript() calls above.
+    scene.applyTagScriptsToExistingObjects();
 }

@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <unordered_set>
 
 class GameObject;
 
@@ -57,10 +58,18 @@ private:
 
     // Speed zone data
     glm::vec3 forceDirection;
+
     float forceMagnitude;
+    // Tag filter — if non - empty, only objects carrying ALL required tags are affected.
+    // An empty set means "affect everything" 
+    std::unordered_set<std::string> requiredTags;
 
     uint64_t id;
     static uint64_t nextID;
+
+    // Returns true if obj has ALL required tags (or if no filter is set).
+    bool passesTagFilter(GameObject* obj) const;
+
 
 public:
     /**
@@ -151,6 +160,14 @@ public:
     void setForce(const glm::vec3& direction, float magnitude);
     glm::vec3 getForceDirection() const { return forceDirection; }
     float getForceMagnitude() const { return forceMagnitude; }
+
+    // When one or more required tags are set, the trigger will ONLY fire for
+    // objects that carry ALL of those tags. Empty = affect every object (default).
+    void requireTag(const std::string& tag) { requiredTags.insert(tag); }
+    void removeRequiredTag(const std::string& tag) { requiredTags.erase(tag); }
+    void clearRequiredTags() { requiredTags.clear(); }
+    bool hasTagFilter() const { return !requiredTags.empty(); }
+    const std::unordered_set<std::string>& getRequiredTags() const { return requiredTags; }
 };
 
 #endif // TRIGGER_H

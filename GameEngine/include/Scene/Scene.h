@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <memory>
+#include <functional>                 
+#include <unordered_map>               
+#include <string> 
 #include "../include/Scene/GameObject.h"
 #include "../include/Physics/Physics.h"
 #include "../include/Physics/SpatialGrid.h" 
@@ -21,6 +24,25 @@ private:
     
     std::vector<GameObject*> pendingDestroy;
 
+    // Maps tag strings to script-attacher lambdas.
+    // Populated by registerTagScript() in SetupScripts().
+    // Queried by wireTagCallback() which is installed on every spawned object.
+    struct TagScriptBinding {
+        std::function<void(GameObject*)> attach;
+        std::function<void(GameObject*)> remove;
+
+        TagScriptBinding() = default;
+        TagScriptBinding(
+            std::function<void(GameObject*)> a,
+            std::function<void(GameObject*)> r)
+            : attach(std::move(a)), remove(std::move(r)) {
+        }
+    };
+    std::unordered_map<std::string, TagScriptBinding> tagScriptRegistry;
+
+    // Wires the tag->script callback into a freshly spawned object.
+    // Called at the end of spawnObject(), spawnRenderObject(), and loadAndSpawnModel().
+    void wireTagCallback(GameObject* obj);
 
 public:
     Scene(Physics& physics, Renderer& renderer);
@@ -78,6 +100,25 @@ public:
         float maxRadius,
         std::function<bool(GameObject*)> filter = nullptr
     ) const;
+
+    /**
+     * Find all objects that have a specific tag.
+     * for  SetupScripts() to bulk-attach scripts:
+     *   for (auto* obj : scene.findObjectsByTag("enemy"))
+     *       obj->addScript<EnemyAI>();
+     */
+    std::vector<GameObject*> findObjectsByTag(const std::string& tag) const;
+
+    // When any object has this tag added (at spawn time or runtime via the Inspector),
+    // the provided lambda is called immediately with that object as the argument.
+    // Call this in SetupScripts() before loading/spawning objects so pre-tagged
+    // objects also get their scripts attached on load.
+    //   scene.registerTagScript("player", [&](GameObject* obj) {
+    //   obj->addScript<PlayerController>(&camera, &physics.getQuerySystem());
+    void registerTagScript(const std::string& tag, std::function<void(GameObject*)> scriptAttacher,std::function<void(GameObject*)> scriptRemover = nullptr);
+    // in the scene.Call this at the end of SetupScripts() to catch objects that were
+    // loaded from file before registerTagScript() was called.
+    void applyTagScriptsToExistingObjects();
 
     // === Spatial Grid Control ===
 

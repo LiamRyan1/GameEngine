@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <utility>   
+#include <unordered_set>
 #include "../include/Scene/TransformComponent.h"
 #include "../include/Scene/PhysicsComponent.h"
 #include "../include/Scene/RenderComponent.h"
@@ -36,6 +37,12 @@ private:
     uint64_t id;
 
     std::string name; //create a unique name for each object - this needs to be implemented 
+	std::unordered_set<std::string> tags; // lightweight string labels for grouping/categorizing objects (e.g. "enemy", "collectible", "flying") to allow for applying scripts to groups of objects.
+
+    // Callback fired by addTag() so Scene can auto-attach scripts at runtime.
+    // Set by Scene::wireTagCallback() after every spawn. Null until then.
+    std::function<void(GameObject*, const std::string&)> onTagAddedCallback;
+    std::function<void(GameObject*, const std::string&)> onTagRemovedCallback;
     // Core components (always present)
     TransformComponent transform;
     RenderComponent render;
@@ -110,6 +117,35 @@ public:
     /** Calls onDestroy() on all scripts - called by Scene before destruction */
     void notifyDestroy();
 
+    template<typename T>
+    bool removeScript()
+    {
+        auto it = std::find_if(scripts.begin(), scripts.end(),
+            [](const std::unique_ptr<ScriptComponent>& s)
+            {
+                return dynamic_cast<T*>(s.get()) != nullptr;
+            });
+
+        if (it == scripts.end())
+            return false;
+
+        (*it)->pendingRemoval = true;
+        return true;
+    }
+
+    template<typename T>
+    T* getScript()
+    {
+        for (auto& script : scripts)
+        {
+            T* cast = dynamic_cast<T*>(script.get());
+            if (cast) return cast;
+        }
+        return nullptr;
+    }
+
+    bool hasScripts() const { return !scripts.empty(); }
+
 
     /**
      * @brief Updates transform from physics simulation.
@@ -148,6 +184,32 @@ public:
     const std::string& getTexturePath() const { return render.getTexturePath(); }
     void setTexturePath(const std::string& path) { render.setTexturePath(path); }
 
+    // Tags — lightweight string labels used to group/categorise objects.
+    // Multiple tags per object are supported (e.g. "enemy", "flying", "boss").
+    // Scripts and Scene queries can filter by tag without touching names or IDs.
+    void addTag(const std::string& tag){
+        tags.insert(tag);
+        // ADDED: notify Scene so registered tag->script mappings fire immediately
+        if (onTagAddedCallback)
+            onTagAddedCallback(this, tag);
+    }
+    void setOnTagRemovedCallback(std::function<void(GameObject*, const std::string&)> cb)
+    {
+        onTagRemovedCallback = cb;
+    }
+    void removeTag(const std::string& tag) {
+        tags.erase(tag);
+        if (onTagRemovedCallback)
+            onTagRemovedCallback(this, tag);
+    }
+    bool hasTag(const std::string& tag) const { return tags.count(tag) > 0; }
+    void clearTags() { tags.clear(); }
+    const std::unordered_set<std::string>& getTags() const { return tags; }
+   
+    void setOnTagAddedCallback(std::function<void(GameObject*, const std::string&)> cb)
+    {
+        onTagAddedCallback = cb;
+    }
     // Name
     const std::string& getName() const { return name; }
     void setName(const std::string& newName) { name = newName; }

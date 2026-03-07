@@ -37,6 +37,8 @@ public:
     void setOwner(GameObject* obj) { owner = obj; }
     GameObject* getOwner() const { return owner; }
 
+    // The script will finish its current frame then be destroyed safely.
+    bool pendingRemoval = false;
 protected:
     GameObject* owner = nullptr;
 };

@@ -144,13 +144,24 @@ void GameObject::setRotation(const glm::quat& newRot)
 void GameObject::updateScripts(float dt)
 {
     for (auto& script : scripts)
-        script->onUpdate(dt);
+        if (!script->pendingRemoval)
+            script->onUpdate(dt);
+
+    scripts.erase(
+        std::remove_if(scripts.begin(), scripts.end(),
+            [](const std::unique_ptr<ScriptComponent>& s) {
+                if (s->pendingRemoval) { s->onDestroy(); return true; }
+                return false;
+            }),
+        scripts.end()
+    );
 }
 
 void GameObject::fixedUpdateScripts(float fixedDt)
 {
     for (auto& script : scripts)
-        script->onFixedUpdate(fixedDt);
+        if (!script->pendingRemoval)
+            script->onFixedUpdate(fixedDt);
 }
 
 void GameObject::notifyDestroy()

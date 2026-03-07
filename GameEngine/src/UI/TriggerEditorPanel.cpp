@@ -212,8 +212,7 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
                     if (ImGui::DragFloat3("Destination", &dest.x, 0.1f))
                         trigger->setTeleportDestination(dest);
                 }
-                else if (trigger->getType() == TriggerType::SPEED_ZONE)
-                {
+                else if (trigger->getType() == TriggerType::SPEED_ZONE){
                     glm::vec3 dir = trigger->getForceDirection();
                     float mag = trigger->getForceMagnitude();
                     bool changed = false;
@@ -222,11 +221,59 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
                     if (changed)
                         trigger->setForce(dir, mag);
                 }
-                else
-                {
+                else{
                     ImGui::TextDisabled("No additional parameters for this type");
                 }
 
+
+                ImGui::Separator();
+
+
+                if (ImGui::CollapsingHeader("Tag Filter", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    if (trigger->hasTagFilter()) {
+                        ImGui::TextColored(ImVec4(0.2f, 0.9f, 0.4f, 1.0f), "Active — only tagged objects affected");
+                    }
+                    else {
+                        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No filter — affects all objects");
+                    }
+
+                    ImGui::Spacing();
+
+                    // Show current required tags as removable chips
+                    const auto& reqTags = trigger->getRequiredTags();
+                    if (reqTags.empty()) {
+                        ImGui::TextDisabled("No required tags set");
+                    }
+                    else {
+                        ImGui::Text("Required tags:");
+                        std::vector<std::string> tagVec(reqTags.begin(), reqTags.end());
+                        for (int i = 0; i < static_cast<int>(tagVec.size()); ++i) {
+                            if (i > 0) ImGui::SameLine();
+                            ImGui::PushID(i);
+                            std::string chipLabel = tagVec[i] + "  x##TrigTag";
+                            if (ImGui::SmallButton(chipLabel.c_str()))
+                                trigger->removeRequiredTag(tagVec[i]);
+                            ImGui::PopID();
+                        }
+                    }
+
+                    // Add tag input
+                    static char trigTagInput[64] = "";
+                    ImGui::SetNextItemWidth(140.0f);
+                    ImGui::InputText("##TrigNewTag", trigTagInput, sizeof(trigTagInput));
+                    ImGui::SameLine();
+                    if (ImGui::Button("Add##TrigAddTag") && trigTagInput[0] != '\0') {
+                        trigger->requireTag(std::string(trigTagInput));
+                        trigTagInput[0] = '\0';
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Clear All##TrigClearTags")) {
+                        trigger->clearRequiredTags();
+                    }
+
+                    ImGui::TextDisabled("Object must have ALL listed tags to activate trigger");
+                }
                 ImGui::Separator();
 
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.1f, 0.1f, 1.0f));

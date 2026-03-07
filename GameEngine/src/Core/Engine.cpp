@@ -179,8 +179,9 @@ int Start(void)
 
     CameraController cameraController(camera, 5.0f, 0.1f);
 
+    SetupScripts(scene, camera, physics);
     SetupGameScene(scene, camera, physics);
-
+   
     cameraController.setMode(CameraController::Mode::ORBIT);  // Start in orbit mode
     cameraController.setOrbitalCenter(glm::vec3(0.0f));
     cameraController.setOrbitalRadius(25.0f);

@@ -622,7 +622,57 @@ static void DrawUnifiedInspector(DebugUIContext& context) {
     glm::vec3 scale = context.selectedObject->getScale();
     glm::quat rot = context.selectedObject->getRotation();
 
+	// id readonly
     ImGui::Text("Object ID: %llu", context.selectedObject->getID());
+
+    // Editable name
+    {
+        static char nameBuffer[64] = "";
+        static uint64_t lastInspectedID = 0;
+        if (context.selectedObject->getID() != lastInspectedID) {
+            lastInspectedID = context.selectedObject->getID();
+            strncpy(nameBuffer, context.selectedObject->getName().c_str(), sizeof(nameBuffer) - 1);
+            nameBuffer[sizeof(nameBuffer) - 1] = '\0';
+        }
+        if (ImGui::InputText("Name##InspectorName", nameBuffer, IM_ARRAYSIZE(nameBuffer),
+            ImGuiInputTextFlags_EnterReturnsTrue))
+            context.selectedObject->setName(std::string(nameBuffer));
+        ImGui::TextDisabled("Press Enter to confirm");
+    }
+
+     //  Tag management section.
+     // Adding a tag here calls GameObject::addTag() which fires wireTagCallback,
+     // so any matching registerTagScript() binding attaches immediately at runtime.
+     if (ImGui::CollapsingHeader("Tags", ImGuiTreeNodeFlags_DefaultOpen)){
+        const auto& tags = context.selectedObject->getTags();
+
+        if (tags.empty())
+            ImGui::TextDisabled("No tags assigned");
+        else {
+            std::vector<std::string> tagVec(tags.begin(), tags.end());
+            for (int i = 0; i < static_cast<int>(tagVec.size()); ++i) {
+                if (i > 0) ImGui::SameLine();
+                ImGui::PushID(i);
+                std::string chipLabel = tagVec[i] + " x##InspTag";
+                if (ImGui::SmallButton(chipLabel.c_str()))
+                    context.selectedObject->removeTag(tagVec[i]);
+                ImGui::PopID();
+            }
+        }
+
+        static char inspTagInput[64] = "";
+        ImGui::SetNextItemWidth(140.0f);
+        ImGui::InputText("##InspNewTag", inspTagInput, IM_ARRAYSIZE(inspTagInput));
+        ImGui::SameLine();
+        if (ImGui::Button("Add##InspAddTag") && inspTagInput[0] != '\0') {
+            // ADDED: this call fires wireTagCallback -> tagScriptRegistry lookup -> auto script attach
+            context.selectedObject->addTag(std::string(inspTagInput));
+            inspTagInput[0] = '\0';
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear All##InspClearTags"))
+            context.selectedObject->clearTags();
+        }
     ImGui::Separator();
 
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -955,6 +1005,35 @@ void DebugUI::draw(DebugUIContext& context)
         ImGui::TextDisabled("No textures found");
     }
     ImGui::Separator();
+    // Name & Tags
+    ImGui::SeparatorText("Identity");
+    static char spawnName[64] = "";
+    static char spawnTagInput[64] = "";
+    static std::vector<std::string> spawnTags;
+
+    ImGui::InputText("Name (Optional)", spawnName, IM_ARRAYSIZE(spawnName));
+    ImGui::TextDisabled("Leave blank for auto-generated name (e.g. Cube_3)");
+    ImGui::Spacing();
+    ImGui::Text("Tags:");
+    for (int i = 0; i < static_cast<int>(spawnTags.size()); ++i) {
+        ImGui::SameLine();
+        ImGui::PushID(i);
+        std::string chipLabel = spawnTags[i] + " x";
+        if (ImGui::SmallButton(chipLabel.c_str())) spawnTags.erase(spawnTags.begin() + i);
+        ImGui::PopID();
+    }
+    ImGui::SetNextItemWidth(140.0f);
+    ImGui::InputText("##NewTag", spawnTagInput, IM_ARRAYSIZE(spawnTagInput));
+    ImGui::SameLine();
+    if (ImGui::Button("Add Tag") && spawnTagInput[0] != '\0') {
+        std::string t(spawnTagInput);
+        if (std::find(spawnTags.begin(), spawnTags.end(), t) == spawnTags.end())
+            spawnTags.push_back(t);
+        spawnTagInput[0] = '\0';
+    }
+    ImGui::TextDisabled("e.g. enemy, player, interactable");
+
+    ImGui::Separator();
 
     // Spawn Button
     if (ImGui::Button("Spawn Object", ImVec2(-1, 0))) {
@@ -1018,28 +1097,28 @@ void DebugUI::draw(DebugUIContext& context)
                 specularPath = availableTextures[selectedSpecularIndex - 1];
             }
 
-            // Spawn the object
+			// capture pointer to newly spawned object to apply tags and name after creation
+            GameObject* spawned = nullptr;
+
             if (spawnWithPhysics)
-            {
-                context.scene.spawnObject(
-                    shapeType,
-                    glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]),
-                    size,
-                    mass,
-                    materialName,
-                    texturePath,
-                    specularPath
-                );
-            }
+                spawned = context.scene.spawnObject(shapeType, glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]), size, mass, materialName, texturePath, specularPath);
             else
-            {
-                context.scene.spawnRenderObject(
-                    shapeType,
-                    glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]),
-                    size,
-                    texturePath,
-                    specularPath
-                );
+                spawned = context.scene.spawnRenderObject(shapeType, glm::vec3(spawnPos[0], spawnPos[1], spawnPos[2]), size, texturePath, specularPath);
+
+            // apply name and tags to freshly spawned object.
+            // addTag() fires wireTagCallback, so registered tag->script bindings attach immediately.
+            if (spawned) {
+                if (spawnName[0] != '\0') {
+                    spawned->setName(std::string(spawnName));
+                }
+                else {
+                    const char* shapeName = (selectedShape == 0) ? "Cube" : (selectedShape == 1) ? "Sphere" : "Capsule";
+                    spawned->setName(std::string(shapeName) + "_" + std::to_string(spawned->getID()));
+                }
+                for (const auto& tag : spawnTags)
+                    spawned->addTag(tag);
+
+                spawnName[0] = '\0'; // clear name after spawn; tags kept for rapid multi-spawn
             }
         }
     }
