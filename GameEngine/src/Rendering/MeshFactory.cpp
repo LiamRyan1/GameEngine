@@ -10,45 +10,74 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+// ADD THIS ENTIRE FUNCTION HERE:
+// Helper function to calculate tangent and bitangent vectors
+static void calculateTangentBitangent(
+    const glm::vec3& pos1, const glm::vec3& pos2, const glm::vec3& pos3,
+    const glm::vec2& uv1, const glm::vec2& uv2, const glm::vec2& uv3,
+    glm::vec3& tangent, glm::vec3& bitangent)
+{
+    glm::vec3 edge1 = pos2 - pos1;
+    glm::vec3 edge2 = pos3 - pos1;
+    glm::vec2 deltaUV1 = uv2 - uv1;
+    glm::vec2 deltaUV2 = uv3 - uv1;
+
+    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tangent = glm::normalize(tangent);
+
+    bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitangent = glm::normalize(bitangent);
+}
+
+
 Mesh MeshFactory::createCube() {
-    // Interleaved format: pos(3) + normal(3) + uv(2) = 8 floats per vertex
-    // 24 vertices (6 faces * 4 vertices)
+    // Format: pos(3) + normal(3) + uv(2) + tangent(3) + bitangent(3) = 14 floats
     std::vector<float> vertices = {
-        // Front face (normal: 0, 0, 1)
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
+        // Front face (normal: 0, 0, 1, tangent: 1, 0, 0, bitangent: 0, 1, 0)
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
 
-        // Back face (normal: 0, 0, -1)
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+        // Back face (normal: 0, 0, -1, tangent: -1, 0, 0, bitangent: 0, 1, 0)
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f, -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f, -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
 
-         // Left face (normal: -1, 0, 0)
-         -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-         -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-         -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-         -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         // Left face (normal: -1, 0, 0, tangent: 0, 0, 1, bitangent: 0, 1, 0)
+         -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+         -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+         -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+         -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
 
-         // Right face (normal: 1, 0, 0)
-          0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-          0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-          0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-          0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         // Right face (normal: 1, 0, 0, tangent: 0, 0, -1, bitangent: 0, 1, 0)
+          0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+          0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+          0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+          0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
 
-          // Top face (normal: 0, 1, 0)
-          -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-          -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-           0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-           0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+          // Top face (normal: 0, 1, 0, tangent: 1, 0, 0, bitangent: 0, 0, -1)
+          -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+          -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+           0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+           0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
 
-           // Bottom face (normal: 0, -1, 0)
-           -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f
+           // Bottom face (normal: 0, -1, 0, tangent: 1, 0, 0, bitangent: 0, 0, 1)
+           -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+           -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f
     };
 
     std::vector<unsigned int> indices = {
@@ -87,13 +116,28 @@ Mesh MeshFactory::createSphere(float radius, int sectors, int stacks) {
             vertices.push_back(z);
 
             // Normal (normalized position)
-            vertices.push_back(x / radius);
-            vertices.push_back(y / radius);
-            vertices.push_back(z / radius);
+            glm::vec3 normal = glm::normalize(glm::vec3(x / radius, y / radius, z / radius));
+            vertices.push_back(normal.x);
+            vertices.push_back(normal.y);
+            vertices.push_back(normal.z);
 
             // Texture coordinates
-            vertices.push_back((float)j / sectors);
-            vertices.push_back((float)i / stacks);
+            float s = (float)j / sectors;
+            float t = (float)i / stacks;
+            vertices.push_back(s);
+            vertices.push_back(t);
+
+            // Tangent (approximate - good enough for spheres)
+            glm::vec3 tangent = glm::normalize(glm::vec3(-sinf(sectorAngle), cosf(sectorAngle), 0.0f));
+            vertices.push_back(tangent.x);
+            vertices.push_back(tangent.y);
+            vertices.push_back(tangent.z);
+
+            // Bitangent (cross product of normal and tangent)
+            glm::vec3 bitangent = glm::cross(normal, tangent);
+            vertices.push_back(bitangent.x);
+            vertices.push_back(bitangent.y);
+            vertices.push_back(bitangent.z);
         }
     }
 
@@ -141,13 +185,26 @@ Mesh MeshFactory::createCylinder(float radius, float height, int sectors) {
             vertices.push_back(z);
 
             // Normal (horizontal)
-            vertices.push_back(x / radius);
-            vertices.push_back(0.0f);
-            vertices.push_back(z / radius);
+            glm::vec3 normal = glm::normalize(glm::vec3(x / radius, 0.0f, z / radius));
+            vertices.push_back(normal.x);
+            vertices.push_back(normal.y);
+            vertices.push_back(normal.z);
 
             // Texture coordinates
             vertices.push_back((float)j / sectors);
             vertices.push_back((float)i);
+
+            // Tangent (perpendicular to normal around cylinder)
+            glm::vec3 tangent = glm::normalize(glm::vec3(-sinf(angle), 0.0f, cosf(angle)));
+            vertices.push_back(tangent.x);
+            vertices.push_back(tangent.y);
+            vertices.push_back(tangent.z);
+
+            // Bitangent (up direction for cylinder sides)
+            glm::vec3 bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
+            vertices.push_back(bitangent.x);
+            vertices.push_back(bitangent.y);
+            vertices.push_back(bitangent.z);
         }
     }
 
@@ -178,6 +235,8 @@ Mesh MeshFactory::createCylinder(float radius, float height, int sectors) {
     vertices.push_back(0.0f);
     vertices.push_back(0.5f);
     vertices.push_back(0.5f);
+    vertices.push_back(1.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);  // tangent
+    vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(1.0f);  // bitangent
 
     int bottomCenter = baseCount;
 
@@ -195,6 +254,8 @@ Mesh MeshFactory::createCylinder(float radius, float height, int sectors) {
         vertices.push_back(0.0f);
         vertices.push_back(0.5f + 0.5f * cosf(angle));
         vertices.push_back(0.5f + 0.5f * sinf(angle));
+        vertices.push_back(1.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+        vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(1.0f);
     }
 
     // Bottom cap indices
@@ -215,6 +276,8 @@ Mesh MeshFactory::createCylinder(float radius, float height, int sectors) {
     vertices.push_back(0.0f);
     vertices.push_back(0.5f);
     vertices.push_back(0.5f);
+    vertices.push_back(1.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+    vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(-1.0f);
 
     // Top rim
     for (int j = 0; j <= sectors; ++j) {
@@ -230,6 +293,8 @@ Mesh MeshFactory::createCylinder(float radius, float height, int sectors) {
         vertices.push_back(0.0f);
         vertices.push_back(0.5f + 0.5f * cosf(angle));
         vertices.push_back(0.5f + 0.5f * sinf(angle));
+        vertices.push_back(1.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
+        vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(-1.0f);
     }
 
     // Top cap indices
@@ -268,6 +333,14 @@ Mesh MeshFactory::loadFromFile(const std::string& filepath) {
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
 
+    // Temporary storage for calculating tangents
+    struct TempVertex {
+        glm::vec3 pos, normal;
+        glm::vec2 uv;
+        glm::vec3 tangent, bitangent;
+    };
+    std::vector<TempVertex> tempVertices;
+
     // Process shapes
     for (const auto& shape : shapes) {
         size_t index_offset = 0;
@@ -279,40 +352,78 @@ Mesh MeshFactory::loadFromFile(const std::string& filepath) {
                 continue;
             }
 
-            for (size_t v = 0; v < fv; v++) {
-                tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
+            // Get triangle vertices
+            TempVertex v[3];
+            for (size_t v_idx = 0; v_idx < 3; v_idx++) {
+                tinyobj::index_t idx = shape.mesh.indices[index_offset + v_idx];
 
                 // Position
-                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
-                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
-                vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+                v[v_idx].pos = glm::vec3(
+                    attrib.vertices[3 * idx.vertex_index + 0],
+                    attrib.vertices[3 * idx.vertex_index + 1],
+                    attrib.vertices[3 * idx.vertex_index + 2]
+                );
 
                 // Normal
                 if (idx.normal_index >= 0) {
-                    vertices.push_back(attrib.normals[3 * idx.normal_index + 0]);
-                    vertices.push_back(attrib.normals[3 * idx.normal_index + 1]);
-                    vertices.push_back(attrib.normals[3 * idx.normal_index + 2]);
+                    v[v_idx].normal = glm::vec3(
+                        attrib.normals[3 * idx.normal_index + 0],
+                        attrib.normals[3 * idx.normal_index + 1],
+                        attrib.normals[3 * idx.normal_index + 2]
+                    );
                 }
                 else {
-                    vertices.push_back(0.0f);
-                    vertices.push_back(1.0f);
-                    vertices.push_back(0.0f);
+                    v[v_idx].normal = glm::vec3(0.0f, 1.0f, 0.0f);
                 }
 
-                // Texture coordinates
+                // UV
                 if (idx.texcoord_index >= 0) {
-                    vertices.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
-                    vertices.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
+                    v[v_idx].uv = glm::vec2(
+                        attrib.texcoords[2 * idx.texcoord_index + 0],
+                        attrib.texcoords[2 * idx.texcoord_index + 1]
+                    );
                 }
                 else {
-                    vertices.push_back(0.0f);
-                    vertices.push_back(0.0f);
+                    v[v_idx].uv = glm::vec2(0.0f, 0.0f);
                 }
+            }
 
+            // Calculate tangent and bitangent for this triangle
+            glm::vec3 tangent, bitangent;
+            calculateTangentBitangent(
+                v[0].pos, v[1].pos, v[2].pos,
+                v[0].uv, v[1].uv, v[2].uv,
+                tangent, bitangent
+            );
+
+            // Assign to all 3 vertices
+            for (int i = 0; i < 3; i++) {
+                v[i].tangent = tangent;
+                v[i].bitangent = bitangent;
+                tempVertices.push_back(v[i]);
                 indices.push_back(static_cast<unsigned int>(indices.size()));
             }
+
             index_offset += fv;
         }
+    }
+
+    // Convert to interleaved format (14 floats per vertex)
+    for (const auto& v : tempVertices) {
+        vertices.push_back(v.pos.x);
+        vertices.push_back(v.pos.y);
+        vertices.push_back(v.pos.z);
+        vertices.push_back(v.normal.x);
+        vertices.push_back(v.normal.y);
+        vertices.push_back(v.normal.z);
+        vertices.push_back(v.uv.x);
+        vertices.push_back(v.uv.y);
+        vertices.push_back(v.tangent.x);
+        vertices.push_back(v.tangent.y);
+        vertices.push_back(v.tangent.z);
+        vertices.push_back(v.bitangent.x);
+        vertices.push_back(v.bitangent.y);
+        vertices.push_back(v.bitangent.z);
     }
 
     // Normalize to unit scale
@@ -320,7 +431,7 @@ Mesh MeshFactory::loadFromFile(const std::string& filepath) {
         glm::vec3 minBounds(FLT_MAX);
         glm::vec3 maxBounds(-FLT_MAX);
 
-        for (size_t i = 0; i < vertices.size(); i += 8) {
+        for (size_t i = 0; i < vertices.size(); i += 14) {  // 14 floats per vertex
             minBounds.x = std::min(minBounds.x, vertices[i + 0]);
             minBounds.y = std::min(minBounds.y, vertices[i + 1]);
             minBounds.z = std::min(minBounds.z, vertices[i + 2]);
@@ -328,14 +439,15 @@ Mesh MeshFactory::loadFromFile(const std::string& filepath) {
             maxBounds.y = std::max(maxBounds.y, vertices[i + 1]);
             maxBounds.z = std::max(maxBounds.z, vertices[i + 2]);
         }
-        glm::vec3 center = (minBounds + maxBounds) * 0.5f;
+
+        glm::vec3 center = (minBounds + maxBounds) * 0.5f;  
         glm::vec3 size = maxBounds - minBounds;
         float maxDim = std::max(size.x, std::max(size.y, size.z));
         float normalizeScale = 2.0f / maxDim;
 
-        for (size_t i = 0; i < vertices.size(); i += 8) {
-            // Center first,then scale — so mesh center lands at origin
-            vertices[i] = (vertices[i] - center.x) * normalizeScale;
+        for (size_t i = 0; i < vertices.size(); i += 14) {  // 14 floats per vertex
+            // Center first, then scale — so mesh center lands at origin
+            vertices[i + 0] = (vertices[i + 0] - center.x) * normalizeScale;
             vertices[i + 1] = (vertices[i + 1] - center.y) * normalizeScale;
             vertices[i + 2] = (vertices[i + 2] - center.z) * normalizeScale;
         }

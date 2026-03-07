@@ -11,6 +11,31 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// Helper function to calculate tangent and bitangent vectors
+static void calculateTangentBitangent(
+    const glm::vec3& pos1, const glm::vec3& pos2, const glm::vec3& pos3,
+    const glm::vec2& uv1, const glm::vec2& uv2, const glm::vec2& uv3,
+    glm::vec3& tangent, glm::vec3& bitangent)
+{
+    glm::vec3 edge1 = pos2 - pos1;
+    glm::vec3 edge2 = pos3 - pos1;
+    glm::vec2 deltaUV1 = uv2 - uv1;
+    glm::vec2 deltaUV2 = uv3 - uv1;
+
+    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tangent = glm::normalize(tangent);
+
+    bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitangent = glm::normalize(bitangent);
+}
+
+
 Mesh::Mesh() : VAO(0), VBO(0), EBO(0), indexCount(0) {
 }
 
@@ -73,17 +98,25 @@ void Mesh::setData(const std::vector<float>& interleavedVertices,
         vertices.data(),
         GL_STATIC_DRAW);
 
-    // Position attribute (location 0) - 3 floats
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    // Position attribute (location 0) - 3 floats, stride 14
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // Normal attribute (location 1) - 3 floats, offset 3
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     // Texture coordinate attribute (location 2) - 2 floats, offset 6
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+    // Tangent attribute (location 3) - 3 floats, offset 8
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+
+    // Bitangent attribute (location 4) - 3 floats, offset 11
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+    glEnableVertexAttribArray(4);
 
     // Upload indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

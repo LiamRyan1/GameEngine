@@ -9,8 +9,8 @@ private:
     unsigned int VBO;
     unsigned int EBO;
 
-    // Interleaved vertex data: [pos.x, pos.y, pos.z, normal.x, normal.y, normal.z, uv.x, uv.y]
-    // 8 floats per vertex
+    // Interleaved vertex data: [pos.x, pos.y, pos.z, normal.x, normal.y, normal.z, uv.x, uv.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z]
+    // 14 floats per vertex
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
     unsigned int indexCount;
@@ -35,7 +35,7 @@ public:
 
     // Accessors (needed by Scene for bounding box calculations)
     const std::vector<float>& getVertices() const { return vertices; }
-    size_t getVertexCount() const { return vertices.size() / 8; }  // 8 floats per vertex
+    size_t getVertexCount() const { return vertices.size() / 14; }  // 14 floats per vertex
 
     // Cleanup GPU resources
     void cleanup();
