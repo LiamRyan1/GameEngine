@@ -3,6 +3,8 @@
 layout (location = 0) in vec3 aPos;      // Position
 layout (location = 1) in vec3 aNormal;   // Normal
 layout (location = 2) in vec2 aTexCoord; // Texture Coordinate
+layout (location = 3) in vec3 aTangent;  // Tangent
+layout (location = 4) in vec3 aBitangent; // Bitangent
 
 
 // Uniform matrices for transformations
@@ -16,6 +18,7 @@ out vec3 FragPos;   // Position in world space
 out vec3 Normal;    // Normal in world space
 out vec2 TexCoord;   // Texture coordinates
 out vec4 FragPosLightSpace; // Position in light space for shadow mapping
+out mat3 TBN;  // Tangent-Bitangent-Normal matrix for normal mapping
 
 void main()
 {
@@ -26,6 +29,12 @@ void main()
     Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoord = aTexCoord;
     FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0); // Calculate position in light space for shadow mapping
+
+    // Calculate TBN matrix in world space
+    vec3 T = normalize(mat3(model) * aTangent);
+    vec3 B = normalize(mat3(model) * aBitangent);
+    vec3 N = normalize(mat3(model) * aNormal);
+    TBN = mat3(T, B, N);
 
     // Final position in clip space
     gl_Position = projection * view * vec4(FragPos, 1.0);
