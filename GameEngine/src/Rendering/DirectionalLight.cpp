@@ -21,11 +21,19 @@ glm::mat4 DirectionalLight::getLightSpaceMatrix(const glm::vec3& sceneCenter, fl
     // Position light far away in the direction it's pointing
     glm::vec3 lightPos = sceneCenter - direction * sceneRadius * 2.0f;
 
+    // Choose up vector that's not parallel to light direction
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // If light is pointing mostly up/down, use a different up vector
+    if (std::abs(direction.y) > 0.99f) {
+        up = glm::vec3(1.0f, 0.0f, 0.0f);  // Use X axis instead
+    }
+
     // Look at scene center
     glm::mat4 lightView = glm::lookAt(
         lightPos,
         sceneCenter,
-        glm::vec3(0.0f, 1.0f, 0.0f)
+        up
     );
 
     // Orthographic projection (directional light covers entire scene)
