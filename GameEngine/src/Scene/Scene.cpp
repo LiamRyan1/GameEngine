@@ -6,6 +6,7 @@
 #include "../include/Rendering/MeshFactory.h"
 #include "../include/Physics/TriggerRegistry.h"
 #include "../include/Physics/Trigger.h" 
+#include "../include/Physics/ForceGeneratorRegistry.h"
 #include <unordered_map> 
 #include <iostream>
 #include <algorithm>  // std::min, std::max
@@ -511,11 +512,12 @@ void Scene::clear() {
     // Constraints must be removed before the bodies they reference
     ConstraintRegistry::getInstance().clearAll();
     TriggerRegistry::getInstance().clearAll();
+    ForceGeneratorRegistry::getInstance().clearAll();
 
     // Explicitly unregister every rigid body from Bullet BEFORE destroying GameObjects.
     // Without this, bodies linger in the physics world across reloads and cause crashes.
     for (auto& obj : gameObjects) {
-        if (obj->hasPhysics()) {
+        if (obj->hasPhysics() && obj->getRigidBody()) {
             physicsWorld.removeRigidBody(obj->getRigidBody());
         }
     }
