@@ -20,7 +20,8 @@ private:
     std::vector<std::unique_ptr<GameObject>> gameObjects;
     // Spatial grid for fast proximity queries
     std::unique_ptr<SpatialGrid> spatialGrid;
-
+    // Flag to track if we've synced with the editor at least once (to avoid redundant syncs)
+    bool editorSyncedOnce = false;
     
     std::vector<GameObject*> pendingDestroy;
 

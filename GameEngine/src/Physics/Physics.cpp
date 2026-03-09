@@ -1,4 +1,4 @@
-#include "../include/Physics/Physics.h"
+﻿#include "../include/Physics/Physics.h"
 #include "../include/Scene/GameObject.h"
 #include "../include/Physics/PhysicsMaterial.h"
 #include "../include/Physics/ConstraintRegistry.h"
@@ -48,7 +48,7 @@ void Physics::initialize() {
         collisionConfiguration
     );
 
-    //Set gravity (9.8 m/s� downward)
+    //Set gravity (9.8 m/s² downward)
     dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
 
     std::cout << "Physics world created with gravity: (0, -1.8, 0)" << std::endl;
@@ -205,22 +205,29 @@ btRigidBody* Physics::resizeRigidBody(
 void Physics::removeRigidBody(btRigidBody* body) {
     if (!body || !dynamicsWorld) return;
 
-    // Remove from world
+    // Must remove from world BEFORE deleting anything
     dynamicsWorld->removeRigidBody(body);
 
-    // Remove from tracking vector
+    // Remove and delete the collision shape - this is the missing step.
+    // Without this, orphaned shapes accumulate and Bullet's broadphase
+    // cache can hold stale references to freed shape memory → crash.
+    btCollisionShape* shape = body->getCollisionShape();
+    if (shape) {
+        auto shapeIt = std::find(collisionShapes.begin(), collisionShapes.end(), shape);
+        if (shapeIt != collisionShapes.end()) {
+            collisionShapes.erase(shapeIt);
+        }
+        delete shape;
+    }
+
+    // Remove body from tracking vector
     auto it = std::find(rigidBodies.begin(), rigidBodies.end(), body);
     if (it != rigidBodies.end()) {
         rigidBodies.erase(it);
     }
 
-    // Delete motion state
     delete body->getMotionState();
-
-    // Delete the body itself
     delete body;
-
-    std::cout << "Removed rigid body from physics world" << std::endl;
 }
 
 void Physics::applyMaterial(btRigidBody* body, const PhysicsMaterial& material) {

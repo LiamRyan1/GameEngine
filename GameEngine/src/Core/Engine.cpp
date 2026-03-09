@@ -302,6 +302,7 @@ int Start(void)
 
         if (Input::GetKeyPressed(GLFW_KEY_F9))
         {
+            selectedObjects.clear(); // Clear selection to avoid dangling pointers if objects get destroyed during load
             scene.loadFromFile("../../assets/scenes/scene_test.json");
 			SetupScripts(scene, camera, physics); // Re-setup scripts after loading new scene
         }

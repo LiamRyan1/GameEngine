@@ -339,15 +339,13 @@ void Scene::update(EngineMode mode) {
     {
         // Editor mode: do NOT constantly overwrite gizmo transforms
         // But we still want one initial sync so objects appear
-        static bool syncedOnce = false;
-        if (!syncedOnce)
-        {
-            for (auto& obj : gameObjects)
-            {
+        
+        if (!editorSyncedOnce) {
+            for (auto& obj : gameObjects) {
                 if (obj->hasPhysics())
                     obj->updateFromPhysics();
             }
-            syncedOnce = true;
+            editorSyncedOnce = true;
         }
     }
     // Update spatial grid positions
@@ -507,15 +505,25 @@ void Scene::printSpatialStats() const {
 void Scene::clear() {
     std::cout << "Clearing scene (" << gameObjects.size() << " objects)" << std::endl;
 
-    // Clear all constraints first
-    ConstraintRegistry::getInstance().clearAll();
+    // Drain the deferred-destroy queue FIRST to avoid dangling raw pointers
+    pendingDestroy.clear();
 
-    // Clear all triggers
+    // Constraints must be removed before the bodies they reference
+    ConstraintRegistry::getInstance().clearAll();
     TriggerRegistry::getInstance().clearAll();
+
+    // Explicitly unregister every rigid body from Bullet BEFORE destroying GameObjects.
+    // Without this, bodies linger in the physics world across reloads and cause crashes.
+    for (auto& obj : gameObjects) {
+        if (obj->hasPhysics()) {
+            physicsWorld.removeRigidBody(obj->getRigidBody());
+        }
+    }
 
     if (spatialGrid) {
         spatialGrid->clear();
     }
+
     gameObjects.clear();
 }
 
@@ -820,6 +828,7 @@ bool Scene::saveToFile(const std::string& path) const
 
 bool Scene::loadFromFile(const std::string& path)
 {
+    editorSyncedOnce = false;
     std::ifstream file(path);
     if (!file.is_open())
     {
