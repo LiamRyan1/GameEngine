@@ -9,12 +9,60 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Gameplay/GameScene.cpp')
   
+  PlayerController.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Gameplay\PlayerController.cpp(35,45): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Gameplay\PlayerController.cpp(36,47): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+  ForceGenerator.cpp
+  ForceGeneratorRegistry.cpp
+  ForceGeneratorPanel.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\UI\ForceGeneratorPanel.cpp(1,10): error C1083: Cannot open include file: '../include/UI/ForceGeneratorPanel.h': No such file or directory
+  TriggerEditorPanel.cpp
+  Gizmo.cpp
+  Constraint.cpp
+  Constraintpreset.cpp
+  Constraintregistry.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/Constraintregistry.cpp')
+  
+  ConstraintTemplate.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintTemplate.h(79,57): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/ConstraintTemplate.cpp')
+  
+  PhysicsQuery.cpp
+  SpatialGrid.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/SpatialGrid.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Physics/SpatialGrid.cpp')
+  
+  Trigger.cpp
+  TriggerRegistry.cpp
+  DirectionalLight.cpp
   MeshFactory.cpp
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(74,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(79,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(134,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(186,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(221,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(103,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(108,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(178,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(245,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\MeshFactory.cpp(284,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  SceneSavePanel.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(79,59): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Saves/SceneSavePanel.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/Saves/SceneSavePanel.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Saves\SceneSavePanel.cpp(134,72): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
+  Compiling...
+  DebugUI.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/UI/DebugUI.cpp')
+  
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintTemplate.h(79,57): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'src/UI/DebugUI.cpp')
+  
+  GameObject.cpp
   Input.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\external\imgui\backends\imgui_impl_glfw.h(28,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
   (compiling source file 'src/Input/Input.cpp')
@@ -29,6 +77,8 @@ C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\SpatialGrid.h(80,55
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\External\imgui\backends\imgui_impl_glfw.h(28,10): error C1083: Cannot open include file: 'imgui.h': No such file or directory
   (compiling source file 'src/Core/Engine.cpp')
   
+  Mesh.cpp
+C:\Users\tiafa\Desktop\GameEngine\GameEngine\src\Rendering\Mesh.cpp(85,27): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
   Physics.cpp
 C:\Users\tiafa\Desktop\GameEngine\GameEngine\include\Physics\ConstraintRegistry.h(44,61): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'src/Physics/Physics.cpp')

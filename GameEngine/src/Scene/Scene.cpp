@@ -810,6 +810,10 @@ bool Scene::saveToFile(const std::string& path) const
             t["forceDirection"] = { dir.x, dir.y, dir.z };
             t["forceMagnitude"] = trigger->getForceMagnitude();
         }
+		// Tags for triggers too,for trigger-specific scripts or filtering
+        t["requiredTags"] = json::array();
+        for (const auto& tag : trigger->getRequiredTags())
+            t["requiredTags"].push_back(tag);
 
         sceneJson["triggers"].push_back(t);
     }
@@ -972,7 +976,10 @@ bool Scene::loadFromFile(const std::string& path)
                 float magnitude = t["forceMagnitude"];
                 trigger->setForce(dir, magnitude);
             }
-
+			// restore trigger tags for filtering or trigger-specific scripts
+            if (t.contains("requiredTags"))
+                for (const auto& tag : t["requiredTags"])
+                    trigger->requireTag(tag.get<std::string>());
             std::cout << "Loaded trigger: " << name << std::endl;
         }
 

@@ -47,6 +47,7 @@
     <ClCompile Include="src\Gameplay\GameScene.cpp" />
     <ClCompile Include="src\Physics\ForceGenerator.cpp" />
     <ClCompile Include="src\Physics\ForceGeneratorRegistry.cpp" />
+    <ClCompile Include="src\UI\ForceGeneratorPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />

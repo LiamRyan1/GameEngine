@@ -49,7 +49,11 @@ Trigger::~Trigger() {
     delete ghostObject;
     delete shape;
 }
-
+void Trigger::requireTag(const std::string& tag)
+{
+    std::cout << "[Trigger] requireTag called: '" << tag << "' on '" << name << "'" << std::endl;
+    requiredTags.insert(tag);
+}
 // Returns true if obj has ALL of the trigger's required tags,
 // or if no required tags have been set (empty = affect everything).
 bool Trigger::passesTagFilter(GameObject* obj) const
@@ -70,9 +74,22 @@ void Trigger::update(btDiscreteDynamicsWorld* world, float deltaTime) {
 
     for (int i = 0; i < numOverlapping; ++i) {
         btCollisionObject* colObj = ghostObject->getOverlappingObject(i);
-
+		// Ignore static objects (mass = 0)
+        btRigidBody* rb = btRigidBody::upcast(colObj);
+        if (!rb || rb->getInvMass() == 0.0f) continue;
         // Get GameObject from user pointer
         GameObject* obj = static_cast<GameObject*>(colObj->getUserPointer());
+        if (obj) {
+            std::cout << "[Trigger debug] Overlapping: '" << obj->getName()
+                << "' tags: ";
+            for (const auto& t : obj->getTags()) std::cout << "'" << t << "' ";
+            std::cout << "| Required: ";
+            for (const auto& t : requiredTags) std::cout << "'" << t << "' ";
+            std::cout << std::endl;
+        }
+        else {
+            std::cout << "[Trigger debug] Overlapping object has null user pointer" << std::endl;
+        }
         if (obj && passesTagFilter(obj) ) {
             currentlyInside.push_back(obj);
         }
@@ -87,6 +104,8 @@ void Trigger::update(btDiscreteDynamicsWorld* world, float deltaTime) {
         if (!wasInside) {
             // Object just entered!
             std::cout << "[Trigger '" << name << "'] Object entered" << std::endl;
+			// Add to our list of what's inside
+            objectsInside.push_back(obj);
 
             if (onEnterCallback) {
                 // Use custom callback
@@ -121,7 +140,7 @@ void Trigger::update(btDiscreteDynamicsWorld* world, float deltaTime) {
         }
     }
 
-    // Update our list for next frame
+	// sync our main list with Bullet's current state for the next frame
     objectsInside = currentlyInside;
 }
 

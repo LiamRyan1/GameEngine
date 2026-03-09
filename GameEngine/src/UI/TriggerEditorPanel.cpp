@@ -40,6 +40,9 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
     static float    forceDir[3] = { 0.0f, 1.0f, 0.0f };
     static float    forceMag = 10.0f;
 
+	// Tag management for new trigger creation
+    static char newTrigTagInput[64] = "";
+    static std::vector<std::string> newTriggerTags;
     // Refresh list every frame
     const std::vector<Trigger*> allTriggers = TriggerRegistry::getInstance().getAllTriggers();
 
@@ -97,6 +100,44 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
             }
 
             ImGui::Separator();
+            if (ImGui::CollapsingHeader("Tag Filter (Optional)", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::TextDisabled("Only objects with ALL listed tags will activate this trigger");
+                ImGui::Spacing();
+
+                if (newTriggerTags.empty())
+                {
+                    ImGui::TextDisabled("No tags — trigger affects all objects");
+                }
+                else
+                {
+                    ImGui::Text("Required tags:");
+                    for (int i = 0; i < static_cast<int>(newTriggerTags.size()); ++i)
+                    {
+                        if (i > 0) ImGui::SameLine();
+                        ImGui::PushID(i);
+                        std::string chipLabel = newTriggerTags[i] + "  x##NewTrigTag";
+                        if (ImGui::SmallButton(chipLabel.c_str()))
+                            newTriggerTags.erase(newTriggerTags.begin() + i);
+                        ImGui::PopID();
+                    }
+                }
+
+                ImGui::SetNextItemWidth(140.0f);
+                ImGui::InputText("##NewTrigTagInput", newTrigTagInput, sizeof(newTrigTagInput));
+                ImGui::SameLine();
+                if (ImGui::Button("Add##NewTrigAddTag") && newTrigTagInput[0] != '\0')
+                {
+                    if (std::find(newTriggerTags.begin(), newTriggerTags.end(),
+                        std::string(newTrigTagInput)) == newTriggerTags.end())
+                        newTriggerTags.push_back(std::string(newTrigTagInput));
+                    newTrigTagInput[0] = '\0';
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Clear All##NewTrigClearTags"))
+                    newTriggerTags.clear();
+            }
+            ImGui::Separator();
 
             if (ImGui::Button("Create Trigger", ImVec2(-1, 0)))
             {
@@ -116,6 +157,10 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
                         else if (selectedType == TriggerType::SPEED_ZONE)
                             context.triggerCommands.setForce(newTrigger,
                                 glm::vec3(forceDir[0], forceDir[1], forceDir[2]), forceMag);
+						// Apply tags
+                        for (const auto& tag : newTriggerTags)
+                            newTrigger->requireTag(tag);
+                        newTriggerTags.clear();
 
                         selectedTrigger = newTrigger;
 

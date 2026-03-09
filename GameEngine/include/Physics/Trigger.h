@@ -163,7 +163,7 @@ public:
 
     // When one or more required tags are set, the trigger will ONLY fire for
     // objects that carry ALL of those tags. Empty = affect every object (default).
-    void requireTag(const std::string& tag) { requiredTags.insert(tag); }
+    void requireTag(const std::string& tag);
     void removeRequiredTag(const std::string& tag) { requiredTags.erase(tag); }
     void clearRequiredTags() { requiredTags.clear(); }
     bool hasTagFilter() const { return !requiredTags.empty(); }
