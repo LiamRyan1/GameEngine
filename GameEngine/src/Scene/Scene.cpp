@@ -561,7 +561,7 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
     if (enablePhysics) {
 
         const std::vector<float>& verts = meshPtr->getVertices();
-        const size_t FLOATS_PER_VERTEX = 8; // pos(3), normal(3), uv(2)
+        const size_t FLOATS_PER_VERTEX = 14; // Assuming 14 floats per vertex: position(3) + normal(3) + texcoord(2) + tangent(4) + bitangent(4)
 
         glm::vec3 minBounds(FLT_MAX);
         glm::vec3 maxBounds(-FLT_MAX);
