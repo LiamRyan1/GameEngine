@@ -1,0 +1,451 @@
+{
+    "objects": [
+        {
+            "id": 3,
+            "name": "",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Default",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": ""
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    0.0,
+                    -0.25,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    100.0,
+                    0.5,
+                    100.0
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "name": "",
+            "physics": {
+                "enabled": true,
+                "mass": 1.0,
+                "material": "Concrete",
+                "physicsScale": [
+                    0.8999999761581421,
+                    0.8999999761581421,
+                    0.8999999761581421
+                ]
+            },
+            "render": {
+                "texture": ""
+            },
+            "shape": 0,
+            "tags": [
+                "player"
+            ],
+            "transform": {
+                "position": [
+                    -8.696348190307617,
+                    1.5486724376678467,
+                    -20.639400482177734
+                ],
+                "rotation": [
+                    0.9205963015556335,
+                    -0.03223222866654396,
+                    -0.07781574130058289,
+                    0.38132432103157043
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 8,
+            "name": "Cube_8",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -5.032520294189453,
+                    2.585080862045288,
+                    -23.035890579223633
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    14.0,
+                    20.0
+                ]
+            }
+        },
+        {
+            "id": 9,
+            "name": "Cube_9",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -12.333616256713867,
+                    2.2239112854003906,
+                    -18.168622970581055
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    14.0,
+                    20.0
+                ]
+            }
+        },
+        {
+            "id": 10,
+            "name": "Cube_10",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -18.920764923095703,
+                    2.5517945289611816,
+                    -33.57530212402344
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    29.0,
+                    5.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 11,
+            "name": "Cube_11",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -22.834753036499023,
+                    2.206432342529297,
+                    -27.659252166748047
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    20.0,
+                    5.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 12,
+            "name": "Cube_12",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -9.005958557128906,
+                    -0.7358369827270508,
+                    -18.217817306518555
+                ],
+                "rotation": [
+                    0.3826834559440613,
+                    0.0,
+                    0.0,
+                    0.9238795042037964
+                ],
+                "scale": [
+                    7.0,
+                    5.0,
+                    5.0
+                ]
+            }
+        },
+        {
+            "id": 13,
+            "name": "Cube_13",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -8.661312103271484,
+                    2.303164482116699,
+                    -16.211490631103516
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    7.0,
+                    1.0,
+                    4.0
+                ]
+            }
+        },
+        {
+            "id": 14,
+            "name": "Cube_14",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -8.375017166137695,
+                    3.127108573913574,
+                    -8.536443710327148
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    7.0,
+                    1.0,
+                    4.0
+                ]
+            }
+        },
+        {
+            "id": 15,
+            "name": "Cube_15",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -8.412240982055664,
+                    0.1409897804260254,
+                    -6.554307460784912
+                ],
+                "rotation": [
+                    0.3826834559440613,
+                    0.0,
+                    0.0,
+                    0.9238795042037964
+                ],
+                "scale": [
+                    7.0,
+                    5.0,
+                    5.0
+                ]
+            }
+        },
+        {
+            "id": 16,
+            "name": "Cube_16",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -12.266139030456543,
+                    2.274566650390625,
+                    -3.199134111404419
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    14.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "id": 17,
+            "name": "Cube_17",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -5.040491580963135,
+                    2.472074508666992,
+                    -5.7264485359191895
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    14.0,
+                    15.0
+                ]
+            }
+        }
+    ],
+    "triggers": []
+}
