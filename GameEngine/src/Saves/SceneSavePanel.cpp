@@ -1,4 +1,4 @@
-#include "../include/Saves/SceneSavePanel.h"
+﻿#include "../include/Saves/SceneSavePanel.h"
 
 #include "../include/Scene/Scene.h"
 #include "../External/imgui/core/imgui.h"
@@ -83,8 +83,40 @@ void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode)
 
     if (engineMode != EngineMode::Editor)
     {
+        ImGui::EndDisabled();   // ← THIS WAS MISSING
+    }
+
+    // =========================
+    // NEW SCENE
+    // =========================
+    // Clears current scene and creates a fresh one with a ground plane.
+
+    if (engineMode != EngineMode::Editor)
+    {
+        ImGui::BeginDisabled();
+    }
+
+    if (ImGui::Button("New Scene"))
+    {
+        scene.clear();
+
+        // Default ground plane
+        scene.spawnObject(
+            ShapeType::CUBE,
+            glm::vec3(0.0f, -0.25f, 0.0f),
+            glm::vec3(100.0f, 0.5f, 100.0f),
+            0.0f,
+            "Default"
+        );
+
+        selectedIndex = -1;
+
+        std::cout << "New scene created\n";
+    }
+
+    if (engineMode != EngineMode::Editor)
+    {
         ImGui::EndDisabled();
-        ImGui::TextDisabled("Saving only allowed in Editor mode");
     }
 
     ImGui::Separator();
@@ -138,9 +170,10 @@ void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode)
     // =========================
     // LOAD
     // =========================
-    // Loads selected scene into the engine.
-    // Disable loading while game simulation is running
-    bool canLoad = (engineMode == EngineMode::Editor);
+
+    bool canLoad =
+        (engineMode == EngineMode::Editor) &&
+        (selectedIndex >= 0 && selectedIndex < sceneFiles.size());
 
     if (!canLoad)
         ImGui::BeginDisabled();
