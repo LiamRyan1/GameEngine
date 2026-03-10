@@ -8,6 +8,8 @@
 #include "../include/Rendering/Camera.h"
 #include "../include/Scene/Transform.h"
 #include "../include/Scene/GameObject.h"
+#include "../include/Physics/Trigger.h"
+#include "../include/Physics/TriggerRegistry.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
