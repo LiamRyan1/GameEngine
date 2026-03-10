@@ -114,6 +114,7 @@
     <ClInclude Include="include\Gameplay\GameScene.h" />
     <ClInclude Include="include\Physics\ForceGenerator.h" />
     <ClInclude Include="include\Physics\ForceGeneratorRegistry.h" />
+    <ClInclude Include="include\UI\ForceGeneratorPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

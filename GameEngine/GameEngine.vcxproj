@@ -240,6 +240,7 @@
     <ClInclude Include="include\Scene\PhysicsComponent.h" />
     <ClInclude Include="include\Physics\PhysicsMaterial.h" />
     <ClInclude Include="include\Scene\ScriptComponent.h" />
+    <ClInclude Include="include\UI\ForceGeneratorPanel.h" />
     <ClInclude Include="include\UI\Raycast.h" />
     <ClInclude Include="include\Scene\RenderComponent.h" />
     <ClInclude Include="include\Rendering\Renderer.h" />

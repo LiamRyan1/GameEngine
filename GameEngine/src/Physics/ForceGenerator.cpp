@@ -181,7 +181,4 @@ void ExplosionGenerator::apply(btRigidBody* body, const glm::vec3& bodyPos, floa
 
     body->activate(true);
     body->applyCentralImpulse(impulse);
-
-    // Mark fired so isExpired() returns true and the registry removes this generator
-    fired = true;
 }

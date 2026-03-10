@@ -7,6 +7,7 @@
 #include "../include/Physics/TriggerRegistry.h"
 #include "../include/Physics/Trigger.h" 
 #include "../include/Physics/ForceGeneratorRegistry.h"
+#include "../include/Physics/ForceGenerator.h"
 #include <unordered_map> 
 #include <iostream>
 #include <algorithm>  // std::min, std::max
@@ -817,6 +818,51 @@ bool Scene::saveToFile(const std::string& path) const
 
         sceneJson["triggers"].push_back(t);
     }
+    sceneJson["forceGenerators"] = json::array();
+    for (ForceGenerator* gen : ForceGeneratorRegistry::getInstance().getAllGenerators())
+    {
+        if (!gen) continue;
+
+        json g;
+        g["name"] = gen->getName();
+        g["type"] = static_cast<int>(gen->getType());
+        g["enabled"] = gen->isEnabled();
+
+        glm::vec3 pos = gen->getPosition();
+        g["position"] = { pos.x, pos.y, pos.z };
+        g["radius"] = gen->getRadius();
+        g["strength"] = gen->getStrength();
+
+        switch (gen->getType())
+        {
+        case ForceGeneratorType::WIND:
+        {
+            auto* w = static_cast<WindGenerator*>(gen);
+            glm::vec3 dir = w->getDirection();
+            g["direction"] = { dir.x, dir.y, dir.z };
+            break;
+        }
+        case ForceGeneratorType::GRAVITY_WELL:
+        {
+            auto* gw = static_cast<GravityWellGenerator*>(gen);
+            g["minDistance"] = gw->getMinDistance();
+            break;
+        }
+        case ForceGeneratorType::VORTEX:
+        {
+            auto* v = static_cast<VortexGenerator*>(gen);
+            glm::vec3 axis = v->getAxis();
+            g["axis"] = { axis.x, axis.y, axis.z };
+            g["pullStrength"] = v->getPullStrength();
+            break;
+        }
+        case ForceGeneratorType::EXPLOSION:
+            // No extra fields needed — fires and expires on first update after load.
+            break;
+        default: break;
+        }
+        sceneJson["forceGenerators"].push_back(g);
+    }
     std::filesystem::create_directories(std::filesystem::path(path).parent_path());
 
     std::ofstream file(path);
@@ -986,6 +1032,62 @@ bool Scene::loadFromFile(const std::string& path)
         std::cout << "Triggers loaded successfully" << std::endl;
     }
 
+    if (sceneJson.contains("forceGenerators"))
+    {
+        std::cout << "Loading force generators..." << std::endl;
+        for (const auto& g : sceneJson["forceGenerators"])
+        {
+            std::string name = g.value("name", "Unnamed_Generator");
+            ForceGeneratorType type = static_cast<ForceGeneratorType>(g["type"].get<int>());
+            glm::vec3 position(g["position"][0], g["position"][1], g["position"][2]);
+            float radius = g.value("radius", 0.0f);
+            float strength = g.value("strength", 0.0f);
+            bool  enabled = g.value("enabled", true);
+
+            ForceGenerator* gen = nullptr;
+
+            switch (type)
+            {
+            case ForceGeneratorType::WIND:
+            {
+                glm::vec3 dir(g["direction"][0], g["direction"][1], g["direction"][2]);
+                gen = ForceGeneratorRegistry::getInstance()
+                    .createWind(name, position, radius, dir, strength);
+                break;
+            }
+            case ForceGeneratorType::GRAVITY_WELL:
+            {
+                float minDist = g.value("minDistance", 1.0f);
+                gen = ForceGeneratorRegistry::getInstance()
+                    .addGenerator(std::make_unique<GravityWellGenerator>(
+                        name, position, radius, strength, minDist));
+                break;
+            }
+            case ForceGeneratorType::VORTEX:
+            {
+                glm::vec3 axis(g["axis"][0], g["axis"][1], g["axis"][2]);
+                float pull = g.value("pullStrength", 0.0f);
+                gen = ForceGeneratorRegistry::getInstance()
+                    .createVortex(name, position, radius, axis, strength, pull);
+                break;
+            }
+            case ForceGeneratorType::EXPLOSION:
+            {
+                gen = ForceGeneratorRegistry::getInstance()
+                    .createExplosion(name, position, radius, strength);
+                break;
+            }
+            default: break;
+            }
+
+            if (gen)
+            {
+                gen->setEnabled(enabled);
+                std::cout << "Loaded force generator: " << name << std::endl;
+            }
+        }
+        std::cout << "Force generators loaded successfully" << std::endl;
+    }
 
     // --- Apply exact transforms to physics bodies (NO simulation) ---
     for (auto& obj : gameObjects)

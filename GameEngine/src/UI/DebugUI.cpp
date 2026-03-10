@@ -4,6 +4,7 @@
 #include "../include/Physics/ConstraintRegistry.h"
 #include "../include/Physics/ConstraintTemplate.h"
 #include "../include/UI/TriggerEditorPanel.h"
+#include "../include/UI/ForceGeneratorPanel.h"
 #include "../include/Physics/Trigger.h"
 #include "../include/Physics/TriggerRegistry.h"
 #include <glm/gtc/constants.hpp>
@@ -1275,4 +1276,5 @@ void DebugUI::draw(DebugUIContext& context)
 	ImGui::End(); // End of Model Importer panel
     //Trigg 
     DrawTriggerEditorPanel(context);
+    DrawForceGeneratorPanel(context);
 }
