@@ -393,7 +393,7 @@ void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, GameObject* selec
     bool okZ = worldToScreen(originW + glm::vec3(0, 0, 1) * axisLenWorld, view, proj, fbW, fbH, zEndS);
 
     // Draw on top of everything
-    ImDrawList* dl = ImGui::GetForegroundDrawList(ImGui::GetMainViewport());
+    ImDrawList* dl = ImGui::GetBackgroundDrawList(ImGui::GetMainViewport());
 
     // Choose colors per axis:
     // X = red, Y = green, Z = blue
