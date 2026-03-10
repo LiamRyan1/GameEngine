@@ -917,6 +917,8 @@ int Start(void)
 
         // --- Render ---
         renderer.draw(fbW, fbH, camera, scene.getObjects(), primarySelection, selectedObjects);
+        renderer.drawTriggerDebug(TriggerRegistry::getInstance().getAllTriggers(), camera, fbW, fbH);
+        
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
 

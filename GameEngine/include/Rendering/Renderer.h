@@ -16,6 +16,10 @@
 #include <string>
 #include <memory>  // for std::unique_ptr
 #include <unordered_map>
+#include "../Physics/TriggerRegistry.h"
+#include "../Physics/ForceGeneratorRegistry.h"
+#include "../Physics/ForceGenerator.h"
+#include "../Physics/Trigger.h"
 
 
 class Renderer {
@@ -32,6 +36,7 @@ private:
     Skybox skybox;
     bool skyboxEnabled;
 
+   
     void drawGameObject(const GameObject& obj, int modelLoc, int colorLoc);// draw a single game object
     void drawOutlineOnly(const GameObject& obj, int modelLoc, int colorLoc);
     void drawDebugCollisionShape(const GameObject& obj, int modelLoc, int colorLoc);
@@ -53,6 +58,8 @@ public:
         const GameObject* primarySelection,
         const std::vector<GameObject*>& selectedObjects
     );
+
+    void drawTriggerDebug(const std::vector<Trigger*>& triggers, const Camera& camera, int fbW, int fbH);
 
     void cleanup();
 
