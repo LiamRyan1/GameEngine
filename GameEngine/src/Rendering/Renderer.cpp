@@ -347,8 +347,6 @@ void Renderer::drawDebugCollisionShape(const GameObject& obj, int modelLoc, int 
 
 void Renderer::drawTriggerDebug(const std::vector<Trigger*>& triggers, const Camera& camera, int fbW, int fbH)
 {
-	std::cout << "[TriggerDebug] called, count=" << triggers.size()
-		<< " debugEnabled=" << debugPhysicsEnabled << std::endl;
 
 	if (!debugPhysicsEnabled) return;
 	if (fbW == 0 || fbH == 0) return; // Avoid division by zero in aspect ratio
