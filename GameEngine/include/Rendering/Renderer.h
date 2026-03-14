@@ -60,6 +60,7 @@ public:
     );
 
     void drawTriggerDebug(const std::vector<Trigger*>& triggers, const Camera& camera, int fbW, int fbH);
+    void drawForceGeneratorDebug(const std::vector<ForceGenerator*>& generators, const Camera& camera, int fbW, int fbH);
 
     void cleanup();
 

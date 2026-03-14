@@ -10,6 +10,7 @@
 #include "../include/Scene/GameObject.h"
 #include "../include/Physics/Trigger.h"
 #include "../include/Physics/TriggerRegistry.h"
+#include "../include/Physics/ForceGenerator.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
@@ -388,6 +389,58 @@ void Renderer::drawTriggerDebug(const std::vector<Trigger*>& triggers, const Cam
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
 		cubeMesh.draw();
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
+}
+
+void Renderer::drawForceGeneratorDebug(const std::vector<ForceGenerator*>& generators, const Camera& camera, int fbW, int fbH)
+{
+	if (!debugPhysicsEnabled) return;
+	if (fbW == 0 || fbH == 0) return;
+
+	unsigned int mainShader = shaderManager.getProgram("main");
+	glUseProgram(mainShader);
+
+	float aspect = (float)fbW / (float)fbH;
+	glm::mat4 view = camera.getViewMatrix();
+	glm::mat4 projection = camera.getProjectionMatrix(aspect);
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "view"), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	int modelLoc = glGetUniformLocation(mainShader, "model");
+	int colorLoc = glGetUniformLocation(mainShader, "objectColor");
+	int useTexLoc = glGetUniformLocation(mainShader, "useTexture");
+	int lightColorLoc = glGetUniformLocation(mainShader, "lightColor");
+
+	glDisable(GL_DEPTH_TEST);
+	glUniform1i(useTexLoc, 0);
+	glUniform3f(lightColorLoc, 10.0f, 10.0f, 10.0f);
+	glLineWidth(1.5f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	for (ForceGenerator* gen : generators)
+	{
+		if (!gen || !gen->isEnabled()) continue;
+
+		switch (gen->getType())
+		{
+		case ForceGeneratorType::WIND:         glUniform3f(colorLoc, 0.5f, 0.8f, 1.0f); break; // light blue
+		case ForceGeneratorType::GRAVITY_WELL: glUniform3f(colorLoc, 0.8f, 0.0f, 1.0f); break; // purple
+		case ForceGeneratorType::VORTEX:       glUniform3f(colorLoc, 1.0f, 0.5f, 0.0f); break; // orange
+		case ForceGeneratorType::EXPLOSION:    glUniform3f(colorLoc, 1.0f, 0.2f, 0.0f); break; // red
+		default:                               glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); break;
+		}
+
+		// Generators use radius so draw as sphere scaled to diameter
+		float r = gen->getRadius();
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), gen->getPosition());
+		model = glm::scale(model, glm::vec3(r * 2.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+		sphereMesh.draw();
 	}
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
