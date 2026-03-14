@@ -101,7 +101,35 @@ void Scene::applyTagScriptsToExistingObjects()
         }
     }
 }
+void Scene::registerTriggerScript(const std::string& behaviourTag,std::function<void(Trigger*)> onRegister,std::function<void(Trigger*)> onUnregister)
+{
+    triggerScriptRegistry[behaviourTag] = TriggerScriptBinding(onRegister, onUnregister);
+    std::cout << "[TriggerScript] Registered behaviour tag '" << behaviourTag << "'" << std::endl;
+}
 
+void Scene::applyTriggerScriptsToExistingTriggers()
+{
+    for (Trigger* trigger : TriggerRegistry::getInstance().getAllTriggers())
+    {
+        if (!trigger) continue;
+
+        const std::string& tag = trigger->getBehaviourTag();
+        if (tag.empty()) continue; // TELEPORT / SPEED_ZONE have no behaviour tag
+
+        auto it = triggerScriptRegistry.find(tag);
+        if (it != triggerScriptRegistry.end() && it->second.onRegister)
+        {
+            std::cout << "[TriggerScript] Wiring behaviour '" << tag
+                << "' onto trigger '" << trigger->getName() << "'" << std::endl;
+            it->second.onRegister(trigger);
+        }
+        else
+        {
+            std::cout << "[TriggerScript] Warning: no binding found for behaviour tag '"
+                << tag << "' on trigger '" << trigger->getName() << "'" << std::endl;
+        }
+    }
+}
 /**
  * @brief Spawns a new game object in the scene with physics.
  *
@@ -816,6 +844,9 @@ bool Scene::saveToFile(const std::string& path) const
         for (const auto& tag : trigger->getRequiredTags())
             t["requiredTags"].push_back(tag);
 
+		// will be empty string for TELEPORT and SPEED_ZONE triggers which have no behaviour tag
+        t["behaviourTag"] = trigger->getBehaviourTag();
+
         sceneJson["triggers"].push_back(t);
     }
     sceneJson["forceGenerators"] = json::array();
@@ -1026,6 +1057,9 @@ bool Scene::loadFromFile(const std::string& path)
             if (t.contains("requiredTags"))
                 for (const auto& tag : t["requiredTags"])
                     trigger->requireTag(tag.get<std::string>());
+
+            if (t.contains("behaviourTag"))
+                trigger->setBehaviourTag(t["behaviourTag"].get<std::string>());
             std::cout << "Loaded trigger: " << name << std::endl;
         }
 
@@ -1088,6 +1122,7 @@ bool Scene::loadFromFile(const std::string& path)
         }
         std::cout << "Force generators loaded successfully" << std::endl;
     }
+
 
     // --- Apply exact transforms to physics bodies (NO simulation) ---
     for (auto& obj : gameObjects)

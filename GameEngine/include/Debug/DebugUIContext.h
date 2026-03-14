@@ -24,4 +24,6 @@ struct DebugUIContext
     // DebugUI may display/edit it, but does not own it.
     GameObject* selectedObject = nullptr;
 
+    std::function<void()> applyTriggerScripts;
+
 };

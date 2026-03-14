@@ -307,6 +307,7 @@ int Start(void)
             {
                 SetupScripts(scene, camera, physics);
                 scene.applyTagScriptsToExistingObjects();
+                scene.applyTriggerScriptsToExistingTriggers();
             }
         }
 
@@ -870,6 +871,9 @@ int Start(void)
         uiContext.triggerCommands.setTriggerEnabled =
             [](Trigger* trigger, bool enabled) {
             if (trigger) trigger->setEnabled(enabled);
+            };
+        uiContext.applyTriggerScripts = [&scene]() {
+            scene.applyTriggerScriptsToExistingTriggers();
             };
 
         // Draw Debug UI (logic only)

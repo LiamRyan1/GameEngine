@@ -6,11 +6,6 @@
 #include <iostream>
 #include <string>
 
-// ----------------------------------------------------------
-// No changes needed in this file.
-// The panel implementation is complete. Integration is handled
-// in DebugUI.cpp — see the [CHANGE] markers there.
-// ----------------------------------------------------------
 
 void DrawForceGeneratorPanel(DebugUIContext& context)
 {

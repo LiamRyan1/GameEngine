@@ -40,6 +40,8 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
     static float    forceDir[3] = { 0.0f, 1.0f, 0.0f };
     static float    forceMag = 10.0f;
 
+	// assign behaviour to event triggers
+    static char behaviourTagBuf[64] = "";
 	// Tag management for new trigger creation
     static char newTrigTagInput[64] = "";
     static std::vector<std::string> newTriggerTags;
@@ -96,11 +98,14 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
             }
             else
             {
-                ImGui::TextDisabled("Set callbacks in code.");
+                ImGui::SeparatorText("Behaviour");
+                ImGui::InputText("Behaviour##BehaviourTagCreate", behaviourTagBuf, sizeof(behaviourTagBuf));
+                ImGui::TextDisabled("Must match a tag registered via registerTriggerScript()");
+                ImGui::TextDisabled("e.g.  bounce_pad   sphere_spawner");
             }
 
             ImGui::Separator();
-            if (ImGui::CollapsingHeader("Tag Filter (Optional)", ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Object Filter (Optional)", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::TextDisabled("Only objects with ALL listed tags will activate this trigger");
                 ImGui::Spacing();
@@ -157,6 +162,12 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
                         else if (selectedType == TriggerType::SPEED_ZONE)
                             context.triggerCommands.setForce(newTrigger,
                                 glm::vec3(forceDir[0], forceDir[1], forceDir[2]), forceMag);
+                        else if (selectedType == TriggerType::EVENT && behaviourTagBuf[0] != '\0')
+                        {
+                            newTrigger->setBehaviourTag(std::string(behaviourTagBuf));
+                            if (context.applyTriggerScripts)
+                                context.applyTriggerScripts();
+                        }
 						// Apply tags
                         for (const auto& tag : newTriggerTags)
                             newTrigger->requireTag(tag);
@@ -168,6 +179,7 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
                         strcpy(newTriggerName, "Trigger_1");
                         newPosition[0] = 0.0f; newPosition[1] = 2.0f; newPosition[2] = 0.0f;
                         newSize[0] = 2.0f;     newSize[1] = 2.0f;     newSize[2] = 2.0f;
+                        behaviourTagBuf[0] = '\0';
                     }
                 }
             }
@@ -266,15 +278,36 @@ void DrawTriggerEditorPanel(DebugUIContext& context)
                     if (changed)
                         trigger->setForce(dir, mag);
                 }
-                else{
-                    ImGui::TextDisabled("No additional parameters for this type");
-                }
+                else {
+                    ImGui::SeparatorText("Behaviour");
 
+                    static char behaviourEditBuf[64] = {};
+                    static Trigger* lastBehaviourEdited = nullptr;
+                    if (lastBehaviourEdited != trigger)
+                    {
+                        strncpy(behaviourEditBuf, trigger->getBehaviourTag().c_str(),
+                            sizeof(behaviourEditBuf) - 1);
+                        behaviourEditBuf[sizeof(behaviourEditBuf) - 1] = '\0';
+                        lastBehaviourEdited = trigger;
+                    }
+                    if (ImGui::InputText("Behaviour Tag##EditBehaviour", behaviourEditBuf,sizeof(behaviourEditBuf), ImGuiInputTextFlags_EnterReturnsTrue))
+                    {
+                        trigger->setBehaviourTag(std::string(behaviourEditBuf));
+                        if (context.applyTriggerScripts)
+                            context.applyTriggerScripts();
+                    }
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("(press Enter)");
+                    ImGui::TextDisabled("Must match a registerTriggerScript() binding");
+
+                    if (trigger->getBehaviourTag().empty())
+                        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f),
+                            "No behaviour tag set — trigger will do nothing");
+                }
 
                 ImGui::Separator();
 
-
-                if (ImGui::CollapsingHeader("Tag Filter", ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::CollapsingHeader("Object Filter", ImGuiTreeNodeFlags_DefaultOpen))
                 {
                     if (trigger->hasTagFilter()) {
                         ImGui::TextColored(ImVec4(0.2f, 0.9f, 0.4f, 1.0f), "Active — only tagged objects affected");

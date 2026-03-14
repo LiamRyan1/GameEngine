@@ -55,14 +55,17 @@ private:
 
     // Teleport-specific data
     glm::vec3 teleportDestination;
-
     // Speed zone data
     glm::vec3 forceDirection;
-
     float forceMagnitude;
+
+
     // Tag filter — if non - empty, only objects carrying ALL required tags are affected.
     // An empty set means "affect everything" 
     std::unordered_set<std::string> requiredTags;
+    // identifies what the trigger does seperate from required tags  that filters what acitvates the trigger
+    // used only for event triggers 
+    std::string behaviourTag;
 
     uint64_t id;
     static uint64_t nextID;
@@ -113,7 +116,10 @@ public:
 
     const std::vector<GameObject*>& getObjectsInside() const { return objectsInside; }
 
+    const std::string& getBehaviourTag()         const { return behaviourTag; }
+ 
     // === Setters ===
+    void setBehaviourTag(const std::string& tag) { behaviourTag = tag; }
 
     void setName(const std::string& newName) { name = newName; }
     void setEnabled(bool enable) { enabled = enable; }

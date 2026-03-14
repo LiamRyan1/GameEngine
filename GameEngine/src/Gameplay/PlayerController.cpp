@@ -89,11 +89,22 @@ void PlayerController::onFixedUpdate(float fixedDt)
 
     // Apply horizontal velocity while preserving vertical (gravity still applies)
     btVector3 currentVel = body->getLinearVelocity();
-    body->setLinearVelocity(btVector3(
-        moveDir.x * moveSpeed,
-        currentVel.y(),           // keep vertical so gravity and jumps work
-        moveDir.z * moveSpeed
+    glm::vec3 currentHorizontal(currentVel.x(), 0.0f, currentVel.z());
+
+    // Target horizontal velocity from input
+    glm::vec3 targetHorizontal = moveDir * moveSpeed;
+
+
+    float accelerationStrength = 15.0f;
+    glm::vec3 velocityDelta = targetHorizontal - currentHorizontal;
+    glm::vec3 correctionForce = velocityDelta * accelerationStrength;
+
+    body->applyCentralForce(btVector3(
+        correctionForce.x,
+        0.0f,
+        correctionForce.z
     ));
+
 
     // Jump - only if actually on the ground (PhysicsQuery raycast check)
     if (Input::GetKeyPressed(GLFW_KEY_SPACE) && checkGrounded())

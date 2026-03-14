@@ -45,6 +45,24 @@ private:
     // Called at the end of spawnObject(), spawnRenderObject(), and loadAndSpawnModel().
     void wireTagCallback(GameObject* obj);
 
+    // Stores the three possible callbacks (enter, exit, stay) that a behaviour tag maps to
+    // registerTriggerScript() populates this
+    // applyTriggerScriptsToExistingTriggers() reads from it.
+    struct TriggerScriptBinding {
+        std::function<void(Trigger*)>         onRegister; // called once to wire callbacks onto the trigger
+        std::function<void(Trigger*)>         onUnregister;
+
+        TriggerScriptBinding() = default;
+        TriggerScriptBinding(
+            std::function<void(Trigger*)> reg,
+            std::function<void(Trigger*)> unreg = nullptr)
+            : onRegister(std::move(reg)), onUnregister(std::move(unreg)) {
+        }
+    };
+
+    std::unordered_map<std::string, TriggerScriptBinding> triggerScriptRegistry;
+    
+
 public:
     Scene(Physics& physics, Renderer& renderer);
     ~Scene();
@@ -121,6 +139,8 @@ public:
     // loaded from file before registerTagScript() was called.
     void applyTagScriptsToExistingObjects();
 
+    void registerTriggerScript(const std::string& behaviourTag,std::function<void(Trigger*)> onRegister,std::function<void(Trigger*)> onUnregister = nullptr);
+    void applyTriggerScriptsToExistingTriggers();
     // === Spatial Grid Control ===
 
     void setSpatialGridEnabled(bool enabled);
