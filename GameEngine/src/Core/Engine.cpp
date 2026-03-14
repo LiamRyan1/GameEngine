@@ -103,7 +103,7 @@ int Start(void)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -289,18 +289,18 @@ int Start(void)
 
         }
 
-        if (Input::GetKeyPressed(GLFW_KEY_V))  // 'V' for Visualize
+        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_V))  // 'V' for Visualize
         {
             renderer.toggleDebugPhysics();
             std::cout << "Debug Physics Wireframes: " << (renderer.isDebugPhysicsEnabled() ? "ON" : "OFF") << std::endl;
         }
 
-        if (Input::GetKeyPressed(GLFW_KEY_F5))
+        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_F5))
         {
             scene.saveToFile("../../assets/scenes/scene_test.json");
         }
 
-        if (Input::GetKeyPressed(GLFW_KEY_F9))
+        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_F9))
         {
             selectedObjects.clear(); // Clear selection to avoid dangling pointers if objects get destroyed during load
             if (scene.loadFromFile("../../assets/scenes/scene_test.json"))
@@ -338,8 +338,8 @@ int Start(void)
 
         if (engineMode == EngineMode::Editor &&
             !selectedObjects.empty() &&
-            Input::GetKeyPressed(GLFW_KEY_DELETE) &&
-            !ImGui::GetIO().WantCaptureKeyboard)
+            !ImGui::GetIO().WantCaptureKeyboard &&
+            Input::GetKeyPressed(GLFW_KEY_DELETE))
         {
             for (GameObject* obj : selectedObjects)
                 scene.requestDestroy(obj);
@@ -348,7 +348,7 @@ int Start(void)
         }
 
 
-        if (Input::GetKeyPressed(GLFW_KEY_G)) {  // Press G to test grid
+        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_G)) {  // Press G to test grid
             std::cout << "\n=== SPATIAL GRID TEST ===" << std::endl;
 
             // 1. Show grid stats
@@ -380,7 +380,7 @@ int Start(void)
             physicsSteps = 0;
         }
 		// Camera mode toggle
-        if (Input::GetKeyPressed(GLFW_KEY_F))
+        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_F))
         {
             if (cameraController.getMode() == CameraController::Mode::ORBIT) {
                 cameraController.setMode(CameraController::Mode::FREE);
@@ -395,7 +395,7 @@ int Start(void)
         }
 
         // Allow ESC to unlock cursor
-        if (Input::GetKeyPressed(GLFW_KEY_ESCAPE)) {
+        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_ESCAPE)) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
@@ -414,17 +414,14 @@ int Start(void)
         // ImGui tells us if the UI wants mouse input this frame
         // (hovering, dragging sliders, clicking windows, etc.)
        // Check if mouse is over any ACTUAL panel (not the invisible dockspace)
-        bool uiWantsMouse =
-            ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) ||
-            ImGui::IsAnyItemHovered() ||
-            ImGui::IsAnyItemActive();
+        bool uiWantsMouse = ImGui::GetIO().WantCaptureMouse;
 
         GameObject* primarySelection =
             selectedObjects.empty() ? nullptr : selectedObjects.front();
 
         //Update camera controller
         // Only allow normal camera control if NOT in game mode
-        if (engineMode != EngineMode::Game)
+        if (engineMode != EngineMode::Game && !uiWantsMouse)
         {
             cameraController.update(deltaTime);
         }
@@ -447,7 +444,7 @@ int Start(void)
         // In your main loop, around where you handle input:
         if (engineMode == EngineMode::Game) {
             // Test raycast when you press R key
-            if (Input::GetKeyPressed(GLFW_KEY_R)) {
+            if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_R)) {
                 PhysicsQuery& query = physics.getQuerySystem();
 
                 // Raycast from camera forward
