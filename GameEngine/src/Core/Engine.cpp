@@ -61,6 +61,8 @@ int Start(void)
     // This is editor-only state and does NOT belong in Renderer or Scene.
     std::vector<GameObject*> selectedObjects;
 
+    Trigger* selectedTrigger = nullptr;
+
     if (!glfwInit())
     {
         std::cout << "Failed to init GLFW" << std::endl;
@@ -253,6 +255,9 @@ int Start(void)
             {
                 engineMode = EngineMode::Game;
 
+                selectedObjects.clear();
+                selectedTrigger = nullptr;
+
                 // SHOW MODE TEXT
                 modeDisplayText = "GAME MODE";
                 modeDisplayTimer = modeDisplayDuration;
@@ -395,8 +400,26 @@ int Start(void)
         }
 
         // Allow ESC to unlock cursor
-        if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_ESCAPE)) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        if (Input::GetKeyPressed(GLFW_KEY_ESCAPE))
+        {
+            if (engineMode == EngineMode::Game)
+            {
+                // Always unlock mouse in game mode
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+                // Optional: return to editor mode immediately
+                engineMode = EngineMode::Editor;
+
+                modeDisplayText = "EDITOR MODE";
+                modeDisplayTimer = modeDisplayDuration;
+
+                Input::SetCameraController(&cameraController);
+            }
+            else
+            {
+                // In editor mode, just ensure cursor is visible
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
         }
 
 		
@@ -426,19 +449,41 @@ int Start(void)
             cameraController.update(deltaTime);
         }
 
-        bool gizmoCapturingMouse = gizmo.update(
-            window, fbW, fbH,
-            camera,
-            primarySelection,
-            engineMode == EngineMode::Editor,
-            uiWantsMouse
-        );
+        bool gizmoCapturingMouse = false;
+
+        if (selectedTrigger)
+        {
+            gizmoCapturingMouse = gizmo.update(
+                window, fbW, fbH,
+                camera,
+                selectedTrigger,
+                engineMode == EngineMode::Editor,
+                uiWantsMouse
+            );
+        }
+        else
+        {
+            gizmoCapturingMouse = gizmo.update(
+                window, fbW, fbH,
+                camera,
+                primarySelection,
+                engineMode == EngineMode::Editor,
+                uiWantsMouse
+            );
+        }
 
 
         // Gizmo visuals
-        if (engineMode == EngineMode::Editor && primarySelection)
+        if (engineMode == EngineMode::Editor)
         {
-            gizmo.draw(fbW, fbH, camera, primarySelection);
+            if (selectedTrigger)
+            {
+                gizmo.draw(fbW, fbH, camera, selectedTrigger);
+            }
+            else if (primarySelection)
+            {
+                gizmo.draw(fbW, fbH, camera, primarySelection);
+            }
         }
 
         // In your main loop, around where you handle input:
@@ -517,6 +562,9 @@ int Start(void)
             float closestHit = FLT_MAX;
             GameObject* hitObject = nullptr;
 
+            float closestTriggerHit = FLT_MAX;
+            Trigger* hitTrigger = nullptr;
+
             // Loop through every object in the scene
             for (const auto& obj : scene.getObjects())
             {
@@ -547,28 +595,67 @@ int Start(void)
                 }
             }
 
-            // If the ray hit something, update the editor selection
-            if (hitObject)
+            // Trigger Raycast
+            for (Trigger* trigger : TriggerRegistry::getInstance().getAllTriggers())
             {
-                bool shiftHeld =
-                    Input::GetKeyDown(GLFW_KEY_LEFT_SHIFT) ||
-                    Input::GetKeyDown(GLFW_KEY_RIGHT_SHIFT);
+                glm::vec3 pos = trigger->getPosition();
+                glm::vec3 size = trigger->getSize();
 
-                if (!shiftHeld)
-                    selectedObjects.clear();
+                glm::vec3 aabbMin = pos - size;
+                glm::vec3 aabbMax = pos + size;
 
-                // Avoid duplicates
-                if (std::find(selectedObjects.begin(),
-                    selectedObjects.end(),
-                    hitObject) == selectedObjects.end())
+                float hitDistance;
+                if (RayIntersectsAABB(
+                    rayOrigin,
+                    rayDirection,
+                    aabbMin,
+                    aabbMax,
+                    hitDistance))
                 {
-                    selectedObjects.push_back(hitObject);
+                    if (hitDistance < closestTriggerHit)
+                    {
+                        closestTriggerHit = hitDistance;
+                        hitTrigger = trigger;
+                    }
                 }
             }
-            else
+
+            // Decide whether object or trigger is closer
+            bool hitSomething = false;
+
+            if (hitObject && hitTrigger)
             {
-                // Click empty space clears selection
+                if (closestTriggerHit < closestHit)
+                {
+                    selectedTrigger = hitTrigger;
+                    selectedObjects.clear();
+                }
+                else
+                {
+                    selectedTrigger = nullptr;
+                    selectedObjects.clear();
+                    selectedObjects.push_back(hitObject);
+                }
+                hitSomething = true;
+            }
+            else if (hitObject)
+            {
+                selectedTrigger = nullptr;
                 selectedObjects.clear();
+                selectedObjects.push_back(hitObject);
+                hitSomething = true;
+            }
+            else if (hitTrigger)
+            {
+                selectedTrigger = hitTrigger;
+                selectedObjects.clear();
+                hitSomething = true;
+            }
+
+            if (!hitSomething)
+            {
+                selectedObjects.clear();
+                selectedTrigger = nullptr;
             }
 
 
@@ -917,7 +1004,14 @@ int Start(void)
         ImGui::Render();
 
         // --- Render ---
-        renderer.draw(fbW, fbH, camera, scene.getObjects(), primarySelection, selectedObjects);
+        if (engineMode == EngineMode::Editor)
+        {
+            renderer.draw(fbW, fbH, camera, scene.getObjects(), primarySelection, selectedObjects);
+        }
+        else
+        {
+            renderer.draw(fbW, fbH, camera, scene.getObjects(), nullptr, {});
+        }
         renderer.drawTriggerDebug(TriggerRegistry::getInstance().getAllTriggers(), camera, fbW, fbH);
         renderer.drawForceGeneratorDebug(ForceGeneratorRegistry::getInstance().getAllGenerators(), camera, fbW, fbH);
 
