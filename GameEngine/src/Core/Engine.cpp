@@ -63,6 +63,9 @@ int Start(void)
 
     Trigger* selectedTrigger = nullptr;
 
+    // Currently selected force generator (editor-onlythe same as triggers)
+    ForceGenerator* selectedForceGenerator = nullptr;
+
     if (!glfwInit())
     {
         std::cout << "Failed to init GLFW" << std::endl;
@@ -256,7 +259,8 @@ int Start(void)
                 engineMode = EngineMode::Game;
 
                 selectedObjects.clear();
-                selectedTrigger = nullptr;
+                selectedTrigger = nullptr; // Clear force trigger selection
+                selectedForceGenerator = nullptr; // Clear force generator selection too
 
                 // SHOW MODE TEXT
                 modeDisplayText = "GAME MODE";
@@ -451,7 +455,18 @@ int Start(void)
 
         bool gizmoCapturingMouse = false;
 
-        if (selectedTrigger)
+        // Priority: ForceGenerator > Trigger > GameObject
+        if (selectedForceGenerator)
+        {
+            gizmoCapturingMouse = gizmo.update(
+                window, fbW, fbH,
+                camera,
+                selectedForceGenerator,
+                engineMode == EngineMode::Editor,
+                uiWantsMouse
+            );
+        }
+        else if (selectedTrigger)
         {
             gizmoCapturingMouse = gizmo.update(
                 window, fbW, fbH,
@@ -476,7 +491,11 @@ int Start(void)
         // Gizmo visuals
         if (engineMode == EngineMode::Editor)
         {
-            if (selectedTrigger)
+            if (selectedForceGenerator)
+            {
+                gizmo.draw(fbW, fbH, camera, selectedForceGenerator);
+            }
+            else if (selectedTrigger)
             {
                 gizmo.draw(fbW, fbH, camera, selectedTrigger);
             }
@@ -565,6 +584,9 @@ int Start(void)
             float closestTriggerHit = FLT_MAX;
             Trigger* hitTrigger = nullptr;
 
+            float closestForceHit = FLT_MAX;
+            ForceGenerator* hitForceGenerator = nullptr;
+
             // Loop through every object in the scene
             for (const auto& obj : scene.getObjects())
             {
@@ -620,35 +642,62 @@ int Start(void)
                 }
             }
 
+            // Force Generator Raycast (sphere-based picking)
+            for (ForceGenerator* gen : ForceGeneratorRegistry::getInstance().getAllGenerators())
+            {
+                glm::vec3 center = gen->getPosition();
+
+                // If radius is 0 (infinite), give it a small clickable size
+                float radius = gen->getRadius();
+                if (radius <= 0.0f)
+                    radius = 1.0f;
+
+                // Ray-sphere intersection
+                glm::vec3 oc = rayOrigin - center;
+
+                float a = glm::dot(rayDirection, rayDirection);
+                float b = 2.0f * glm::dot(oc, rayDirection);
+                float c = glm::dot(oc, oc) - radius * radius;
+
+                float discriminant = b * b - 4 * a * c;
+
+                if (discriminant >= 0.0f)
+                {
+                    float t = (-b - sqrt(discriminant)) / (2.0f * a);
+
+                    if (t > 0.0f && t < closestForceHit)
+                    {
+                        closestForceHit = t;
+                        hitForceGenerator = gen;
+                    }
+                }
+            }
+
             // Decide whether object or trigger is closer
             bool hitSomething = false;
 
-            if (hitObject && hitTrigger)
+            // Priority: ForceGenerator > Trigger > GameObject
+            if (hitForceGenerator && (!hitTrigger || closestForceHit < closestTriggerHit) &&
+                (!hitObject || closestForceHit < closestHit))
             {
-                if (closestTriggerHit < closestHit)
-                {
-                    selectedTrigger = hitTrigger;
-                    selectedObjects.clear();
-                }
-                else
-                {
-                    selectedTrigger = nullptr;
-                    selectedObjects.clear();
-                    selectedObjects.push_back(hitObject);
-                }
+                selectedForceGenerator = hitForceGenerator;
+                selectedTrigger = nullptr;
+                selectedObjects.clear();
+                hitSomething = true;
+            }
+            else if (hitTrigger && (!hitObject || closestTriggerHit < closestHit))
+            {
+                selectedForceGenerator = nullptr;
+                selectedTrigger = hitTrigger;
+                selectedObjects.clear();
                 hitSomething = true;
             }
             else if (hitObject)
             {
+                selectedForceGenerator = nullptr;
                 selectedTrigger = nullptr;
                 selectedObjects.clear();
                 selectedObjects.push_back(hitObject);
-                hitSomething = true;
-            }
-            else if (hitTrigger)
-            {
-                selectedTrigger = hitTrigger;
-                selectedObjects.clear();
                 hitSomething = true;
             }
 
@@ -656,6 +705,7 @@ int Start(void)
             {
                 selectedObjects.clear();
                 selectedTrigger = nullptr;
+                selectedForceGenerator = nullptr; // IMPORTANT
             }
 
 

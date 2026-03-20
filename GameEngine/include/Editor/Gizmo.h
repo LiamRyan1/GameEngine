@@ -16,6 +16,7 @@
 class Camera;
 class GameObject;
 class Trigger;
+class ForceGenerator;
 struct GLFWwindow;
 
 class EditorGizmo
@@ -57,12 +58,24 @@ public:
         bool editorMode,
         bool uiWantsMouse);
 
+    // ForceGenerator gizmo support
+    bool update(GLFWwindow* window,
+        int fbW, int fbH,
+        const Camera& camera,
+        ForceGenerator* selectedForceGenerator,
+        bool editorMode,
+        bool uiWantsMouse);
+
     // draw():
     // - Renders the axis lines as a 2D overlay via ImGui
     // - Call after update(), before ImGui::Render()
     void draw(int fbW, int fbH, const Camera& camera, GameObject* selectedObject);
 
+    // Trigger gizmo
     void draw(int fbW, int fbH, const Camera& camera, Trigger* selectedTrigger);
+
+    // ForceGenerator gizmo
+    void draw(int fbW, int fbH, const Camera& camera, ForceGenerator* selectedForceGenerator);
 
     // Expose dragging state
     bool isDragging() const { return dragging; }

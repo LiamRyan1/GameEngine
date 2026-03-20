@@ -5,6 +5,7 @@
 #include "../include/Rendering/Camera.h"
 #include "../include/Scene/GameObject.h"
 #include "../include/Physics/Trigger.h"
+#include "../include/Physics/ForceGenerator.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 // Constructor
@@ -603,6 +604,212 @@ void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, Trigger* selected
 
     // Use trigger position
     glm::vec3 originW = selectedTrigger->getPosition();
+    glm::vec2 originS;
+    if (!worldToScreen(originW, view, proj, fbW, fbH, originS))
+        return;
+
+    float distToCam = glm::length(camera.getPosition() - originW);
+    float axisLenWorld = glm::clamp(distToCam * 0.15f, 0.5f, 6.0f);
+
+    glm::vec2 xEndS, yEndS, zEndS;
+    bool okX = worldToScreen(originW + glm::vec3(1, 0, 0) * axisLenWorld, view, proj, fbW, fbH, xEndS);
+    bool okY = worldToScreen(originW + glm::vec3(0, 1, 0) * axisLenWorld, view, proj, fbW, fbH, yEndS);
+    bool okZ = worldToScreen(originW + glm::vec3(0, 0, 1) * axisLenWorld, view, proj, fbW, fbH, zEndS);
+
+    ImDrawList* dl = ImGui::GetBackgroundDrawList(ImGui::GetMainViewport());
+
+    auto axisColor = [&](Axis a) -> ImU32
+        {
+            ImU32 base =
+                (a == Axis::X) ? IM_COL32(230, 80, 80, 255) :
+                (a == Axis::Y) ? IM_COL32(80, 230, 80, 255) :
+                (a == Axis::Z) ? IM_COL32(80, 140, 230, 255) :
+                IM_COL32(255, 255, 255, 255);
+
+            if (dragging && a == activeAxis) return IM_COL32(255, 255, 180, 255);
+            if (!dragging && a == hotAxis)   return IM_COL32(255, 255, 180, 255);
+            return base;
+        };
+
+    if (okX)
+        dl->AddLine(ImVec2(originS.x, originS.y), ImVec2(xEndS.x, xEndS.y), axisColor(Axis::X), axisLineThickness);
+    if (okY)
+        dl->AddLine(ImVec2(originS.x, originS.y), ImVec2(yEndS.x, yEndS.y), axisColor(Axis::Y), axisLineThickness);
+    if (okZ)
+        dl->AddLine(ImVec2(originS.x, originS.y), ImVec2(zEndS.x, zEndS.y), axisColor(Axis::Z), axisLineThickness);
+
+    dl->AddCircleFilled(ImVec2(originS.x, originS.y), 4.0f, IM_COL32(240, 240, 240, 255));
+}
+
+// =======================================================
+// FORCE GENERATOR GIZMO (COPY OF TRIGGER VERSION)
+// =======================================================
+
+// Same logic as Trigger gizmo but operates on ForceGenerator instead.
+bool EditorGizmo::update(GLFWwindow* window,
+    int fbW, int fbH,
+    const Camera& camera,
+    ForceGenerator* selectedForceGenerator,
+    bool editorMode,
+    bool uiWantsMouse)
+{
+    hotAxis = Axis::None;
+
+    // If no generator selected or not in editor mode, stop interaction
+    if (!editorMode || !selectedForceGenerator)
+    {
+        dragging = false;
+        activeAxis = Axis::None;
+        return false;
+    }
+
+    glm::mat4 view = camera.getViewMatrix();
+    glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
+
+    glm::vec3 originW = selectedForceGenerator->getPosition();
+
+    glm::vec2 originS;
+    if (!worldToScreen(originW, view, proj, fbW, fbH, originS))
+        return false;
+
+    float distToCam = glm::length(camera.getPosition() - originW);
+    float axisLenWorld = glm::clamp(distToCam * 0.15f, 0.5f, 6.0f);
+
+    glm::vec3 xEndW = originW + glm::vec3(1, 0, 0) * axisLenWorld;
+    glm::vec3 yEndW = originW + glm::vec3(0, 1, 0) * axisLenWorld;
+    glm::vec3 zEndW = originW + glm::vec3(0, 0, 1) * axisLenWorld;
+
+    glm::vec2 xEndS, yEndS, zEndS;
+    bool okX = worldToScreen(xEndW, view, proj, fbW, fbH, xEndS);
+    bool okY = worldToScreen(yEndW, view, proj, fbW, fbH, yEndS);
+    bool okZ = worldToScreen(zEndW, view, proj, fbW, fbH, zEndS);
+
+    ImVec2 mouse = ImGui::GetMousePos();
+    glm::vec2 mouseS(mouse.x, mouse.y);
+
+    float best = axisPickThresholdPx;
+
+    if (okX)
+    {
+        float d = distancePointToSegment2D(mouseS, originS, xEndS);
+        if (d < best) { best = d; hotAxis = Axis::X; }
+    }
+    if (okY)
+    {
+        float d = distancePointToSegment2D(mouseS, originS, yEndS);
+        if (d < best) { best = d; hotAxis = Axis::Y; }
+    }
+    if (okZ)
+    {
+        float d = distancePointToSegment2D(mouseS, originS, zEndS);
+        if (d < best) { best = d; hotAxis = Axis::Z; }
+    }
+
+    bool mouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+    bool mouseClicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+
+    if (!dragging)
+    {
+        if (!uiWantsMouse && mouseClicked && hotAxis != Axis::None)
+        {
+            activeAxis = hotAxis;
+            dragging = true;
+
+            dragStartObjPos = selectedForceGenerator->getPosition();
+
+            glm::vec3 axis = axisDir(activeAxis);
+            glm::vec3 camF = camera.getFront();
+            glm::vec3 camR = camera.getRight();
+            glm::vec3 camU = camera.getUp();
+
+            float dotF = std::abs(glm::dot(axis, camF));
+            float dotR = std::abs(glm::dot(axis, camR));
+            float dotU = std::abs(glm::dot(axis, camU));
+
+            glm::vec3 perpVec;
+            if (dotF < dotR && dotF < dotU) perpVec = camF;
+            else if (dotR < dotU) perpVec = camR;
+            else perpVec = camU;
+
+            glm::vec3 planeN = glm::normalize(glm::cross(axis, perpVec));
+
+            if (glm::dot(planeN, -camF) < 0.0f) planeN = -planeN;
+
+            glm::vec3 ro, rd, hit;
+            buildMouseRay(window, fbW, fbH, camera, ro, rd);
+
+            if (!rayPlaneIntersection(ro, rd, dragStartObjPos, planeN, hit))
+            {
+                dragging = false;
+                activeAxis = Axis::None;
+                return false;
+            }
+
+            dragStartHitPoint = hit;
+            return true;
+        }
+
+        return false;
+    }
+
+    if (dragging && !mouseDown)
+    {
+        dragging = false;
+        activeAxis = Axis::None;
+        return false;
+    }
+
+    if (dragging)
+    {
+        glm::vec3 axis = axisDir(activeAxis);
+        glm::vec3 camF = camera.getFront();
+        glm::vec3 camR = camera.getRight();
+        glm::vec3 camU = camera.getUp();
+
+        float dotF = std::abs(glm::dot(axis, camF));
+        float dotR = std::abs(glm::dot(axis, camR));
+        float dotU = std::abs(glm::dot(axis, camU));
+
+        glm::vec3 perpVec;
+        if (dotF < dotR && dotF < dotU) perpVec = camF;
+        else if (dotR < dotU) perpVec = camR;
+        else perpVec = camU;
+
+        glm::vec3 planeN = glm::normalize(glm::cross(axis, perpVec));
+
+        if (glm::dot(planeN, -camF) < 0.0f) planeN = -planeN;
+
+        glm::vec3 ro, rd, hit;
+        buildMouseRay(window, fbW, fbH, camera, ro, rd);
+
+        if (rayPlaneIntersection(ro, rd, dragStartObjPos, planeN, hit))
+        {
+            glm::vec3 delta = hit - dragStartHitPoint;
+
+            float t = glm::dot(delta, axis);
+
+            glm::vec3 newPos = dragStartObjPos + axis * t;
+
+            // Move force generator
+            selectedForceGenerator->setPosition(newPos);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+
+// Draw gizmo for ForceGenerator
+void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, ForceGenerator* selectedForceGenerator)
+{
+    if (!selectedForceGenerator) return;
+
+    glm::mat4 view = camera.getViewMatrix();
+    glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
+
+    glm::vec3 originW = selectedForceGenerator->getPosition();
     glm::vec2 originS;
     if (!worldToScreen(originW, view, proj, fbW, fbH, originS))
         return;
