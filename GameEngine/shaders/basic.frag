@@ -6,6 +6,7 @@ in vec3 FragPos;    // From vertex shader
 in vec3 Normal;     // From vertex shader
 in vec2 TexCoord;   // Texture coordinates
 in vec4 FragPosLightSpace; // For vertex shader
+in mat3 TBN;
 
 uniform vec3 objectColor;
 uniform vec3 lightDir;      // Light direction
@@ -15,9 +16,10 @@ uniform vec3 lightColor;    // Light color
 uniform sampler2D textureSampler;  // Texture sampler
 uniform sampler2D shadowMap; // shadow depth texture
 uniform sampler2D specularMap;
+uniform sampler2D normalMap;
 uniform bool useTexture;           // Flag to enable/disable texture
 uniform bool useSpecularMap;
-
+uniform bool useNormalMap;
 
 uniform bool uIsSelected;
 uniform vec3 uHighlightColor;
@@ -77,12 +79,25 @@ void main()
         baseColor = objectColor;
     }
     
+    // Normal — use normal map if available, otherwise interpolated vertex normal
+    vec3 norm;
+    if (useNormalMap) {
+        // Sample normal map and convert from [0,1] to [-1,1]
+        vec3 sampledNormal = texture(normalMap, TexCoord).rgb;
+        sampledNormal = normalize(sampledNormal * 2.0 - 1.0);
+        sampledNormal.xy *= 2.0;  // increase intensity
+        sampledNormal = normalize(sampledNormal);
+        // Transform from tangent space to world space using TBN matrix
+        norm = normalize(TBN * sampledNormal);
+    } else {
+        norm = normalize(Normal);
+    }
+
     // Ambient lighting (base light level)
     float ambientStrength = 0.3;
     vec3 ambient = ambientStrength * lightColor;
     
-    // Diffuse lighting (angle between normal and light)
-    vec3 norm = normalize(Normal);
+    // Diffuse lighting 
     vec3 lightDirection = normalize(-lightDir);
     float diff = max(dot(norm, lightDirection), 0.0);
     vec3 diffuse = diff * lightColor;

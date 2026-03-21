@@ -162,6 +162,8 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 	int useNormalLoc = glGetUniformLocation(mainShader, "useNormalMap");
 	int normalLoc = glGetUniformLocation(mainShader, "normalMap");
 
+	glUniform1i(normalLoc, 3);  // Always assign unit 3 to prevent sampler conflicts
+
 	if (normalTexture) {
 		normalTexture->bind(3);
 		glUniform1i(normalLoc, 3);

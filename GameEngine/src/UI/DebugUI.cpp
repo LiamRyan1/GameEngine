@@ -989,6 +989,9 @@ void DebugUI::draw(DebugUIContext& context)
     // Texture selection
     ImGui::SeparatorText("Textures");
 
+    static int selectedSpecularIndex = 0;
+    static int selectedNormalIndex = 0;
+
     if (!availableTextures.empty()) {
         // Diffuse texture
         std::vector<const char*> textureNames;
@@ -999,11 +1002,9 @@ void DebugUI::draw(DebugUIContext& context)
         ImGui::Combo("Diffuse Texture", &selectedTextureIndex, textureNames.data(), static_cast<int>(textureNames.size()));
 
         // Specular texture
-        static int selectedSpecularIndex = 0;
         ImGui::Combo("Specular Map", &selectedSpecularIndex, textureNames.data(), static_cast<int>(textureNames.size()));
         
         // Normal map
-        static int selectedNormalIndex = 0;
         ImGui::Combo("Normal Map", &selectedNormalIndex, textureNames.data(), static_cast<int>(textureNames.size()));
     }
     else {
@@ -1096,14 +1097,12 @@ void DebugUI::draw(DebugUIContext& context)
             }
 
             // Determine specular texture path
-            static int selectedSpecularIndex = 0;
             std::string specularPath = "";
             if (selectedSpecularIndex > 0 && selectedSpecularIndex <= static_cast<int>(availableTextures.size())) {
                 specularPath = availableTextures[selectedSpecularIndex - 1];
             }
 
             // Determine normal map path
-            static int selectedNormalIndex = 0;
             std::string normalPath = "";
             if (selectedNormalIndex > 0 && selectedNormalIndex <= static_cast<int>(availableTextures.size())) {
                 normalPath = availableTextures[selectedNormalIndex - 1];
