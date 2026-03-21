@@ -487,6 +487,14 @@ int Start(void)
             );
         }
 
+        // Light gizmo always runs alongside object gizmo
+        bool lightGizmoCapturing = gizmo.update(
+            window, fbW, fbH, camera,
+            &renderer.getLight(),
+            engineMode == EngineMode::Editor,
+            uiWantsMouse);
+
+        gizmoCapturingMouse = gizmoCapturingMouse || lightGizmoCapturing;
 
         // Gizmo visuals
         if (engineMode == EngineMode::Editor)
@@ -503,6 +511,9 @@ int Start(void)
             {
                 gizmo.draw(fbW, fbH, camera, primarySelection);
             }
+
+            // Light gizmo always visible in editor
+            gizmo.draw(fbW, fbH, camera, &renderer.getLight());
         }
 
         // In your main loop, around where you handle input:

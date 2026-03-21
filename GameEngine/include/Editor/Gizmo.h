@@ -18,6 +18,7 @@ class GameObject;
 class Trigger;
 class ForceGenerator;
 struct GLFWwindow;
+class DirectionalLight;
 
 class EditorGizmo
 {
@@ -65,6 +66,13 @@ public:
         ForceGenerator* selectedForceGenerator,
         bool editorMode,
         bool uiWantsMouse);
+    
+    // DirectionalLight gizmo support
+    bool update(GLFWwindow* window, int fbW, int fbH,
+        const Camera& camera,
+        DirectionalLight* light,
+        bool editorMode,
+        bool uiWantsMouse);
 
     // draw():
     // - Renders the axis lines as a 2D overlay via ImGui
@@ -76,6 +84,9 @@ public:
 
     // ForceGenerator gizmo
     void draw(int fbW, int fbH, const Camera& camera, ForceGenerator* selectedForceGenerator);
+
+    // DirectionalLight gizmo
+    void draw(int fbW, int fbH, const Camera& camera, DirectionalLight* light);
 
     // Expose dragging state
     bool isDragging() const { return dragging; }
@@ -92,6 +103,9 @@ private:
 
     // True while dragging along an axis
     bool dragging = false;
+
+    // Separate dragging state for directional light, since it doesn't fit the same pattern as objects/triggers/force generators.
+    bool lightDragging = false;
 
     // Store the object's position at the moment drag begins
     // Spply relative movement cleanly.

@@ -6,6 +6,7 @@
 #include "../include/Scene/GameObject.h"
 #include "../include/Physics/Trigger.h"
 #include "../include/Physics/ForceGenerator.h"
+#include "../include/Rendering/DirectionalLight.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 // Constructor
@@ -845,4 +846,132 @@ void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, ForceGenerator* s
         dl->AddLine(ImVec2(originS.x, originS.y), ImVec2(zEndS.x, zEndS.y), axisColor(Axis::Z), axisLineThickness);
 
     dl->AddCircleFilled(ImVec2(originS.x, originS.y), 4.0f, IM_COL32(240, 240, 240, 255));
+}
+
+// Fixed sky position where the gizmo lives
+static const glm::vec3 LIGHT_GIZMO_ORIGIN = glm::vec3(0.0f, 15.0f, 0.0f);
+static const float LIGHT_GIZMO_HANDLE_DIST = 5.0f;
+
+bool EditorGizmo::update(GLFWwindow* window,
+    int fbW, int fbH,
+    const Camera& camera,
+    DirectionalLight* light,
+    bool editorMode,
+    bool uiWantsMouse)
+{
+    hotAxis = Axis::None;
+
+    if (!editorMode || !light)
+    {
+        dragging = false;
+        activeAxis = Axis::None;
+        return false;
+    }
+
+    glm::mat4 view = camera.getViewMatrix();
+    glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
+
+    // Handle sits at origin + direction * distance
+    glm::vec3 handleW = LIGHT_GIZMO_ORIGIN + glm::normalize(light->getDirection()) * LIGHT_GIZMO_HANDLE_DIST;
+
+    glm::vec2 handleS;
+    if (!worldToScreen(handleW, view, proj, fbW, fbH, handleS))
+        return false;
+
+    ImVec2 mouse = ImGui::GetMousePos();
+    glm::vec2 mouseS(mouse.x, mouse.y);
+
+    // Hover: check if mouse is near the handle circle
+    float distToHandle = glm::length(mouseS - handleS);
+    bool hovering = distToHandle < 12.0f;  // pixel radius for hit
+
+    bool mouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+    bool mouseClicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+
+    if (!lightDragging)
+    {
+        if (!uiWantsMouse && mouseClicked && hovering)
+        {
+            lightDragging = true;
+
+            dragStartObjPos = handleW;
+
+            // Drag plane faces camera, passes through handle
+            glm::vec3 planeN = -camera.getFront();
+            glm::vec3 ro, rd, hit;
+            buildMouseRay(window, fbW, fbH, camera, ro, rd);
+
+            if (!rayPlaneIntersection(ro, rd, handleW, planeN, hit))
+            {
+                lightDragging = false;
+                activeAxis = Axis::None;
+                return false;
+            }
+
+            dragStartHitPoint = hit;
+            return true;
+        }
+        return false;
+    }
+
+    if (lightDragging && !mouseDown)
+    {
+        lightDragging = false;
+        activeAxis = Axis::None;
+        return false;
+    }
+
+    if (lightDragging)
+    {
+        glm::vec3 planeN = -camera.getFront();
+        glm::vec3 ro, rd, hit;
+        buildMouseRay(window, fbW, fbH, camera, ro, rd);
+
+        if (rayPlaneIntersection(ro, rd, dragStartHitPoint, planeN, hit))
+        {
+            // New direction = from gizmo origin to where the handle was dragged
+            glm::vec3 newDir = hit - LIGHT_GIZMO_ORIGIN;
+            if (glm::length(newDir) > 0.001f)
+            {
+                light->setDirection(glm::normalize(newDir));
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, DirectionalLight* light)
+{
+    if (!light) return;
+
+    glm::mat4 view = camera.getViewMatrix();
+    glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
+
+    glm::vec3 originW = LIGHT_GIZMO_ORIGIN;
+    glm::vec3 handleW = originW + glm::normalize(light->getDirection()) * LIGHT_GIZMO_HANDLE_DIST;
+
+    glm::vec2 originS, handleS;
+    bool okO = worldToScreen(originW, view, proj, fbW, fbH, originS);
+    bool okH = worldToScreen(handleW, view, proj, fbW, fbH, handleS);
+
+    if (!okO || !okH) return;
+
+    ImDrawList* dl = ImGui::GetBackgroundDrawList(ImGui::GetMainViewport());
+
+    // Yellow arrow line for the sun
+    ImU32 col = lightDragging ? IM_COL32(255, 255, 100, 255) : IM_COL32(255, 220, 50, 255);
+    dl->AddLine(ImVec2(originS.x, originS.y), ImVec2(handleS.x, handleS.y), col, 2.5f);
+
+    // Small circle at origin
+    dl->AddCircleFilled(ImVec2(originS.x, originS.y), 4.0f, IM_COL32(255, 220, 50, 180));
+
+    // Draggable handle circle at tip
+    dl->AddCircleFilled(ImVec2(handleS.x, handleS.y), 8.0f, col);
+    dl->AddCircle(ImVec2(handleS.x, handleS.y), 8.0f, IM_COL32(255, 255, 255, 200), 0, 1.5f);
+
+    // Label
+    dl->AddText(ImVec2(handleS.x + 10.0f, handleS.y - 8.0f), IM_COL32(255, 220, 50, 255), "SUN");
 }
