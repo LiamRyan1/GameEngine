@@ -1001,6 +1001,10 @@ void DebugUI::draw(DebugUIContext& context)
         // Specular texture
         static int selectedSpecularIndex = 0;
         ImGui::Combo("Specular Map", &selectedSpecularIndex, textureNames.data(), static_cast<int>(textureNames.size()));
+        
+        // Normal map
+        static int selectedNormalIndex = 0;
+        ImGui::Combo("Normal Map", &selectedNormalIndex, textureNames.data(), static_cast<int>(textureNames.size()));
     }
     else {
         ImGui::TextDisabled("No textures found");
@@ -1098,6 +1102,13 @@ void DebugUI::draw(DebugUIContext& context)
                 specularPath = availableTextures[selectedSpecularIndex - 1];
             }
 
+            // Determine normal map path
+            static int selectedNormalIndex = 0;
+            std::string normalPath = "";
+            if (selectedNormalIndex > 0 && selectedNormalIndex <= static_cast<int>(availableTextures.size())) {
+                normalPath = availableTextures[selectedNormalIndex - 1];
+            }
+
 			// capture pointer to newly spawned object to apply tags and name after creation
             GameObject* spawned = nullptr;
 
@@ -1120,6 +1131,11 @@ void DebugUI::draw(DebugUIContext& context)
                     spawned->addTag(tag);
 
                 spawnName[0] = '\0'; // clear name after spawn; tags kept for rapid multi-spawn
+                
+                // Apply normal map if selected 
+                if (!normalPath.empty()) {
+                    spawned->getRender().setNormalTexturePath(normalPath);
+                }
             }
         }
     }
