@@ -28,6 +28,7 @@ private:
     ShapeType shapeType;
     std::string texturePath;
     std::string specularTexturePath;  // Specular map texture
+    std::string normalTexturePath; // Normal map texture
     Mesh* renderMesh; // Pointer to the mesh used for rendering
 
 public:
@@ -38,10 +39,13 @@ public:
     ShapeType getShapeType() const { return shapeType; }
     const std::string& getTexturePath() const { return texturePath; }
     const std::string& getSpecularTexturePath() const { return specularTexturePath; }
+    const std::string& getNormalTexturePath() const { return normalTexturePath; }
+
 
     void setShapeType(ShapeType type) { shapeType = type; }
     void setTexturePath(const std::string& path) { texturePath = path; }
     void setSpecularTexturePath(const std::string& path) { specularTexturePath = path; }
+    void setNormalTexturePath(const std::string& path) { normalTexturePath = path; }
 
     void setRenderMesh(Mesh* mesh) { renderMesh = mesh; }
     Mesh* getRenderMesh() const { return renderMesh; }

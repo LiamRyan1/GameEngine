@@ -151,6 +151,26 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 		glUniform1i(useSpecLoc, 0);
 	}
 
+	// Load normal map if exists
+	std::string normalPath = obj.getRender().getNormalTexturePath();
+	bool hasNormal = !normalPath.empty();
+	Texture* normalTexture = nullptr;
+	if (hasNormal) {
+		normalTexture = textureManager.loadTexture(normalPath);
+	}
+
+	int useNormalLoc = glGetUniformLocation(mainShader, "useNormalMap");
+	int normalLoc = glGetUniformLocation(mainShader, "normalMap");
+
+	if (normalTexture) {
+		normalTexture->bind(3);
+		glUniform1i(normalLoc, 3);
+		glUniform1i(useNormalLoc, 1);
+	}
+	else {
+		glUniform1i(useNormalLoc, 0);
+	}
+
 	mesh->draw();
 
 	if (texture) {
