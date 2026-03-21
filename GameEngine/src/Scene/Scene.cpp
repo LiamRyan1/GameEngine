@@ -653,6 +653,7 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
 
         // Set render mesh and transform
         objUnique->getRender().setRenderMesh(meshPtr);
+        objUnique->getRender().setModelPath(filepath);
 
         // Apply visual mesh scale
         objUnique->getTransform().setScale(meshScale);
@@ -677,6 +678,7 @@ GameObject* Scene::loadAndSpawnModel(const std::string& filepath,
         );
 
         objUnique->getRender().setRenderMesh(meshPtr);
+        objUnique->getRender().setModelPath(filepath);
 
         obj = objUnique.get();
         gameObjects.push_back(std::move(objUnique));
@@ -782,6 +784,9 @@ bool Scene::saveToFile(const std::string& path) const
 
         // Render
         o["render"]["texture"] = obj.getTexturePath();
+        o["render"]["specular"] = obj.getRender().getSpecularTexturePath();
+        o["render"]["normal"] = obj.getRender().getNormalTexturePath();
+        o["render"]["modelPath"] = obj.getRender().getModelPath();
 
         // Physics
         o["physics"]["enabled"] = obj.hasPhysics();
@@ -949,6 +954,9 @@ bool Scene::loadFromFile(const std::string& path)
         );
 
         std::string texture = o["render"]["texture"];
+        std::string specular = o["render"].contains("specular") ? o["render"]["specular"].get<std::string>() : "";
+        std::string normal = o["render"].contains("normal") ? o["render"]["normal"].get<std::string>() : "";
+        std::string modelPath = o["render"].contains("modelPath") ? o["render"]["modelPath"].get<std::string>() : "";
 
         bool physicsEnabled = o["physics"]["enabled"];
 
@@ -967,22 +975,36 @@ bool Scene::loadFromFile(const std::string& path)
 
             glm::vec3 collisionSize = scale * physScale;
 
-            obj = spawnObject(shape, position, collisionSize, mass, material, texture);
-
-            obj->setScale(scale);
-            obj->setPhysicsScale(physScale);
-
-            // force exact transform into Bullet immediately
-            obj->getPhysics()->syncFromTransform(obj->getTransform());
-
-            // make render match physics immediately
-            obj->updateFromPhysics();
+            if (!modelPath.empty())
+            {
+                obj = loadAndSpawnModel(modelPath, position, scale, true, mass, physScale, material);
+            }
+            else
+            {
+                obj = spawnObject(shape, position, collisionSize, mass, material, texture, specular);
+                if (!normal.empty())
+                    obj->getRender().setNormalTexturePath(normal);
+                obj->setScale(scale);
+                obj->setPhysicsScale(physScale);
+                obj->getPhysics()->syncFromTransform(obj->getTransform());
+                obj->updateFromPhysics();
+            }
         }
-
         else
         {
-            obj = spawnRenderObject(shape, position, scale, texture);
+            if (!modelPath.empty())
+            {
+                obj = loadAndSpawnModel(modelPath, position, scale, false, 0.0f, glm::vec3(1.0f), "Default");
+            }
+            else
+            {
+                obj = spawnRenderObject(shape, position, scale, texture, specular);
+                if (!normal.empty())
+                    obj->getRender().setNormalTexturePath(normal);
+            }
         }
+
+       
 
         obj->setRotation(rotation);
 
