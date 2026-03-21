@@ -20,6 +20,7 @@
 #include "../Physics/ForceGeneratorRegistry.h"
 #include "../Physics/ForceGenerator.h"
 #include "../Physics/Trigger.h"
+#include "../Rendering/PointLight.h"
 
 
 class Renderer {
@@ -61,7 +62,8 @@ public:
 
     void drawTriggerDebug(const std::vector<Trigger*>& triggers, const Camera& camera, int fbW, int fbH);
     void drawForceGeneratorDebug(const std::vector<ForceGenerator*>& generators, const Camera& camera, int fbW, int fbH);
-
+    void uploadPointLights(const std::vector<PointLight*>& lights);
+    
     void cleanup();
 
     // Light control

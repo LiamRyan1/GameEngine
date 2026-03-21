@@ -13,6 +13,14 @@ uniform vec3 lightDir;      // Light direction
 uniform vec3 viewPos;       // Camera position
 uniform vec3 lightColor;    // Light color
 
+// Point lights - max 16
+#define MAX_POINT_LIGHTS 16
+uniform int         numPointLights;
+uniform vec3        pointLightPositions[MAX_POINT_LIGHTS];
+uniform vec3        pointLightColours[MAX_POINT_LIGHTS];
+uniform float       pointLightIntensities[MAX_POINT_LIGHTS];
+uniform float       pointLightRadii[MAX_POINT_LIGHTS];
+
 uniform sampler2D textureSampler;  // Texture sampler
 uniform sampler2D shadowMap; // shadow depth texture
 uniform sampler2D specularMap;
@@ -93,32 +101,47 @@ void main()
         norm = normalize(Normal);
     }
 
-    // Ambient lighting (base light level)
     float ambientStrength = 0.3;
     vec3 ambient = ambientStrength * lightColor;
-    
-    // Diffuse lighting 
+
     vec3 lightDirection = normalize(-lightDir);
     float diff = max(dot(norm, lightDirection), 0.0);
     vec3 diffuse = diff * lightColor;
-    
-    // Specular lighting
+
     float specularStrength = 0.5;
-    if (useSpecularMap) {
-        // Sample specular map (grayscale - use R channel)
+    if (useSpecularMap)
         specularStrength = texture(specularMap, TexCoord).r;
-    }
 
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;   
+    vec3 specular = specularStrength * spec * lightColor;
 
-    // Calculate shadow
     float shadow = ShadowCalculation(FragPosLightSpace);
-    
-    // Apply shadow (only affects diffuse and specular, not ambient)
     vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
+
+    // Point lights
+    for (int i = 0; i < numPointLights; i++)
+    {
+        vec3  toLight    = pointLightPositions[i] - FragPos;
+        float dist       = length(toLight);
+        float radius     = pointLightRadii[i];
+
+        if (dist >= radius) continue;
+
+        float attenuation = 1.0 - smoothstep(0.0, radius, dist);
+        attenuation *= pointLightIntensities[i];
+
+        vec3 lightDirPt = normalize(toLight);
+
+        float diffPt = max(dot(norm, lightDirPt), 0.0);
+
+        vec3 reflectPt = reflect(-lightDirPt, norm);
+        float specPt = pow(max(dot(viewDir, reflectPt), 0.0), 32);
+
+        lighting += attenuation * (diffPt + specularStrength * specPt) * pointLightColours[i];
+    }
+
     vec3 result = lighting * baseColor;
 
     // Apply selection tint

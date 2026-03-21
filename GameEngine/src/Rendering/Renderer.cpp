@@ -11,6 +11,7 @@
 #include "../include/Physics/Trigger.h"
 #include "../include/Physics/TriggerRegistry.h"
 #include "../include/Physics/ForceGenerator.h"
+#include "../include/Rendering/PointLight.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
@@ -468,6 +469,28 @@ void Renderer::drawForceGeneratorDebug(const std::vector<ForceGenerator*>& gener
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
 	glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
+}
+
+void Renderer::uploadPointLights(const std::vector<PointLight*>& lights)
+{
+	unsigned int mainShader = shaderManager.getProgram("main");
+	glUseProgram(mainShader);
+
+	int count = 0;
+	for (PointLight* l : lights)
+	{
+		if (!l || !l->isEnabled()) continue;
+		if (count >= 16) break;
+
+		std::string base = "pointLightPositions[" + std::to_string(count) + "]";
+		glUniform3fv(glGetUniformLocation(mainShader, ("pointLightPositions[" + std::to_string(count) + "]").c_str()), 1, &l->getPosition()[0]);
+		glUniform3fv(glGetUniformLocation(mainShader, ("pointLightColours[" + std::to_string(count) + "]").c_str()), 1, &l->getColour()[0]);
+		glUniform1f(glGetUniformLocation(mainShader, ("pointLightIntensities[" + std::to_string(count) + "]").c_str()), l->getIntensity());
+		glUniform1f(glGetUniformLocation(mainShader, ("pointLightRadii[" + std::to_string(count) + "]").c_str()), l->getRadius());
+		count++;
+	}
+
+	glUniform1i(glGetUniformLocation(mainShader, "numPointLights"), count);
 }
 
 void Renderer::cleanup() {

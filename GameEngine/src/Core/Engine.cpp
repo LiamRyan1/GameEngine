@@ -29,6 +29,7 @@
 #include "../include/Physics/ForceGeneratorRegistry.h"
 #include "../include/Physics/ForceGenerator.h"
 #include "../include/Gameplay/GameScene.h"
+#include "../include/Rendering/PointLightRegistry.h"
 #include <filesystem>
 
 void simulate(double dt)
@@ -312,6 +313,7 @@ int Start(void)
         if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_F9))
         {
             selectedObjects.clear(); // Clear selection to avoid dangling pointers if objects get destroyed during load
+            PointLightRegistry::getInstance().clearAll();
             if (scene.loadFromFile("../../assets/scenes/scene_test.json"))
             {
                 SetupScripts(scene, camera, physics);
@@ -1075,6 +1077,7 @@ int Start(void)
         }
         renderer.drawTriggerDebug(TriggerRegistry::getInstance().getAllTriggers(), camera, fbW, fbH);
         renderer.drawForceGeneratorDebug(ForceGeneratorRegistry::getInstance().getAllGenerators(), camera, fbW, fbH);
+        renderer.uploadPointLights(PointLightRegistry::getInstance().getAllLights());
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

@@ -43,6 +43,7 @@ target_sources(GameEngine PRIVATE
     src/Rendering/ShadowMap.cpp
     src/Rendering/TextureManager.cpp
     src/Rendering/ShaderManager.cpp
+    src/Rendering/PointLightRegistry.cpp
     
     # Physics
     src/Physics/Physics.cpp
