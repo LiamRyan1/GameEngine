@@ -986,6 +986,8 @@ bool EditorGizmo::update(GLFWwindow* window,
     bool uiWantsMouse)
 {
     hotAxis = Axis::None;
+    if (fbW == 0 || fbH == 0) return false;
+
 
     if (!editorMode || !light)
     {

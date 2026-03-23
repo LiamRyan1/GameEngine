@@ -67,6 +67,8 @@ int Start(void)
     // Currently selected force generator (editor-onlythe same as triggers)
     ForceGenerator* selectedForceGenerator = nullptr;
 
+    PointLight* selectedPointLight = nullptr;
+
     if (!glfwInit())
     {
         std::cout << "Failed to init GLFW" << std::endl;
@@ -262,6 +264,7 @@ int Start(void)
                 selectedObjects.clear();
                 selectedTrigger = nullptr; // Clear force trigger selection
                 selectedForceGenerator = nullptr; // Clear force generator selection too
+                selectedPointLight = nullptr; // Clear point light selection
 
                 // SHOW MODE TEXT
                 modeDisplayText = "GAME MODE";
@@ -478,6 +481,10 @@ int Start(void)
                 uiWantsMouse
             );
         }
+        else if (selectedPointLight)
+        {
+            gizmoCapturingMouse = gizmo.update(window, fbW, fbH, camera, selectedPointLight, engineMode == EngineMode::Editor, uiWantsMouse);
+        }
         else
         {
             gizmoCapturingMouse = gizmo.update(
@@ -509,6 +516,10 @@ int Start(void)
             {
                 gizmo.draw(fbW, fbH, camera, selectedTrigger);
             }
+            else if (selectedPointLight)
+            {
+				gizmo.draw(fbW, fbH, camera, selectedPointLight);
+			}
             else if (primarySelection)
             {
                 gizmo.draw(fbW, fbH, camera, primarySelection);
@@ -686,6 +697,34 @@ int Start(void)
                 }
             }
 
+            // Point Light Raycast
+            float closestLightHit = FLT_MAX;
+            PointLight* hitPointLight = nullptr;
+
+            for (PointLight* light : PointLightRegistry::getInstance().getAllLights())
+            {
+                if (!light || !light->isEnabled()) continue;
+
+                glm::vec3 center = light->getPosition();
+                float pickRadius = 1.0f;
+
+                glm::vec3 oc = rayOrigin - center;
+                float a = glm::dot(rayDirection, rayDirection);
+                float b = 2.0f * glm::dot(oc, rayDirection);
+                float c = glm::dot(oc, oc) - pickRadius * pickRadius;
+                float discriminant = b * b - 4 * a * c;
+
+                if (discriminant >= 0.0f)
+                {
+                    float t = (-b - sqrt(discriminant)) / (2.0f * a);
+                    if (t > 0.0f && t < closestLightHit)
+                    {
+                        closestLightHit = t;
+                        hitPointLight = light;
+                    }
+                }
+            }
+
             // Decide whether object or trigger is closer
             bool hitSomething = false;
 
@@ -694,6 +733,15 @@ int Start(void)
                 (!hitObject || closestForceHit < closestHit))
             {
                 selectedForceGenerator = hitForceGenerator;
+                selectedTrigger = nullptr;
+                selectedObjects.clear();
+                hitSomething = true;
+            }
+            else if (hitPointLight && (!hitTrigger || closestLightHit < closestTriggerHit) &&
+                (!hitObject || closestLightHit < closestHit))
+            {
+                selectedPointLight = hitPointLight;
+                selectedForceGenerator = nullptr;
                 selectedTrigger = nullptr;
                 selectedObjects.clear();
                 hitSomething = true;
@@ -719,6 +767,7 @@ int Start(void)
                 selectedObjects.clear();
                 selectedTrigger = nullptr;
                 selectedForceGenerator = nullptr; // IMPORTANT
+                selectedPointLight = nullptr;
             }
 
 
