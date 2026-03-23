@@ -19,6 +19,7 @@ class Trigger;
 class ForceGenerator;
 struct GLFWwindow;
 class DirectionalLight;
+class PointLight;
 
 class EditorGizmo
 {
@@ -74,6 +75,14 @@ public:
         bool editorMode,
         bool uiWantsMouse);
 
+    // PointLight gizmo support 
+    bool update(GLFWwindow* window, int fbW, int fbH,
+        const Camera& camera,
+        PointLight* light,
+        bool editorMode,
+        bool uiWantsMouse);
+
+
     // draw():
     // - Renders the axis lines as a 2D overlay via ImGui
     // - Call after update(), before ImGui::Render()
@@ -87,6 +96,9 @@ public:
 
     // DirectionalLight gizmo
     void draw(int fbW, int fbH, const Camera& camera, DirectionalLight* light);
+
+    // PointLight gizmo 
+    void draw(int fbW, int fbH, const Camera& camera, PointLight* light);
 
     // Expose dragging state
     bool isDragging() const { return dragging; }
