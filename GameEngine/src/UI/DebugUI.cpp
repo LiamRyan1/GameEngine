@@ -7,6 +7,7 @@
 #include "../include/UI/ForceGeneratorPanel.h"
 #include "../include/Physics/Trigger.h"
 #include "../include/Physics/TriggerRegistry.h"
+#include "../include/UI/PointLightPanel.h"
 #include <glm/gtc/constants.hpp>
 #include "../External/imgui/core/imgui.h"
 #include <vector>
@@ -1292,4 +1293,5 @@ void DebugUI::draw(DebugUIContext& context)
     //Trigg 
     DrawTriggerEditorPanel(context);
     DrawForceGeneratorPanel(context);
+    DrawPointLightPanel(context);
 }

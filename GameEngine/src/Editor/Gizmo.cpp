@@ -1112,6 +1112,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, PointLight* light)
 {
     if (!light) return;
+    if (fbW == 0 || fbH == 0) return;
 
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);

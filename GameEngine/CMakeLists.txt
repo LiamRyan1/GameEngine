@@ -74,6 +74,8 @@ target_sources(GameEngine PRIVATE
     src/UI/Raycast.cpp 
     src/UI/TriggerEditorPanel.cpp 
     src/UI/ForceGeneratorPanel.cpp
+    src/UI/PointLightPanel.cpp
+
     # External
     src/External/stb_image.cpp
     external/tinyobjloader/tiny_obj_loader.cc
