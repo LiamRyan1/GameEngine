@@ -1126,6 +1126,7 @@ int Start(void)
         }
         renderer.drawTriggerDebug(TriggerRegistry::getInstance().getAllTriggers(), camera, fbW, fbH);
         renderer.drawForceGeneratorDebug(ForceGeneratorRegistry::getInstance().getAllGenerators(), camera, fbW, fbH);
+        renderer.drawPointLightDebug(PointLightRegistry::getInstance().getAllLights(), camera, fbW, fbH);
         renderer.uploadPointLights(PointLightRegistry::getInstance().getAllLights());
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

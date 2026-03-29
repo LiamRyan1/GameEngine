@@ -471,6 +471,52 @@ void Renderer::drawForceGeneratorDebug(const std::vector<ForceGenerator*>& gener
 	glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
 }
 
+void Renderer::drawPointLightDebug(const std::vector<PointLight*>& lights, const Camera& camera, int fbW, int fbH)
+{
+	if (!debugPhysicsEnabled) return;
+	if (fbW == 0 || fbH == 0) return;
+
+	unsigned int mainShader = shaderManager.getProgram("main");
+	glUseProgram(mainShader);
+
+	float aspect = (float)fbW / (float)fbH;
+	glm::mat4 view = camera.getViewMatrix();
+	glm::mat4 projection = camera.getProjectionMatrix(aspect);
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "view"), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	int modelLoc = glGetUniformLocation(mainShader, "model");
+	int colorLoc = glGetUniformLocation(mainShader, "objectColor");
+	int useTexLoc = glGetUniformLocation(mainShader, "useTexture");
+	int lightColorLoc = glGetUniformLocation(mainShader, "lightColor");
+
+	glDisable(GL_DEPTH_TEST);
+	glUniform1i(useTexLoc, 0);
+	glUniform3f(lightColorLoc, 10.0f, 10.0f, 10.0f);
+	glLineWidth(1.5f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	for (PointLight* light : lights)
+	{
+		if (!light || !light->isEnabled()) continue;
+
+		// Use the light's own colour for the wireframe
+		glm::vec3 col = light->getColour();
+		glUniform3f(colorLoc, col.r, col.g, col.b);
+
+		// Draw sphere
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), light->getPosition());
+		model = glm::scale(model, glm::vec3(1.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+		sphereMesh.draw();
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	glUniform3fv(lightColorLoc, 1, &mainLight.getFinalColor()[0]);
+}
+
 void Renderer::uploadPointLights(const std::vector<PointLight*>& lights)
 {
 	unsigned int mainShader = shaderManager.getProgram("main");

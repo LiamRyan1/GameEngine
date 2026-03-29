@@ -62,6 +62,7 @@ public:
 
     void drawTriggerDebug(const std::vector<Trigger*>& triggers, const Camera& camera, int fbW, int fbH);
     void drawForceGeneratorDebug(const std::vector<ForceGenerator*>& generators, const Camera& camera, int fbW, int fbH);
+    void drawPointLightDebug(const std::vector<PointLight*>& lights, const Camera& camera, int fbW, int fbH);
     void uploadPointLights(const std::vector<PointLight*>& lights);
     
     void cleanup();
