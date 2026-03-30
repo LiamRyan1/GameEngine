@@ -23,6 +23,12 @@ private:
     // Flag to track if we've synced with the editor at least once (to avoid redundant syncs)
     bool editorSyncedOnce = false;
     
+    // Simple directional light state for now
+    glm::vec3 savedLightDir = glm::vec3(0.3f, -1.0f, 0.5f);
+    glm::vec3 savedLightCol = glm::vec3(1.0f);
+    float     savedLightIntensity = 0.8f;
+
+
     std::vector<GameObject*> pendingDestroy;
 
     // Maps tag strings to script-attacher lambdas.
@@ -98,6 +104,19 @@ public:
 
     // Get all objects for rendering
     const std::vector<std::unique_ptr<GameObject>>& getObjects() const { return gameObjects; }
+
+    // Lighting control
+    void setLightState(const glm::vec3& dir, const glm::vec3& col, float intensity) {
+        savedLightDir = dir;
+        savedLightCol = col;
+        savedLightIntensity = intensity;
+    }
+    void getLightState(glm::vec3& dir, glm::vec3& col, float& intensity) const {
+        dir = savedLightDir;
+        col = savedLightCol;
+        intensity = savedLightIntensity;
+    }
+
 
 	// Spatial Queries
 

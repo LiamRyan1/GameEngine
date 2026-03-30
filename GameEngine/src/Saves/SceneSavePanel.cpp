@@ -2,7 +2,7 @@
 
 #include "../include/Scene/Scene.h"
 #include "../External/imgui/core/imgui.h"
-
+#include "../include/Rendering/DirectionalLight.h"
 #include "../include/Core/Engine.h"
 
 #include <iostream>
@@ -13,7 +13,7 @@
 /*Scenes are stored as JSON files in:
 ../../assets/scenes/ */
 
-void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode)
+void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode, DirectionalLight& light)
 {
     // Buffer used when typing a name to SAVE a new scene
     static char sceneName[128] = "scene_test";
@@ -67,6 +67,7 @@ void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode)
     if (ImGui::Button("Save Scene"))
     {
         std::string fullPath = sceneFolder + std::string(sceneName) + ".json";
+        scene.setLightState(light.getDirection(), light.getColor(), light.getIntensity());
         scene.saveToFile(fullPath);
 
         // refresh list
@@ -181,7 +182,15 @@ void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode)
     if (ImGui::Button("Load Scene"))
     {
         std::string fullPath = sceneFolder + sceneFiles[selectedIndex] + ".json";
-        scene.loadFromFile(fullPath);
+        if (scene.loadFromFile(fullPath))
+        {
+            glm::vec3 dir, col;
+            float intensity;
+            scene.getLightState(dir, col, intensity);
+            light.setDirection(dir);
+            light.setColor(col);
+            light.setIntensity(intensity);
+        }
     }
 
     if (!canLoad)

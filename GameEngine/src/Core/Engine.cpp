@@ -310,6 +310,10 @@ int Start(void)
 
         if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_F5))
         {
+            // Save current scene to file (overwrites existing)
+            scene.setLightState(renderer.getLight().getDirection(),
+                renderer.getLight().getColor(),
+                renderer.getLight().getIntensity());
             scene.saveToFile("../../assets/scenes/scene_test.json");
         }
 
@@ -319,6 +323,12 @@ int Start(void)
             PointLightRegistry::getInstance().clearAll();
             if (scene.loadFromFile("../../assets/scenes/scene_test.json"))
             {
+                glm::vec3 dir, col;
+                float intensity;
+                scene.getLightState(dir, col, intensity);
+                renderer.getLight().setDirection(dir);
+                renderer.getLight().setColor(col);
+                renderer.getLight().setIntensity(intensity);
                 SetupScripts(scene, camera, physics);
                 scene.applyTagScriptsToExistingObjects();
                 scene.applyTriggerScriptsToExistingTriggers();
@@ -1076,7 +1086,7 @@ int Start(void)
         debugUI.draw(uiContext);
 
         // Draw SceneSavePanel
-        DrawSceneSaveLoadPanel(scene, engineMode);
+        DrawSceneSaveLoadPanel(scene, engineMode, renderer.getLight());
 
         // Mode change fade timer
         if (modeDisplayTimer > 0.0f)

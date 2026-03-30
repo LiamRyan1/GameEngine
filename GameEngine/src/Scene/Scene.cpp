@@ -8,6 +8,7 @@
 #include "../include/Physics/Trigger.h" 
 #include "../include/Physics/ForceGeneratorRegistry.h"
 #include "../include/Physics/ForceGenerator.h"
+#include "../include/Rendering/PointLightRegistry.h"
 #include <unordered_map> 
 #include <iostream>
 #include <algorithm>  // std::min, std::max
@@ -542,6 +543,7 @@ void Scene::clear() {
     ConstraintRegistry::getInstance().clearAll();
     TriggerRegistry::getInstance().clearAll();
     ForceGeneratorRegistry::getInstance().clearAll();
+    PointLightRegistry::getInstance().clearAll();
 
     // Explicitly unregister every rigid body from Bullet BEFORE destroying GameObjects.
     // Without this, bodies linger in the physics world across reloads and cause crashes.
@@ -854,6 +856,27 @@ bool Scene::saveToFile(const std::string& path) const
 
         sceneJson["triggers"].push_back(t);
     }
+
+    sceneJson["pointLights"] = json::array();
+    for (PointLight* light : PointLightRegistry::getInstance().getAllLights())
+    {
+        if (!light) continue;
+
+        json l;
+        l["name"] = light->getName();
+        l["enabled"] = light->isEnabled();
+        l["intensity"] = light->getIntensity();
+        l["radius"] = light->getRadius();
+
+        glm::vec3 pos = light->getPosition();
+        l["position"] = { pos.x, pos.y, pos.z };
+
+        glm::vec3 col = light->getColour();
+        l["colour"] = { col.r, col.g, col.b };
+
+        sceneJson["pointLights"].push_back(l);
+    }
+
     sceneJson["forceGenerators"] = json::array();
     for (ForceGenerator* gen : ForceGeneratorRegistry::getInstance().getAllGenerators())
     {
@@ -907,6 +930,12 @@ bool Scene::saveToFile(const std::string& path) const
         std::cout << "Failed to save scene: " << path << std::endl;
         return false;
     }
+
+    // Save directional light settings separately since they aren't GameObjects
+    json& dl = sceneJson["directionalLight"];
+    dl["direction"] = { savedLightDir.x, savedLightDir.y, savedLightDir.z };
+    dl["colour"] = { savedLightCol.r, savedLightCol.g, savedLightCol.b };
+    dl["intensity"] = savedLightIntensity;
 
     file << sceneJson.dump(4);
 
@@ -1086,6 +1115,33 @@ bool Scene::loadFromFile(const std::string& path)
         }
 
         std::cout << "Triggers loaded successfully" << std::endl;
+    }
+
+    if (sceneJson.contains("pointLights"))
+    {
+        for (const auto& l : sceneJson["pointLights"])
+        {
+            std::string name = l.value("name", "PointLight");
+            glm::vec3 position(l["position"][0], l["position"][1], l["position"][2]);
+            glm::vec3 colour(l["colour"][0], l["colour"][1], l["colour"][2]);
+            float intensity = l.value("intensity", 1.0f);
+            float radius = l.value("radius", 10.0f);
+            bool enabled = l.value("enabled", true);
+
+            PointLight* light = PointLightRegistry::getInstance().addLight(
+                name, position, colour, intensity, radius);
+
+            if (light)
+                light->setEnabled(enabled);
+        }
+    }
+
+    if (sceneJson.contains("directionalLight"))
+    {
+        const auto& dl = sceneJson["directionalLight"];
+        savedLightDir = glm::vec3(dl["direction"][0], dl["direction"][1], dl["direction"][2]);
+        savedLightCol = glm::vec3(dl["colour"][0], dl["colour"][1], dl["colour"][2]);
+        savedLightIntensity = dl.value("intensity", 0.8f);
     }
 
     if (sceneJson.contains("forceGenerators"))
