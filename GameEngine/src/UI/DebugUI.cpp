@@ -732,6 +732,66 @@ static void DrawUnifiedInspector(DebugUIContext& context) {
 
     }
 
+    if (ImGui::CollapsingHeader("Textures"))
+    {
+        // Get available textures
+        static std::vector<std::string> inspTextures;
+        static bool inspTexturesLoaded = false;
+        if (!inspTexturesLoaded && context.scene.getAvailableTextures)
+        {
+            inspTextures = context.scene.getAvailableTextures();
+            inspTexturesLoaded = true;
+        }
+
+        if (!inspTextures.empty())
+        {
+            std::vector<const char*> texNames;
+            texNames.push_back("None");
+            for (const auto& t : inspTextures)
+                texNames.push_back(t.c_str());
+
+            // --- Diffuse ---
+            std::string currentDiffuse = context.selectedObject->getTexturePath();
+            int diffuseIdx = 0;
+            for (int i = 0; i < (int)inspTextures.size(); i++)
+                if (inspTextures[i] == currentDiffuse) { diffuseIdx = i + 1; break; }
+
+            if (ImGui::Combo("Diffuse##InspDiffuse", &diffuseIdx, texNames.data(), (int)texNames.size()))
+            {
+                std::string path = (diffuseIdx > 0) ? inspTextures[diffuseIdx - 1] : "";
+                context.selectedObject->setTexturePath(path);
+            }
+
+            // --- Specular ---
+            std::string currentSpecular = context.selectedObject->getRender().getSpecularTexturePath();
+            int specularIdx = 0;
+            for (int i = 0; i < (int)inspTextures.size(); i++)
+                if (inspTextures[i] == currentSpecular) { specularIdx = i + 1; break; }
+
+            if (ImGui::Combo("Specular##InspSpecular", &specularIdx, texNames.data(), (int)texNames.size()))
+            {
+                std::string path = (specularIdx > 0) ? inspTextures[specularIdx - 1] : "";
+                context.selectedObject->getRender().setSpecularTexturePath(path);
+            }
+
+            // --- Normal ---
+            std::string currentNormal = context.selectedObject->getRender().getNormalTexturePath();
+            int normalIdx = 0;
+            for (int i = 0; i < (int)inspTextures.size(); i++)
+                if (inspTextures[i] == currentNormal) { normalIdx = i + 1; break; }
+
+            if (ImGui::Combo("Normal Map##InspNormal", &normalIdx, texNames.data(), (int)texNames.size()))
+            {
+                std::string path = (normalIdx > 0) ? inspTextures[normalIdx - 1] : "";
+                context.selectedObject->getRender().setNormalTexturePath(path);
+            }
+        }
+        else
+        {
+            ImGui::TextDisabled("No textures found in textures/ folder");
+        }
+    }
+
     // constraint section
     if (ImGui::CollapsingHeader("Constraints")) {
         auto constraints = ConstraintRegistry::getInstance().findConstraintsByObject(context.selectedObject);
