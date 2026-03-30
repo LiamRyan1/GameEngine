@@ -12,7 +12,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 lightSpaceMatrix; // Matrix to transform to light space for shadow mapping
-
+uniform vec3 uvTiling; // UV tiling factor for texture coordinates
 
 out vec3 FragPos;   // Position in world space
 out vec3 Normal;    // Normal in world space
@@ -27,7 +27,7 @@ void main()
     
     // Transform normal to world space (use normal matrix to preserve perpendicularity)
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    TexCoord = aTexCoord;
+    TexCoord = aTexCoord * uvTiling.xy;
     FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0); // Calculate position in light space for shadow mapping
 
     // Calculate TBN matrix in world space

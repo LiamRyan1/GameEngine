@@ -155,6 +155,7 @@ bool EditorGizmo::update(GLFWwindow* window,
     // Reset hovered axis each frame
     hotAxis = Axis::None;
 
+    if (fbW == 0 || fbH == 0) return false;
     // not in editor mode or no selection exists,
     // stop any dragging and do nothing.
     if (!editorMode || !selectedObject)
@@ -377,7 +378,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, GameObject* selectedObject)
 {
     if (!selectedObject) return;
-
+    if (fbW == 0 || fbH == 0) return;
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
 
@@ -439,6 +440,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 {
     hotAxis = Axis::None;
 
+    if (fbW == 0 || fbH == 0) return false;
     // If no trigger selected or not in editor mode, stop interaction
     if (!editorMode || !selectedTrigger)
     {
@@ -600,7 +602,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, Trigger* selectedTrigger)
 {
     if (!selectedTrigger) return;
-
+    if (fbW == 0 || fbH == 0) return;
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
 
@@ -657,6 +659,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 {
     hotAxis = Axis::None;
 
+    if (fbW == 0 || fbH == 0) return false;
     // If no generator selected or not in editor mode, stop interaction
     if (!editorMode || !selectedForceGenerator)
     {
@@ -807,7 +810,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, ForceGenerator* selectedForceGenerator)
 {
     if (!selectedForceGenerator) return;
-
+    if (fbW == 0 || fbH == 0) return;
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
 
@@ -861,6 +864,8 @@ bool EditorGizmo::update(GLFWwindow* window,
     bool uiWantsMouse)
 {
     hotAxis = Axis::None;
+
+    if (fbW == 0 || fbH == 0) return false;
 
     if (!editorMode || !light)
     {
@@ -947,7 +952,7 @@ bool EditorGizmo::update(GLFWwindow* window,
 void EditorGizmo::draw(int fbW, int fbH, const Camera& camera, DirectionalLight* light)
 {
     if (!light) return;
-
+    if (fbW == 0 || fbH == 0) return;
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 proj = camera.getProjectionMatrix(static_cast<float>(fbW) / fbH);
 

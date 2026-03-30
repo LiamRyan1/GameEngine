@@ -12,7 +12,7 @@ uniform vec3 objectColor;
 uniform vec3 lightDir;      // Light direction
 uniform vec3 viewPos;       // Camera position
 uniform vec3 lightColor;    // Light color
-
+uniform vec3 uvTiling;
 // Point lights - max 16
 #define MAX_POINT_LIGHTS 16
 uniform int         numPointLights;
@@ -78,28 +78,49 @@ void main()
         FragColor = vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
-
-    // Get base color (either from texture or objectColor uniform)
-    vec3 baseColor;
-    if (useTexture) {
-        baseColor = texture(textureSampler, TexCoord).rgb;
-    } else {
-        baseColor = objectColor;
-    }
-    
-    // Normal — use normal map if available, otherwise interpolated vertex normal
+     // Calculate norm FIRST so triplanar can use it
     vec3 norm;
-    if (useNormalMap) {
-        // Sample normal map and convert from [0,1] to [-1,1]
-        vec3 sampledNormal = texture(normalMap, TexCoord).rgb;
-        sampledNormal = normalize(sampledNormal * 2.0 - 1.0);
-        sampledNormal.xy *= 2.0;  // increase intensity
+      if (useNormalMap) {
+        vec3 blendWeights = abs(normalize(Normal));
+        blendWeights = pow(blendWeights, vec3(4.0));
+        blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z);
+
+        float ts = uvTiling.x;
+        vec3 nXY = texture(normalMap, FragPos.xy * ts).rgb * 2.0 - 1.0;
+        vec3 nYZ = texture(normalMap, FragPos.zy * ts).rgb * 2.0 - 1.0;
+        vec3 nXZ = texture(normalMap, FragPos.xz * ts).rgb * 2.0 - 1.0;
+
+        vec3 sampledNormal = normalize(
+            nXY * blendWeights.z +
+            nYZ * blendWeights.x +
+            nXZ * blendWeights.y
+        );
+        sampledNormal.xy *= 2.0;
         sampledNormal = normalize(sampledNormal);
-        // Transform from tangent space to world space using TBN matrix
         norm = normalize(TBN * sampledNormal);
     } else {
         norm = normalize(Normal);
     }
+
+    // Now triplanar can use norm
+    vec3 baseColor;
+    if (useTexture) {
+       vec3 blendWeights = abs(norm);
+        blendWeights = pow(blendWeights, vec3(4.0));
+        blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z);
+
+        float scale = uvTiling.x;
+        vec3 colorXY = texture(textureSampler, FragPos.xy * uvTiling.x).rgb;
+        vec3 colorYZ = texture(textureSampler, FragPos.zy * uvTiling.x).rgb;
+        vec3 colorXZ = texture(textureSampler, FragPos.xz * uvTiling.x).rgb;
+
+        baseColor = colorXY * blendWeights.z + 
+                    colorYZ * blendWeights.x + 
+                    colorXZ * blendWeights.y;
+    } else {
+        baseColor = objectColor;
+    }
+    
 
     float ambientStrength = 0.3;
     vec3 ambient = ambientStrength * lightColor;

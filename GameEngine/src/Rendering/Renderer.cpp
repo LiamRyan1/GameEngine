@@ -174,6 +174,10 @@ void Renderer::drawGameObject(const GameObject& obj, int modelLoc, int colorLoc)
 		glUniform1i(useNormalLoc, 0);
 	}
 
+
+	int uvTilingLoc = glGetUniformLocation(mainShader, "uvTiling");
+	glUniform3f(uvTilingLoc, 1.0f, 1.0f, 1.0f);
+
 	mesh->draw();
 
 	if (texture) {

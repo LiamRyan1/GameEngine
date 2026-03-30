@@ -2,13 +2,13 @@
     "directionalLight": {
         "colour": [
             1.0,
-            1.0,
-            1.0
+            0.6000000238418579,
+            0.30000001192092896
         ],
         "direction": [
-            0.40978097915649414,
-            -0.7682316303253174,
-            0.4918331801891327
+            -0.5905595421791077,
+            -0.17140068113803864,
+            0.7885817885398865
         ],
         "intensity": 0.800000011920929
     },
@@ -16,7 +16,7 @@
     "objects": [
         {
             "id": 3,
-            "name": "",
+            "name": "Ground",
             "physics": {
                 "enabled": true,
                 "mass": 0.0,
@@ -56,51 +56,53 @@
         },
         {
             "id": 4,
-            "name": "",
+            "name": "Player",
             "physics": {
                 "enabled": true,
                 "mass": 1.0,
-                "material": "Metal",
+                "material": "Default",
                 "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    0.8999999761581421,
+                    0.8999999761581421,
+                    0.8999999761581421
                 ]
             },
             "render": {
                 "modelPath": "",
                 "normal": "",
                 "specular": "",
-                "texture": "textures/stone-1024.jpg"
+                "texture": ""
             },
             "shape": 0,
-            "tags": [],
+            "tags": [
+                "player"
+            ],
             "transform": {
                 "position": [
-                    -0.028120871633291245,
-                    0.49981310963630676,
-                    -0.0264638252556324
+                    -18.0,
+                    1.0,
+                    18.0
                 ],
                 "rotation": [
-                    -0.00022539272322319448,
-                    0.02458900585770607,
-                    -1.3397433576756157e-05,
-                    0.9996976256370544
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
                 ],
                 "scale": [
                     1.0,
-                    1.0,
+                    2.0,
                     1.0
                 ]
             }
         },
         {
             "id": 5,
-            "name": "",
+            "name": "Wall_Outer_North",
             "physics": {
                 "enabled": true,
-                "mass": 1.0,
-                "material": "Wood",
+                "mass": 0.0,
+                "material": "Custom",
                 "physicsScale": [
                     1.0,
                     1.0,
@@ -111,434 +113,36 @@
                 "modelPath": "",
                 "normal": "",
                 "specular": "",
-                "texture": "textures/wood1.jpg"
+                "texture": "textures\\stone-1024.jpg"
             },
             "shape": 0,
             "tags": [],
             "transform": {
                 "position": [
-                    4.007696628570557,
-                    0.49999985098838806,
-                    -6.052310943603516
+                    0.0,
+                    2.0,
+                    -21.0
                 ],
                 "rotation": [
-                    -2.129129539341079e-09,
-                    0.044386282563209534,
-                    2.4223953687396715e-07,
-                    0.9990144371986389
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
+                    42.0,
+                    4.0,
                     1.0
                 ]
             }
         },
         {
             "id": 6,
-            "name": "",
+            "name": "Wall_Outer_South",
             "physics": {
                 "enabled": true,
-                "mass": 1.0,
-                "material": "Rubber",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": ""
-            },
-            "shape": 0,
-            "tags": [],
-            "transform": {
-                "position": [
-                    -3.064558744430542,
-                    0.49999985098838806,
-                    -5.014377117156982
-                ],
-                "rotation": [
-                    3.999567965706774e-08,
-                    0.012501520104706287,
-                    2.235727265542664e-07,
-                    0.9999218583106995
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 7,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Ice",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures/texture_06.png"
-            },
-            "shape": 0,
-            "tags": [],
-            "transform": {
-                "position": [
-                    -6.0,
-                    0.4999999403953552,
-                    -10.0
-                ],
-                "rotation": [
-                    -8.55575077451931e-09,
-                    2.8288147581215055e-17,
-                    -1.7912403782460729e-09,
-                    1.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 8,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Plastic",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": ""
-            },
-            "shape": 0,
-            "tags": [],
-            "transform": {
-                "position": [
-                    4.986519813537598,
-                    0.49999985098838806,
-                    -6.934274196624756
-                ],
-                "rotation": [
-                    -3.062068287817965e-08,
-                    0.11041117459535599,
-                    -2.5046543328244297e-07,
-                    0.9938859939575195
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 9,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Rubber",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": ""
-            },
-            "shape": 1,
-            "tags": [],
-            "transform": {
-                "position": [
-                    4.168423652648926,
-                    0.9999998807907104,
-                    14.702003479003906
-                ],
-                "rotation": [
-                    -1.8889706552727148e-05,
-                    1.0613554479732557e-09,
-                    3.6904133594362065e-05,
-                    1.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 10,
-            "name": "",
-            "physics": {
-                "enabled": false,
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures/wood1.jpg"
-            },
-            "shape": 0,
-            "tags": [],
-            "transform": {
-                "position": [
-                    8.870028495788574,
-                    9.717609405517578,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 11,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Concrete",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures\\wood1.jpg"
-            },
-            "shape": 0,
-            "tags": [],
-            "transform": {
-                "position": [
-                    0.03534683585166931,
-                    1.4997272491455078,
-                    -0.22224818170070648
-                ],
-                "rotation": [
-                    -0.00021600902255158871,
-                    0.008152301423251629,
-                    8.680674909555819e-06,
-                    0.9999667406082153
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 12,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Concrete",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures\\wood1.jpg"
-            },
-            "shape": 1,
-            "tags": [],
-            "transform": {
-                "position": [
-                    33.09474182128906,
-                    0.9999133348464966,
-                    24.158838272094727
-                ],
-                "rotation": [
-                    -0.03787780925631523,
-                    -0.0108992550522089,
-                    -0.010824312455952168,
-                    0.9991642832756042
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 13,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Concrete",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures\\wood1.jpg"
-            },
-            "shape": 1,
-            "tags": [],
-            "transform": {
-                "position": [
-                    -5.375067710876465,
-                    0.9999998211860657,
-                    7.162384033203125
-                ],
-                "rotation": [
-                    0.7648313045501709,
-                    0.004700648598372936,
-                    0.5734462738037109,
-                    0.2935478389263153
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 14,
-            "name": "",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Concrete",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures\\wood1.jpg"
-            },
-            "shape": 1,
-            "tags": [],
-            "transform": {
-                "position": [
-                    15.166078567504883,
-                    0.9999988079071045,
-                    6.512338638305664
-                ],
-                "rotation": [
-                    0.23939520120620728,
-                    0.3868972361087799,
-                    -0.628409743309021,
-                    0.6309529542922974
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 15,
-            "name": "Cube_17",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Concrete",
-                "physicsScale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "render": {
-                "modelPath": "",
-                "normal": "",
-                "specular": "",
-                "texture": "textures\\PavingStones138_1K-JPG_Color.jpg"
-            },
-            "shape": 0,
-            "tags": [],
-            "transform": {
-                "position": [
-                    -0.38200798630714417,
-                    0.4999842047691345,
-                    1.8409960269927979
-                ],
-                "rotation": [
-                    0.9910581707954407,
-                    -9.056083399627823e-06,
-                    0.13343054056167603,
-                    6.76660647513927e-06
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "id": 16,
-            "name": "Cube_18",
-            "physics": {
-                "enabled": true,
-                "mass": 1.0,
-                "material": "Concrete",
+                "mass": 0.0,
+                "material": "Custom",
                 "physicsScale": [
                     1.0,
                     1.0,
@@ -555,28 +159,30 @@
             "tags": [],
             "transform": {
                 "position": [
-                    0.02742057666182518,
-                    2.4993350505828857,
-                    -0.5945120453834534
+                    0.0,
+                    1.9974348545074463,
+                    21.0
                 ],
                 "rotation": [
-                    -0.00046699674567207694,
-                    0.0074705397710204124,
-                    4.502880528889364e-06,
-                    0.9999719858169556
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
+                    42.0,
+                    4.0,
                     1.0
                 ]
             }
         },
         {
-            "id": 17,
-            "name": "",
+            "id": 7,
+            "name": "Wall_Outer_West",
             "physics": {
-                "enabled": false,
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
                 "physicsScale": [
                     1.0,
                     1.0,
@@ -584,18 +190,18 @@
                 ]
             },
             "render": {
-                "modelPath": "models\\spyro.obj",
+                "modelPath": "",
                 "normal": "",
                 "specular": "",
-                "texture": ""
+                "texture": "textures\\stone-1024.jpg"
             },
             "shape": 0,
             "tags": [],
             "transform": {
                 "position": [
-                    -5.041810035705566,
+                    -21.0,
                     2.0,
-                    2.565898895263672
+                    0.0
                 ],
                 "rotation": [
                     0.0,
@@ -605,45 +211,732 @@
                 ],
                 "scale": [
                     1.0,
+                    4.0,
+                    42.0
+                ]
+            }
+        },
+        {
+            "id": 8,
+            "name": "Wall_Outer_East",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
                     1.0,
                     1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "textures\\PavingStones138_1K-JPG_NormalGL.jpg",
+                "specular": "",
+                "texture": "textures\\PavingStones138_1K-JPG_Color.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    21.452016830444336,
+                    2.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    42.0
+                ]
+            }
+        },
+        {
+            "id": 9,
+            "name": "Wall_H1a",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -10.5,
+                    2.0,
+                    -15.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    21.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 10,
+            "name": "Wall_H1b",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    13.5,
+                    2.0,
+                    -15.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    15.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 11,
+            "name": "Wall_H2",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    0.0,
+                    2.0,
+                    -9.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    24.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 12,
+            "name": "Wall_H3a",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -13.5,
+                    2.0,
+                    -3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    15.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 13,
+            "name": "Wall_H3b",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    13.5,
+                    2.0,
+                    -3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    15.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 14,
+            "name": "Wall_H4",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -3.0,
+                    2.0,
+                    3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    18.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 15,
+            "name": "Wall_H6",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -3.0,
+                    2.0,
+                    15.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    24.0,
+                    4.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "id": 16,
+            "name": "Wall_V1a",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -11.550819396972656,
+                    2.0,
+                    -15.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    12.0
+                ]
+            }
+        },
+        {
+            "id": 17,
+            "name": "Wall_V1b",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -15.0,
+                    2.0,
+                    9.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    12.0
+                ]
+            }
+        },
+        {
+            "id": 18,
+            "name": "Wall_V2b",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -9.0,
+                    2.0,
+                    6.413694858551025
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    6.0
+                ]
+            }
+        },
+        {
+            "id": 19,
+            "name": "Wall_V3",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    -3.0,
+                    2.0,
+                    -3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    12.0
+                ]
+            }
+        },
+        {
+            "id": 20,
+            "name": "Wall_V4a",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    3.0,
+                    2.0,
+                    -18.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    6.0
+                ]
+            }
+        },
+        {
+            "id": 21,
+            "name": "Wall_V4b",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    3.0,
+                    2.0,
+                    3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    12.0
+                ]
+            }
+        },
+        {
+            "id": 22,
+            "name": "Wall_V5",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    9.0,
+                    2.0,
+                    -0.30475473403930664
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    6.0
+                ]
+            }
+        },
+        {
+            "id": 23,
+            "name": "Wall_V5b",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    9.0,
+                    2.0,
+                    15.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    12.0
+                ]
+            }
+        },
+        {
+            "id": 24,
+            "name": "Wall_V6",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Custom",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\stone-1024.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    15.0,
+                    2.0,
+                    3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    4.0,
+                    24.0
+                ]
+            }
+        },
+        {
+            "id": 25,
+            "name": "Goal",
+            "physics": {
+                "enabled": true,
+                "mass": 0.0,
+                "material": "Default",
+                "physicsScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "render": {
+                "modelPath": "",
+                "normal": "",
+                "specular": "",
+                "texture": "textures\\wood1.jpg"
+            },
+            "shape": 0,
+            "tags": [],
+            "transform": {
+                "position": [
+                    18.0,
+                    1.0,
+                    -18.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    2.0,
+                    2.0,
+                    2.0
                 ]
             }
         }
     ],
-    "pointLights": [
-        {
-            "colour": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "enabled": true,
-            "intensity": 1.0,
-            "name": "PointLight",
-            "position": [
-                14.325031280517578,
-                3.0,
-                -20.133129119873047
-            ],
-            "radius": 15.0
-        },
-        {
-            "colour": [
-                0.0,
-                1.0,
-                1.0
-            ],
-            "enabled": true,
-            "intensity": 1.0,
-            "name": "PointLight",
-            "position": [
-                -7.610528945922852,
-                3.0,
-                0.0
-            ],
-            "radius": 15.0
-        }
-    ],
+    "pointLights": [],
     "triggers": []
 }
