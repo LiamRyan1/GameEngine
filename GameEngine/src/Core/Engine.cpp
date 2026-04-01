@@ -30,6 +30,7 @@
 #include "../include/Physics/ForceGenerator.h"
 #include "../include/Gameplay/GameScene.h"
 #include "../include/Rendering/PointLightRegistry.h"
+#include "../include/Testing/TestUI.h"
 #include <filesystem>
 
 void simulate(double dt)
@@ -200,6 +201,9 @@ int Start(void)
     // Create Debug UI
     DebugUI debugUI;
 
+    // Create TestUI
+    TestUI testUI;
+
     // Create gizmo
     EditorGizmo gizmo;
 
@@ -302,6 +306,72 @@ int Start(void)
 
         }
 
+        if (!ImGui::GetIO().WantCaptureKeyboard &&
+            Input::GetKeyPressed(GLFW_KEY_T))
+        {
+            engineMode = EngineMode::Test;
+
+            // Clear selections to avoid editor interaction conflicts
+            selectedObjects.clear();
+            selectedTrigger = nullptr;
+            selectedForceGenerator = nullptr;
+            selectedPointLight = nullptr;
+
+            // SHOW MODE TEXT
+            modeDisplayText = "TEST MODE";
+            modeDisplayTimer = modeDisplayDuration;
+
+            // Keep cursor visible for test UI
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+            // Disable camera controller in test mode
+            Input::SetCameraController(nullptr);
+
+            std::cout << "Mode: TEST" << std::endl;
+
+            for (int i = 0; i < 750; i++)
+            {
+                GameObject* obj = scene.spawnObject(
+                    ShapeType::CUBE,
+                    glm::vec3(
+                        (i % 10) * 2.0f,
+                        10.0f + (i / 100) * 2.0f,
+                        (i / 10 % 10) * 2.0f
+                    ),
+                    glm::vec3(1.0f, 1.0f, 1.0f),
+                    1.0f,
+                    "Default",
+                    "",
+                    ""
+                );
+
+                if (obj && obj->hasPhysics())
+                {
+                    obj->getRigidBody()->activate(true);
+                }
+            }
+        }
+
+        if (engineMode == EngineMode::Test)
+        {
+            static float debugTimer = 0.0f;
+            debugTimer += Time::GetDeltaTime();
+
+            if (debugTimer >= 2.0f)
+            {
+                int activeCount = 0;
+
+                for (auto& obj : scene.getObjects())
+                {
+                    if (obj->hasPhysics() && obj->getRigidBody()->isActive())
+                        activeCount++;
+                }
+
+                std::cout << "Active bodies: " << activeCount << std::endl;
+
+                debugTimer = 0.0f;
+            }
+        }
         if (!ImGui::GetIO().WantCaptureKeyboard &&  Input::GetKeyPressed(GLFW_KEY_V))  // 'V' for Visualize
         {
             renderer.toggleDebugPhysics();
@@ -342,20 +412,21 @@ int Start(void)
         // --- Fixed timestep updates ---
         // ====================
         // Run physics updates in fixed 1/60s steps until caught up with real time
-        if (engineMode == EngineMode::Game)
+        if (engineMode == EngineMode::Game || engineMode == EngineMode::Test)
         {
             while (accumulator >= fixedDt)
             {
                 physics.update(fixedDt); // advance simulation by one fixed step
 				TriggerRegistry::getInstance().update(fixedDt); // Update triggers with fixed timestep
                 ForceGeneratorRegistry::getInstance().update(fixedDt);
+
                 accumulator -= fixedDt; // remove one step’s worth of time from the bucket
                 physicsSteps++; // count how many physics updates ran this second
             }
         }
-        else
+        else if (engineMode == EngineMode::Editor || engineMode == EngineMode::Test)
         {
-            // In editor mode, discard accumulator so physics doesn't "catch up"
+            // In editor and test mode, discard accumulator so physics doesn't "catch up"
             accumulator = 0.0;
         }
         scene.update(engineMode);
@@ -463,7 +534,7 @@ int Start(void)
 
         //Update camera controller
         // Only allow normal camera control if NOT in game mode
-        if (engineMode != EngineMode::Game && !uiWantsMouse)
+        if (engineMode == EngineMode::Editor && !uiWantsMouse)
         {
             cameraController.update(deltaTime);
         }
@@ -1082,8 +1153,15 @@ int Start(void)
             scene.applyTriggerScriptsToExistingTriggers();
             };
 
-        // Draw Debug UI (logic only)
-        debugUI.draw(uiContext);
+        // Draw Debug UI (logic only) and TestUI
+        if (engineMode == EngineMode::Editor)
+        {
+            debugUI.draw(uiContext);
+        }
+        else if (engineMode == EngineMode::Test)
+        {
+            testUI.draw();
+        }
 
         // Draw SceneSavePanel
         DrawSceneSaveLoadPanel(scene, engineMode, renderer.getLight());

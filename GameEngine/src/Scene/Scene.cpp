@@ -345,7 +345,7 @@ void Scene::setObjectScale(GameObject* obj, const glm::vec3& newScale) {
  */
 void Scene::update(EngineMode mode) {
     // Only sync transforms from physics in GAME mode
-    if (mode == EngineMode::Game)
+    if (mode == EngineMode::Game || mode == EngineMode::Test)
     {
         // --- 1. Update gameplay scripts ---
         float dt = Time::GetDeltaTime();

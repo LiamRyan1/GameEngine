@@ -6,7 +6,8 @@
 enum class EngineMode
 {
     Editor,
-    Game
+    Game,
+    Test
 }; 
 
 // Starts up the engine and runs the main loop.

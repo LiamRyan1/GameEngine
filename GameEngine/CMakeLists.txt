@@ -76,6 +76,9 @@ target_sources(GameEngine PRIVATE
     src/UI/ForceGeneratorPanel.cpp
     src/UI/PointLightPanel.cpp
 
+    # Testing
+    src/Testing/TestUI.cpp
+
     # External
     src/External/stb_image.cpp
     external/tinyobjloader/tiny_obj_loader.cc
