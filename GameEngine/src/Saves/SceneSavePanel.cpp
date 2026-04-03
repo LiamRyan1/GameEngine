@@ -13,7 +13,7 @@
 /*Scenes are stored as JSON files in:
 ../../assets/scenes/ */
 
-void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode, DirectionalLight& light)
+void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode, DirectionalLight& light, std::function<void()> onClearSelections)
 {
     // Buffer used when typing a name to SAVE a new scene
     static char sceneName[128] = "scene_test";
@@ -100,7 +100,9 @@ void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode, DirectionalLigh
     if (ImGui::Button("New Scene"))
     {
         scene.clear();
-
+        if (onClearSelections) {
+            onClearSelections();
+        }
         // Default ground plane
         scene.spawnObject(
             ShapeType::CUBE,

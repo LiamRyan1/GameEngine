@@ -4,4 +4,4 @@
 
 class Scene;
 
-void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode, DirectionalLight& light);
+void DrawSceneSaveLoadPanel(Scene& scene, EngineMode engineMode, DirectionalLight& light, std::function<void()> onClearSelections = nullptr);

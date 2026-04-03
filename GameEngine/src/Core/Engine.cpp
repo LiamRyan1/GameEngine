@@ -1164,7 +1164,12 @@ int Start(void)
         }
 
         // Draw SceneSavePanel
-        DrawSceneSaveLoadPanel(scene, engineMode, renderer.getLight());
+        DrawSceneSaveLoadPanel(scene, engineMode, renderer.getLight(), [&](){
+            selectedObjects.clear();
+            selectedTrigger = nullptr;
+            selectedForceGenerator = nullptr;
+            selectedPointLight = nullptr;
+         });
 
         // Mode change fade timer
         if (modeDisplayTimer > 0.0f)

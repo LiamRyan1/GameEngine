@@ -188,6 +188,7 @@ public:
     // Multiple tags per object are supported (e.g. "enemy", "flying", "boss").
     // Scripts and Scene queries can filter by tag without touching names or IDs.
     void addTag(const std::string& tag){
+        if (tags.count(tag)) return;
         tags.insert(tag);
         // ADDED: notify Scene so registered tag->script mappings fire immediately
         if (onTagAddedCallback)
@@ -203,7 +204,12 @@ public:
             onTagRemovedCallback(this, tag);
     }
     bool hasTag(const std::string& tag) const { return tags.count(tag) > 0; }
-    void clearTags() { tags.clear(); }
+    void clearTags() {
+        std::vector<std::string> copy(tags.begin(), tags.end());
+        for (const auto& tag : copy) {
+            removeTag(tag);
+        }
+    }
     const std::unordered_set<std::string>& getTags() const { return tags; }
    
     void setOnTagAddedCallback(std::function<void(GameObject*, const std::string&)> cb)

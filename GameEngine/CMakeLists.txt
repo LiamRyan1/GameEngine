@@ -75,7 +75,11 @@ target_sources(GameEngine PRIVATE
     src/UI/TriggerEditorPanel.cpp 
     src/UI/ForceGeneratorPanel.cpp
     src/UI/PointLightPanel.cpp
-
+    src/UI/ConstraintCreatorPanel.cpp
+    src/UI/InspectorPanel.cpp
+    src/UI/LightingPanel.cpp
+    src/UI/ModelImporterPanel.cpp
+    src/UI/SpawnPanel.cpp
     # Testing
     src/Testing/TestUI.cpp
 
